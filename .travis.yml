@@ -1,4 +1,12 @@
 language: python
+addons:
+  apt:
+    packages:
+    - elasticsearch
+    - redis-server
+    - redis-sentinel
+    - zookeeper
+    - influxdb
 matrix:
   include:
     - python: 3.5
