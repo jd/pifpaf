@@ -12,6 +12,7 @@
 # limitations under the License.
 
 import os
+import signal
 import subprocess
 
 import testtools
@@ -21,7 +22,7 @@ class TestCli(testtools.TestCase):
 
     def test_cli(self):
         self.assertEqual(0, os.system(
-            "pifpaf run memcached --port 11214 echo >/dev/null 2>&1"))
+            "pifpaf run memcached --port 11216 echo >/dev/null 2>&1"))
 
     def test_eval(self):
         c = subprocess.Popen(["pifpaf", "run", "memcached", "--port", "11215"],
@@ -38,3 +39,4 @@ class TestCli(testtools.TestCase):
                          env["PIFPAF_MEMCACHED_URL"])
         self.assertIn("PIFPAF_PID", env)
         self.assertEqual(0, c.wait())
+        os.kill(int(env["PIFPAF_PID"]), signal.SIGTERM)
