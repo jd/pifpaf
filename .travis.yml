@@ -1,0 +1,15 @@
+language: python
+matrix:
+  include:
+    - python: 3.5
+      env: TOXENV=py35
+env:
+  - TOXENV=py27
+  - TOXENV=py34
+  - TOXENV=pypy
+  - TOXENV=pep8
+install: pip install tox
+script: tox
+notifications:
+  email:
+    - julien@danjou.info
