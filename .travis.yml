@@ -1,13 +1,7 @@
 language: python
-addons:
-  apt:
-    packages:
-    - elasticsearch
-    - redis-server
-    - redis-sentinel
-    - zookeeper
-    - influxdb
-    - etcd
+before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get install -y elasticsearch redis-server redis-sentinel zookeeper influxdb etcd
 matrix:
   include:
     - python: 3.5
