@@ -7,6 +7,7 @@ addons:
     - redis-sentinel
     - zookeeper
     - influxdb
+    - etcd
 matrix:
   include:
     - python: 3.5
