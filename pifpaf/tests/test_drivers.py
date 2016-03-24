@@ -29,6 +29,16 @@ from pifpaf.drivers import redis
 from pifpaf.drivers import zookeeper
 
 
+# FIXME(jd) These are path grabbed from the various modules imported above, do
+# that in a better way
+os.putenv("PATH",
+          ":".join((
+              os.getenv("PATH", ""),
+              "/opt/influxdb",
+              "/usr/share/elasticsearch/bin",
+          )))
+
+
 class TestDrivers(testtools.TestCase):
     def _run(self, cmd):
         self.assertEqual(0, os.system(cmd + " >/dev/null 2>&1"))
