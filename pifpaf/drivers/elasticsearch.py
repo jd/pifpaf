@@ -38,8 +38,10 @@ class ElasticsearchDriver(drivers.Driver):
             "elasticsearch",
             "-Des.http.port=" + str(self.port),
             "-Des.path.logs=%s" % os.path.join(self.tempdir, "log"),
-            "-Des.path.data=" + self.tempdir],
-            wait_for_line=b" started")
+            "-Des.path.data=" + self.tempdir
+        ],
+                          path=["/usr/share/elasticsearch/bin/elasticsearch"],
+                          wait_for_line=b" started")
 
         self.addCleanup(self._kill, c.pid)
 
