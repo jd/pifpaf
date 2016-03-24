@@ -69,10 +69,10 @@ def create_RunDaemon(daemon):
             else:
                 try:
                     driver.setUp()
-                except:
+                except Exception:
                     try:
                         driver.cleanUp()
-                    except:
+                    except Exception:
                         pass
                     print("Unable to start %s, "
                           "use --debug for more information"
@@ -85,9 +85,11 @@ def create_RunDaemon(daemon):
                     os.dup2(devnull, 0)
                     os.dup2(devnull, 1)
                     os.dup2(devnull, 2)
+
                     def _cleanup(signum, frame):
                         driver.cleanUp()
                         sys.exit(0)
+
                     signal.signal(signal.SIGTERM, _cleanup)
                     signal.signal(signal.SIGHUP, _cleanup)
                     signal.signal(signal.SIGINT, _cleanup)
@@ -95,7 +97,7 @@ def create_RunDaemon(daemon):
                     signal.pause()
                 else:
                     print("PIFPAF_PID=%d" % pid)
-                    print("PIFPAF_DAEMON=%s" %daemon)
+                    print("PIFPAF_DAEMON=%s" % daemon)
                     print("PIFPAF_URL=%s" % os.getenv("PIFPAF_URL"))
                     print("PIFPAF_%s_URL=%s" % (daemon.upper(),
                                                 os.getenv("PIFPAF_URL")))
