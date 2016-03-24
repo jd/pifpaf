@@ -31,12 +31,11 @@ from pifpaf.drivers import zookeeper
 
 # FIXME(jd) These are path grabbed from the various modules imported above, do
 # that in a better way
-os.putenv("PATH",
-          ":".join((
-              os.getenv("PATH", ""),
-              "/opt/influxdb",
-              "/usr/share/elasticsearch/bin",
-          )))
+os.environ["PATH"] = ":".join((
+    os.getenv("PATH", ""),
+    "/opt/influxdb",
+    "/usr/share/elasticsearch/bin",
+))
 
 
 class TestDrivers(testtools.TestCase):
