@@ -96,11 +96,11 @@ def create_RunDaemon(daemon):
                     signal.signal(signal.SIGPIPE, signal.SIG_IGN)
                     signal.pause()
                 else:
-                    print("PIFPAF_PID=%d" % pid)
-                    print("PIFPAF_DAEMON=%s" % daemon)
-                    print("PIFPAF_URL=%s" % os.getenv("PIFPAF_URL"))
-                    print("PIFPAF_%s_URL=%s" % (daemon.upper(),
-                                                os.getenv("PIFPAF_URL")))
+                    print("export PIFPAF_PID=%d;" % pid)
+                    print("export PIFPAF_DAEMON=\"%s\";" % daemon)
+                    print("export PIFPAF_URL=\"%s\";" % os.getenv("PIFPAF_URL"))
+                    print("export PIFPAF_%s_URL=\"%s\";" % (daemon.upper(),
+                                                        os.getenv("PIFPAF_URL")))
 
     RunDaemon.__doc__ = "run %s" % daemon
     return RunDaemon
