@@ -41,9 +41,9 @@ Pifpaf currently supports:
 
 Usage
 =====
-To use Pifpaf, simply call the `pifpaf run $daemon` program that you need.
-It will setup the temporary environment and export a few environment variable
-for you to accesss it::
+To use Pifpaf, simply call the `pifpaf run $daemon <command>` program that you
+need. It will setup the temporary environment and export a few environment
+variable for you to accesss it::
 
   $ pifpaf run postgresql psql template1
   Expanded display is used automatically.
@@ -66,12 +66,26 @@ for you to accesss it::
   template1=# \q
   $
 
+You can also run it with no command line provided::
+
+  $ eval `pifpaf run memcached`
+  $ env | grep PIFPAF
+  PIFPAF_PID=13387
+  PIFPAF_DAEMON=memcached
+  PIFPAF_URL=memcached://localhost:11212
+  PIFPAF_MEMCACHED_URL=memcached://localhost:11212
+  $ kill $PIFPAF_PID
+
+Killing the daemon whose PID is contained in `$PIFPAF_PID` will stop the
+launched daemon and clean the test environment.
+
 Environment variables
 =====================
 Pifpaf exports a few environment variable:
 
 * `PIFPAF_DAEMON` which contains the name of the daemon launched
 * `PIFPAF_URL` which contains the URL to the daemon
+* `PIFPAF_PID` the PID of the pifpaf daemon
 * `PIFPAF_$daemon_*` variables, which contains daemon specific variables,
   such as port, database name, URL, etc.
 
