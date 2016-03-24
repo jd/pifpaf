@@ -34,7 +34,7 @@ class TestCli(testtools.TestCase):
             env[k] = v
         os.kill(int(env[b"export PIFPAF_PID"].strip()[:-1]), signal.SIGTERM)
 
-        self.assertEqual("\"memcached://localhost:11215\";\n",
+        self.assertEqual(b"\"memcached://localhost:11215\";\n",
                          env[b"export PIFPAF_URL"])
-        self.assertEqual("\"memcached://localhost:11215\";\n",
+        self.assertEqual(b"\"memcached://localhost:11215\";\n",
                          env[b"export PIFPAF_MEMCACHED_URL"])
