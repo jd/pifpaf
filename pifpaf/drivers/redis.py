@@ -48,7 +48,8 @@ class RedisDriver(drivers.Driver):
         super(RedisDriver, self)._setUp()
         c, _ = self._exec(
             ["redis-server", "-"],
-            stdin=b"dir %s\nport %d\n" % (self.tempdir, self.port),
+            stdin=("dir %s\nport %d\n"
+                   % (self.tempdir, self.port)).encode('ascii'),
             wait_for_line=b"The server is now ready to "
             b"accept connections on port")
 

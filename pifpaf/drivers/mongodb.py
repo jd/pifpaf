@@ -44,7 +44,8 @@ class MongoDBDriver(drivers.Driver):
              "--dbpath", self.tempdir,
              "--bind_ip", "localhost",
              "--config", "/dev/null"],
-            wait_for_line=b"waiting for connections on port %d" % self.port)
+            wait_for_line=("waiting for connections on port %d"
+                           % self.port).encode('ascii'))
 
         self.addCleanup(self._kill, c.pid)
 
