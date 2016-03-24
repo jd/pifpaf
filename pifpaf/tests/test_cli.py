@@ -27,16 +27,14 @@ class TestCli(testtools.TestCase):
     def test_eval(self):
         c = subprocess.Popen(["pifpaf", "run", "memcached", "--port", "11215"],
                              stdout=subprocess.PIPE)
-
+        self.assertEqual(0, c.wait())
         env = {}
         for line in c.stdout.readlines():
             k, _, v = line.partition("=")
             env[k] = v
+        os.kill(int(env["export PIFPAF_PID"].strip()[:-1]), signal.SIGTERM)
 
-        self.assertEqual("memcached://localhost:11215\n",
-                         env["PIFPAF_URL"])
-        self.assertEqual("memcached://localhost:11215\n",
-                         env["PIFPAF_MEMCACHED_URL"])
-        self.assertIn("PIFPAF_PID", env)
-        self.assertEqual(0, c.wait())
-        os.kill(int(env["PIFPAF_PID"]), signal.SIGTERM)
+        self.assertEqual("\"memcached://localhost:11215\";\n",
+                         env["export PIFPAF_URL"])
+        self.assertEqual("\"memcached://localhost:11215\";\n",
+                         env["export PIFPAF_MEMCACHED_URL"])
