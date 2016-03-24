@@ -32,9 +32,9 @@ class TestCli(testtools.TestCase):
         for line in c.stdout.readlines():
             k, _, v = line.partition(b"=")
             env[k] = v
-        os.kill(int(env["export PIFPAF_PID"].strip()[:-1]), signal.SIGTERM)
+        os.kill(int(env[b"export PIFPAF_PID"].strip()[:-1]), signal.SIGTERM)
 
         self.assertEqual("\"memcached://localhost:11215\";\n",
-                         env["export PIFPAF_URL"])
+                         env[b"export PIFPAF_URL"])
         self.assertEqual("\"memcached://localhost:11215\";\n",
-                         env["export PIFPAF_MEMCACHED_URL"])
+                         env[b"export PIFPAF_MEMCACHED_URL"])
