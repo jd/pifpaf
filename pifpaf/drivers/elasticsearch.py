@@ -40,7 +40,7 @@ class ElasticsearchDriver(drivers.Driver):
             "-Des.path.logs=%s" % os.path.join(self.tempdir, "log"),
             "-Des.path.data=" + self.tempdir
         ],
-                          path=["/usr/share/elasticsearch/bin/elasticsearch"],
+                          path=["/usr/share/elasticsearch/bin"],
                           wait_for_line=b" started")
 
         self.addCleanup(self._kill, c.pid)
