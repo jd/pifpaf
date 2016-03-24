@@ -1,6 +1,4 @@
 language: python
-before_script:
-  - "elasticsearch --version"
 addons:
   apt:
     packages:
