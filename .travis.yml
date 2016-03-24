@@ -15,7 +15,6 @@ matrix:
 env:
   - TOXENV=py27
   - TOXENV=py34
-  - TOXENV=pypy
   - TOXENV=pep8
 install: pip install tox
 script: tox
