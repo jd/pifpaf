@@ -30,7 +30,7 @@ class TestCli(testtools.TestCase):
         self.assertEqual(0, c.wait())
         env = {}
         for line in c.stdout.readlines():
-            k, _, v = line.partition("=")
+            k, _, v = line.partition(b"=")
             env[k] = v
         os.kill(int(env["export PIFPAF_PID"].strip()[:-1]), signal.SIGTERM)
 
