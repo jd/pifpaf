@@ -2,7 +2,8 @@ language: python
 addons:
   apt:
     packages:
-    - elasticsearch
+    # FIXME(jd) Does not work on Travis?
+    # - elasticsearch
     - redis-server
     - redis-sentinel
     - zookeeper
