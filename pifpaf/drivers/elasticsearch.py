@@ -34,14 +34,15 @@ class ElasticsearchDriver(drivers.Driver):
     def _setUp(self):
         super(ElasticsearchDriver, self)._setUp()
 
-        c, _ = self._exec([
-            "elasticsearch",
-            "-Des.http.port=" + str(self.port),
-            "-Des.path.logs=%s" % os.path.join(self.tempdir, "log"),
-            "-Des.path.data=" + self.tempdir
-        ],
-                          path=["/usr/share/elasticsearch/bin"],
-                          wait_for_line=b" started")
+        c, _ = self._exec(
+            [
+                "elasticsearch",
+                "-Des.http.port=" + str(self.port),
+                "-Des.path.logs=%s" % os.path.join(self.tempdir, "log"),
+                "-Des.path.data=" + self.tempdir
+            ],
+            path=["/usr/share/elasticsearch/bin"],
+            wait_for_line=b" started")
 
         self.addCleanup(self._kill, c.pid)
 
