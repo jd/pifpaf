@@ -4,8 +4,7 @@ before_script:
 addons:
   apt:
     packages:
-    # FIXME(jd) Does not work on Travis?
-    # - elasticsearch
+    - elasticsearch
     - redis-server
     - redis-sentinel
     - zookeeper
