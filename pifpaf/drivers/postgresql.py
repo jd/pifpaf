@@ -46,6 +46,6 @@ class PostgreSQLDriver(drivers.Driver):
                     "-k %s -p %d" % (self.tempdir, self.port),
                     "start"])
         self.addCleanup(self._exec, [self.pgctl, "-w", "stop"])
-        self.putenv("PIFPAF_URL",
-                    "postgresql://localhost/template1?host=%s&port=%d"
-                    % (self.tempdir, self.port))
+        self.url = "postgresql://localhost/template1?host=%s&port=%d" % (
+            self.tempdir, self.port)
+        self.putenv("PIFPAF_URL", self.url)

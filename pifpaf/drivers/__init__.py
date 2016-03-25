@@ -44,6 +44,16 @@ class Driver(fixtures.Fixture):
         self._kill(pid)
 
     @staticmethod
+    def find_config_file(filename):
+        for d in ("/usr/local/etc",
+                  "/etc",
+                  os.getenv("VIRTUAL_ENV", "") + "/etc"):
+            fullpath = os.path.join(d, filename)
+            if os.path.exists(fullpath):
+                return fullpath
+        raise RuntimeError("Configuration file `%s' not found" % filename)
+
+    @staticmethod
     def _read_in_bg(fd):
         while True:
             if not fd.read():

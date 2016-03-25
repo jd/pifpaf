@@ -20,6 +20,7 @@ import testtools
 
 from pifpaf.drivers import elasticsearch
 from pifpaf.drivers import etcd
+from pifpaf.drivers import gnocchi
 from pifpaf.drivers import influxdb
 from pifpaf.drivers import memcached
 from pifpaf.drivers import mongodb
@@ -153,3 +154,13 @@ class TestDrivers(testtools.TestCase):
         s.send("ruok\n")
         reply = s.recv(1024)
         self.assertEqual("imok", reply)
+
+    @testtools.skipUnless(spawn.find_executable("gnocchi-api"),
+                          "Gnocchi not found")
+    def test_gnocchi(self):
+        port = gnocchi.GnocchiDriver.DEFAULT_PORT
+        self.useFixture(gnocchi.GnocchiDriver())
+        self.assertEqual("gnocchi://localhost:%d" % port,
+                         os.getenv("PIFPAF_URL"))
+        r = requests.get("http://localhost:%d/" % port)
+        self.assertEqual(200, r.status_code)
