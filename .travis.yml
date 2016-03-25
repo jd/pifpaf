@@ -16,7 +16,7 @@ env:
   - TOXENV=py27
   - TOXENV=py34
   - TOXENV=pep8
-install: pip install tox
+install: pip install tox gnocchi
 script: tox
 notifications:
   email:
