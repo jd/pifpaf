@@ -62,7 +62,7 @@ def create_RunDaemon(daemon):
                     os.putenv("PIFPAF_DAEMON", daemon)
                     os.putenv("PIFPAF_%s_URL" % daemon.upper(),
                               os.getenv("PIFPAF_URL"))
-                    c = subprocess.Popen(command, shell=True)
+                    c = subprocess.Popen(command)
                     c.wait()
                 finally:
                     driver.cleanUp()
