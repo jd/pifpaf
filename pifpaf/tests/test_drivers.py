@@ -171,7 +171,6 @@ class TestDrivers(testtools.TestCase):
     @testtools.skipUnless(spawn.find_executable("aodh-api"),
                           "Aodh not found")
     def test_aodh(self):
-        port = aodh.AodhDriver.DEFAULT_PORT
         a = self.useFixture(aodh.AodhDriver())
         self.assertEqual("aodh://localhost:%d" % a.port,
                          os.getenv("PIFPAF_URL"))
