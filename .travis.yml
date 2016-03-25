@@ -21,6 +21,6 @@ env:
     - TOXENV=pep8
 install: pip install tox
 script: tox -v
-notifications:
-  email:
-    - julien@danjou.info
+# notifications:
+#  email:
+#    - julien@danjou.info
