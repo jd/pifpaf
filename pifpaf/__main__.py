@@ -133,7 +133,7 @@ class PifpafApp(app.App):
 
 
 def main():
-    PifpafApp().run(sys.argv[1:])
+    return PifpafApp().run(sys.argv[1:])
 
 
 if __name__ == '__main__':
