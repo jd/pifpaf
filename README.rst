@@ -28,6 +28,7 @@ Pifpaf currently supports:
 * `Elasticsearch`_
 * `ZooKeeper`_
 * `Gnocchi`_
+* `Aodh`_
 
 .. _PostgreSQL: http://postgresql.org
 .. _MySQL: http://mysql.org
@@ -38,6 +39,7 @@ Pifpaf currently supports:
 .. _Elasticsearch: https://www.elastic.co/
 .. _ZooKeeper: https://zookeeper.apache.org/
 .. _Gnocchi: http://gnocchi.xyz
+.. _Aodh: http://launchpad.net/aodh
 
 Usage
 =====

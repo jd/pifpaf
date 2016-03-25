@@ -21,7 +21,7 @@ from pifpaf.drivers import postgresql
 class GnocchiDriver(drivers.Driver):
 
     DEFAULT_PORT = 8041
-    DEFAULT_PORT_INDEXER = 8042
+    DEFAULT_PORT_INDEXER = 9541
 
     def __init__(self, port=DEFAULT_PORT, indexer_port=DEFAULT_PORT_INDEXER):
         super(GnocchiDriver, self).__init__()
@@ -71,7 +71,8 @@ url = %s""" % (self.tempdir, pg.url))
                           wait_for_line=b"Running on http://0.0.0.0")
         self.addCleanup(self._kill, c.pid)
 
+        self.http_url = "http://localhost:%d" % self.port
+
         self.putenv("PIFPAF_GNOCCHI_PORT", str(self.port))
         self.putenv("PIFPAF_URL", "gnocchi://localhost:%d" % self.port)
-        self.putenv("PIFPAF_GNOCCHI_HTTP_URL",
-                    "http://localhost:%d" % self.port)
+        self.putenv("PIFPAF_GNOCCHI_HTTP_URL", self.http_url)

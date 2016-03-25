@@ -18,6 +18,7 @@ import socket
 import requests
 import testtools
 
+from pifpaf.drivers import aodh
 from pifpaf.drivers import elasticsearch
 from pifpaf.drivers import etcd
 from pifpaf.drivers import gnocchi
@@ -163,4 +164,16 @@ class TestDrivers(testtools.TestCase):
         self.assertEqual("gnocchi://localhost:%d" % port,
                          os.getenv("PIFPAF_URL"))
         r = requests.get("http://localhost:%d/" % port)
+        self.assertEqual(200, r.status_code)
+
+    @testtools.skipUnless(spawn.find_executable("gnocchi-api"),
+                          "Gnocchi not found")
+    @testtools.skipUnless(spawn.find_executable("aodh-api"),
+                          "Aodh not found")
+    def test_aodh(self):
+        port = aodh.AodhDriver.DEFAULT_PORT
+        a = self.useFixture(aodh.AodhDriver())
+        self.assertEqual("aodh://localhost:%d" % a.port,
+                         os.getenv("PIFPAF_URL"))
+        r = requests.get(os.getenv("PIFPAF_AODH_HTTP_URL"))
         self.assertEqual(200, r.status_code)
