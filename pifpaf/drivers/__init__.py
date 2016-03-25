@@ -47,6 +47,7 @@ class Driver(fixtures.Fixture):
     def find_config_file(filename):
         for d in ("/usr/local/etc",
                   "/etc",
+                  os.path.expanduser("~/.local/etc"),
                   os.getenv("VIRTUAL_ENV", "") + "/etc"):
             fullpath = os.path.join(d, filename)
             if os.path.exists(fullpath):
