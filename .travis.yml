@@ -13,6 +13,7 @@ matrix:
     - python: 3.5
       env: TOXENV=py35
 env:
+  - TRAVIS=1
   - TOXENV=py27
   - TOXENV=py34
   - TOXENV=pep8
