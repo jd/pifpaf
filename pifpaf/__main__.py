@@ -63,7 +63,7 @@ def create_RunDaemon(daemon):
                     os.putenv("PIFPAF_%s_URL" % daemon.upper(),
                               os.getenv("PIFPAF_URL"))
                     c = subprocess.Popen(command)
-                    c.wait()
+                    return c.wait()
                 finally:
                     driver.cleanUp()
             else:
@@ -102,6 +102,8 @@ def create_RunDaemon(daemon):
                     print("export PIFPAF_URL=\"%s\";" % url)
                     print("export PIFPAF_%s_URL=\"%s\";"
                           % (daemon.upper(), url))
+
+        run = take_action
 
     RunDaemon.__doc__ = "run %s" % daemon
     return RunDaemon
