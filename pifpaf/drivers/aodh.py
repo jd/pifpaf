@@ -82,12 +82,14 @@ class AodhDriver(drivers.Driver):
         with open(conffile, "w") as f:
             f.write("""[database]
 connection = %s
+[api]
+port = %d
 [service_credentials]
 auth_type = gnocchi-noauth
 user_id = e0f4a978-694f-4ad3-b93d-8959374ab091
 project_id = e0f4a978-694f-4ad3-b93d-8959374ab091
 roles = admin
-endpoint = %s""" % (pg.url, g.http_url))
+endpoint = %s""" % (pg.url, self.port, g.http_url))
 
         self._exec(["aodh-dbsync", "--config-file=%s" % conffile])
 

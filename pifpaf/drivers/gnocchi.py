@@ -58,8 +58,10 @@ class GnocchiDriver(drivers.Driver):
             f.write("""[storage]
 file_basepath = %s
 driver = file
+[api]
+port = %d
 [indexer]
-url = %s""" % (self.tempdir, pg.url))
+url = %s""" % (self.tempdir, self.port, pg.url))
 
         self._exec(["gnocchi-upgrade", "--config-file=%s" % conffile])
 
