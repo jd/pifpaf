@@ -29,6 +29,7 @@ Pifpaf currently supports:
 * `ZooKeeper`_
 * `Gnocchi`_
 * `Aodh`_
+* `Ceph`_
 
 .. _PostgreSQL: http://postgresql.org
 .. _MySQL: http://mysql.org
@@ -40,6 +41,7 @@ Pifpaf currently supports:
 .. _ZooKeeper: https://zookeeper.apache.org/
 .. _Gnocchi: http://gnocchi.xyz
 .. _Aodh: http://launchpad.net/aodh
+.. _Ceph: http://ceph.com
 
 Usage
 =====

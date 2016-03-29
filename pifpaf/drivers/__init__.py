@@ -128,3 +128,7 @@ class Driver(fixtures.Fixture):
             assert(ignore_failure or status == 0)
 
         return c, stdout_str
+
+    def _touch(self, fname):
+        open(fname, 'a').close()
+        os.utime(fname, None)
