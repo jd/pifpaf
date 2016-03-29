@@ -55,14 +55,18 @@ class Driver(fixtures.Fixture):
         raise RuntimeError("Configuration file `%s' not found" % filename)
 
     @staticmethod
-    def _read_in_bg(fd):
+    def _read_in_bg(app, fd):
         while True:
-            if not fd.read():
+            data = fd.readline()
+            if not data:
                 break
+            LOG.debug("%s output: %s", app, data.rstrip())
 
     def _exec(self, command, stdout=False, ignore_failure=False,
               stdin=None, wait_for_line=None, path=[]):
         LOG.debug("executing: %s" % command)
+
+        app = command[0]
 
         if stdout or wait_for_line:
             stdout_fd = subprocess.PIPE
@@ -92,7 +96,7 @@ class Driver(fixtures.Fixture):
             env=env)
 
         if stdin:
-            LOG.debug("writing to stdin: %s" % stdin)
+            LOG.debug("%s input: %s" % (app, stdin))
             c.stdin.write(stdin)
             c.stdin.close()
 
@@ -100,11 +104,9 @@ class Driver(fixtures.Fixture):
             lines = []
             while True:
                 line = c.stdout.readline()
+                LOG.debug("%s output: %s", app, line.rstrip())
                 if not line:
                     if wait_for_line:
-                        LOG.debug("----- stdout -----")
-                        LOG.debug(b"".join(lines))
-                        LOG.debug("----- end of stdout ------")
                         raise RuntimeError(
                             "Program did not print: `%s'"
                             % wait_for_line)
@@ -113,14 +115,11 @@ class Driver(fixtures.Fixture):
                 if wait_for_line and wait_for_line in line:
                     break
             # Continue to read
-            t = threading.Thread(target=self._read_in_bg, args=(c.stdout,))
+            t = threading.Thread(target=self._read_in_bg,
+                                 args=(app, c.stdout,))
             t.setDaemon(True)
             t.start()
             stdout_str = b"".join(lines)
-            LOG.debug("----- stdout -----")
-            LOG.debug(stdout_str)
-            full_stdout_or_not = " so far" if wait_for_line else ""
-            LOG.debug("----- end of stdout%s ------" % full_stdout_or_not)
         else:
             stdout_str = None
 
