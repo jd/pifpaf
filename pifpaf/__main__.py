@@ -56,24 +56,17 @@ def create_RunDaemon(daemon):
             command = parsed_args.__dict__.pop("command", None)
             driver = plugin(**parsed_args.__dict__)
             if command:
-                try:
-                    driver.setUp()
+                with driver:
                     os.putenv("PIFPAF_PID", str(os.getpid()))
                     os.putenv("PIFPAF_DAEMON", daemon)
                     os.putenv("PIFPAF_%s_URL" % daemon.upper(),
                               os.getenv("PIFPAF_URL"))
                     c = subprocess.Popen(command)
                     return c.wait()
-                finally:
-                    driver.cleanUp()
             else:
                 try:
                     driver.setUp()
                 except Exception:
-                    try:
-                        driver.cleanUp()
-                    except Exception:
-                        pass
                     print("Unable to start %s, "
                           "use --debug for more information"
                           % daemon)
