@@ -1,26 +1,22 @@
 language: python
+dist: trusty
+sudo: required
+cache: pip
+python:
+    - 2.7
+    - 3.4
+    - 3.5
 addons:
   apt:
     packages:
-    - elasticsearch
+    - mysql-server
     - redis-server
-    - redis-sentinel
     - zookeeper
     - influxdb
+    - mongodb
     - etcd
-matrix:
-  include:
-    - python: 3.5
-      env: TOXENV=py35
-env:
-  global:
-    - TRAVIS=1
-  matrix:
-    - TOXENV=py27
-    - TOXENV=py34
-    - TOXENV=pep8
-install: pip install tox
-script: tox -v
+install: pip install tox-travis
+script: travis_wait 20 tox -v
 # notifications:
 #  email:
 #    - julien@danjou.info

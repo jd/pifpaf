@@ -44,8 +44,6 @@ class TestDrivers(testtools.TestCase):
     def _run(self, cmd):
         self.assertEqual(0, os.system(cmd + " >/dev/null 2>&1"))
 
-    @testtools.skipIf("TRAVIS" in os.environ,
-                      "Travis CI has a weird ElasticSearch version")
     @testtools.skipUnless(spawn.find_executable("elasticsearch"),
                           "elasticsearch not found")
     def test_elasticsearch(self):
