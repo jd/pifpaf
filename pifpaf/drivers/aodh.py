@@ -13,6 +13,7 @@
 
 import os
 import shutil
+import uuid
 
 from pifpaf import drivers
 from pifpaf.drivers import gnocchi
@@ -79,6 +80,9 @@ class AodhDriver(drivers.Driver):
 
         conffile = os.path.join(self.tempdir, "aodh.conf")
 
+        user = str(uuid.uuid4())
+        project = str(uuid.uuid4())
+
         with open(conffile, "w") as f:
             f.write("""[database]
 connection = %s
@@ -86,10 +90,10 @@ connection = %s
 port = %d
 [service_credentials]
 auth_type = gnocchi-noauth
-user_id = e0f4a978-694f-4ad3-b93d-8959374ab091
-project_id = e0f4a978-694f-4ad3-b93d-8959374ab091
+user_id = %s
+project_id = %s
 roles = admin
-endpoint = %s""" % (pg.url, self.port, g.http_url))
+endpoint = %s""" % (pg.url, self.port, user, project, g.http_url))
 
         self._exec(["aodh-dbsync", "--config-file=%s" % conffile])
 
@@ -98,6 +102,8 @@ endpoint = %s""" % (pg.url, self.port, g.http_url))
         self.addCleanup(self._kill, c.pid)
 
         self.putenv("PIFPAF_AODH_PORT", str(self.port))
+        self.putenv("PIFPAF_AODH_GNOCCHI_USER_ID", user)
+        self.putenv("PIFPAF_AODH_GNOCCHI_PROJECT_ID", project)
         self.putenv("PIFPAF_URL", "aodh://localhost:%d" % self.port)
         self.putenv("PIFPAF_AODH_HTTP_URL",
                     "http://localhost:%d" % self.port)
