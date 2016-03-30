@@ -24,6 +24,10 @@ LOG = logging.getLogger(__name__)
 
 
 class Driver(fixtures.Fixture):
+    def __init__(self):
+        super(Driver, self).__init__()
+        self.env = {}
+
     def _setUp(self):
         self.tempdir = self.useFixture(fixtures.TempDir()).path
         self.putenv("PIFPAF_DATA", self.tempdir)
@@ -33,6 +37,7 @@ class Driver(fixtures.Fixture):
         return parser
 
     def putenv(self, key, value):
+        self.env[key] = value
         return self.useFixture(fixtures.EnvironmentVariable(key, value))
 
     def _kill(self, pid, signal=signal.SIGTERM):

@@ -96,12 +96,12 @@ def create_RunDaemon(daemon):
                     signal.signal(signal.SIGPIPE, signal.SIG_IGN)
                     signal.pause()
                 else:
-                    url = os.getenv("PIFPAF_URL")
+                    for k, v in six.iteritems(driver.env):
+                        print("export %s=\"%s\";" % (k, v))
                     print("export PIFPAF_PID=%d;" % pid)
                     print("export PIFPAF_DAEMON=\"%s\";" % daemon)
-                    print("export PIFPAF_URL=\"%s\";" % url)
                     print("export PIFPAF_%s_URL=\"%s\";"
-                          % (daemon.upper(), url))
+                          % (daemon.upper(), driver.env['PIFPAF_URL']))
 
         run = take_action
 
