@@ -11,6 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from distutils import spawn
 import os
 import signal
 import subprocess
@@ -20,10 +21,14 @@ import testtools
 
 class TestCli(testtools.TestCase):
 
+    @testtools.skipUnless(spawn.find_executable("memcached"),
+                          "memcached not found")
     def test_cli(self):
         self.assertEqual(0, os.system(
             "pifpaf run memcached --port 11216 echo >/dev/null 2>&1"))
 
+    @testtools.skipUnless(spawn.find_executable("memcached"),
+                          "memcached not found")
     def test_eval(self):
         c = subprocess.Popen(["pifpaf", "run", "memcached", "--port", "11215"],
                              stdout=subprocess.PIPE)
