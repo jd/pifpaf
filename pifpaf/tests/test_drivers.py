@@ -15,10 +15,12 @@ from distutils import spawn
 import os
 import socket
 
+import fixtures
 import requests
 import testtools
 
 from pifpaf.drivers import aodh
+from pifpaf.drivers import ceph
 from pifpaf.drivers import elasticsearch
 from pifpaf.drivers import etcd
 from pifpaf.drivers import gnocchi
@@ -44,8 +46,6 @@ class TestDrivers(testtools.TestCase):
     def _run(self, cmd):
         self.assertEqual(0, os.system(cmd + " >/dev/null 2>&1"))
 
-    @testtools.skipIf("TRAVIS" in os.environ,
-                      "Travis CI has a weird ElasticSearch version")
     @testtools.skipUnless(spawn.find_executable("elasticsearch"),
                           "elasticsearch not found")
     def test_elasticsearch(self):
@@ -176,3 +176,23 @@ class TestDrivers(testtools.TestCase):
                          os.getenv("PIFPAF_URL"))
         r = requests.get(os.getenv("PIFPAF_AODH_HTTP_URL"))
         self.assertEqual(200, r.status_code)
+
+    @testtools.skipUnless(spawn.find_executable("ceph-mon"),
+                          "Ceph Monitor not found")
+    @testtools.skipUnless(spawn.find_executable("ceph-osd"),
+                          "Ceph OSD not found")
+    @testtools.skipUnless(spawn.find_executable("ceph"),
+                          "Ceph client not found")
+    def test_ceph(self):
+        tempdir = self.useFixture(fixtures.TempDir()).path
+        driver = ceph.CephDriver()
+        try:
+            driver._ensure_xattr_support(tempdir)
+        except RuntimeError as e:
+            self.skipTest(str(e))
+
+        a = self.useFixture(driver)
+        self.assertEqual("ceph://localhost:%d" % a.port,
+                         os.getenv("PIFPAF_URL"))
+        self.assertIn("ceph.conf", os.getenv("CEPH_CONF"))
+        self.assertIn("ceph.conf", os.getenv("PIFPAF_CEPH_CONF"))
