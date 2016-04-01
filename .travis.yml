@@ -12,6 +12,7 @@ addons:
   apt:
     packages:
     - mysql-server
+    - rabbitmq-server
     - redis-server
     - zookeeper
     - influxdb

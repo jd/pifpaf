@@ -30,6 +30,7 @@ from pifpaf.drivers import memcached
 from pifpaf.drivers import mongodb
 from pifpaf.drivers import mysql
 from pifpaf.drivers import postgresql
+from pifpaf.drivers import rabbitmq
 from pifpaf.drivers import redis
 from pifpaf.drivers import zookeeper
 
@@ -203,3 +204,33 @@ class TestDrivers(testtools.TestCase):
                          os.getenv("PIFPAF_URL"))
         self.assertIn("ceph.conf", os.getenv("CEPH_CONF"))
         self.assertIn("ceph.conf", os.getenv("PIFPAF_CEPH_CONF"))
+
+    @testtools.skipUnless(spawn.find_executable("rabbitmq-server"),
+                          "RabbitMQ not found")
+    def test_rabbitmq(self):
+        a = self.useFixture(rabbitmq.RabbitMQDriver())
+        self.assertEqual("rabbit://%s:%s@localhost:%d//" % (a.username,
+                                                            a.password,
+                                                            a.port),
+                         os.getenv("PIFPAF_URL"))
+        self.assertEqual(a.nodename + "@localhost",
+                         os.getenv("PIFPAF_RABBITMQ_NODENAME"))
+        self.assertEqual(str(a.port), os.getenv("PIFPAF_RABBITMQ_PORT"))
+
+    @testtools.skipUnless(spawn.find_executable("rabbitmq-server"),
+                          "RabbitMQ not found")
+    def test_rabbitmq_cluster(self):
+        a = self.useFixture(rabbitmq.RabbitMQDriver(cluster=True, port=12345))
+        self.assertEqual(
+            "rabbit://%s:%s@localhost:%d,localhost:%d,localhost:%d//" % (
+                a.username, a.password, a.port, a.port + 1, a.port + 2),
+            os.getenv("PIFPAF_URL"))
+        self.assertEqual(a.nodename + "-1@localhost",
+                         os.getenv("PIFPAF_RABBITMQ_NODENAME"))
+        self.assertEqual(a.nodename + "-1@localhost",
+                         os.getenv("PIFPAF_RABBITMQ_NODENAME1"))
+        self.assertEqual(a.nodename + "-2@localhost",
+                         os.getenv("PIFPAF_RABBITMQ_NODENAME2"))
+        self.assertEqual(a.nodename + "-3@localhost",
+                         os.getenv("PIFPAF_RABBITMQ_NODENAME3"))
+        self.assertEqual(str(a.port), os.getenv("PIFPAF_RABBITMQ_PORT"))

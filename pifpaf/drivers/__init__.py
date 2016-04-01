@@ -63,9 +63,10 @@ class Driver(fixtures.Fixture):
             LOG.debug("%s output: %s", app, data.rstrip())
 
     def _exec(self, command, stdout=False, ignore_failure=False,
-              stdin=None, wait_for_line=None, path=[]):
+              stdin=None, wait_for_line=None, path=[], env=None):
         LOG.debug("executing: %s" % command)
 
+        complete_env = {}
         app = command[0]
 
         if stdout or wait_for_line:
@@ -80,12 +81,12 @@ class Driver(fixtures.Fixture):
             # TODO(jd) Need to close at some point
             stdin_fd = open(os.devnull, 'r')
 
+        if env:
+            complete_env.update(env)
         if path:
-            env = {
+            complete_env.update({
                 "PATH": ":".join(path) + ":" + os.getenv("PATH", ""),
-            }
-        else:
-            env = None
+            })
 
         c = subprocess.Popen(
             command,
@@ -93,7 +94,7 @@ class Driver(fixtures.Fixture):
             stdin=stdin_fd,
             stdout=stdout_fd,
             stderr=subprocess.STDOUT,
-            env=env)
+            env=complete_env or None)
 
         if stdin:
             LOG.debug("%s input: %s" % (app, stdin))
