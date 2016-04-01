@@ -12,6 +12,7 @@
 # limitations under the License.
 
 from distutils import spawn
+import logging
 import os
 import socket
 
@@ -43,6 +44,12 @@ os.environ["PATH"] = ":".join((
 
 
 class TestDrivers(testtools.TestCase):
+    def setUp(self):
+        super(TestDrivers, self).setUp()
+        if os.getenv('PIFPAF_DEBUG'):
+            logging.basicConfig(format="%(levelname)8s [%(name)s] %(message)s",
+                                level=logging.DEBUG)
+
     def _run(self, cmd):
         self.assertEqual(0, os.system(cmd + " >/dev/null 2>&1"))
 
