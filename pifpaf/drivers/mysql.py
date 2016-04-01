@@ -23,14 +23,16 @@ class MySQLDriver(drivers.Driver):
         self._exec(["mysqld",
                     "--initialize-insecure",
                     "--datadir=" + self.tempdir],
-                   ignore_failure=True)
+                   ignore_failure=True,
+                   path=["/usr/libexec"])
         self._exec(["mysqld",
                     "--datadir=" + self.tempdir,
                     "--pid-file=" + pidfile,
                     "--socket=" + self.socket,
                     "--skip-networking",
                     "--skip-grant-tables"],
-                   wait_for_line=b"mysqld: ready for connections.")
+                   wait_for_line=b"mysqld: ready for connections.",
+                   path=["/usr/libexec"])
         self.addCleanup(self._kill_pid_file, pidfile)
         self._exec(["mysql",
                     "--no-defaults",
