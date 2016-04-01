@@ -23,10 +23,12 @@ class GnocchiDriver(drivers.Driver):
     DEFAULT_PORT = 8041
     DEFAULT_PORT_INDEXER = 9541
 
-    def __init__(self, port=DEFAULT_PORT, indexer_port=DEFAULT_PORT_INDEXER):
+    def __init__(self, port=DEFAULT_PORT, indexer_port=DEFAULT_PORT_INDEXER,
+                 create_legacy_resource_types=False):
         super(GnocchiDriver, self).__init__()
         self.port = port
         self.indexer_port = indexer_port
+        self.create_legacy_resource_types = create_legacy_resource_types
 
     @classmethod
     def get_parser(cls, parser):
@@ -38,7 +40,10 @@ class GnocchiDriver(drivers.Driver):
                             type=int,
                             default=cls.DEFAULT_PORT_INDEXER,
                             help="port to use for Gnocchi indexer")
-
+        parser.add_argument("--create-legacy-resource-types",
+                            action='store_true',
+                            default=False,
+                            help="create legacy Ceilometer resource types")
         return parser
 
     def _setUp(self):
@@ -63,7 +68,10 @@ port = %d
 [indexer]
 url = %s""" % (self.tempdir, self.port, pg.url))
 
-        self._exec(["gnocchi-upgrade", "--config-file=%s" % conffile])
+        gnocchi_upgrade = ["gnocchi-upgrade", "--config-file=%s" % conffile]
+        if self.create_legacy_resource_types:
+            gnocchi_upgrade.append("--create-legacy-resource-types")
+        self._exec(gnocchi_upgrade)
 
         c, _ = self._exec(["gnocchi-metricd", "--config-file=%s" % conffile],
                           wait_for_line=b"Metricd reporting")
