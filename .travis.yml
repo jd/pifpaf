@@ -1,7 +1,9 @@
 language: python
 dist: trusty
 sudo: required
-cache: pip
+cache: 
+  - apt
+  - pip
 python:
     - 2.7
     - 3.4
@@ -20,8 +22,10 @@ before_install:
   - echo deb http://download.ceph.com/debian-hammer/ $(lsb_release -sc) main | sudo tee /etc/apt/sources.list.d/ceph.list
   - sudo apt-get update -yq
   - sudo apt-get install -yq ceph
-install: pip install tox-travis
-script: travis_wait 20 tox -v
+install:
+    # The install requirements in travis virtualenv that will be cached
+  - pip install tox-travis .[test]
+script: tox -v -- $PIFPAF_TESTS
 # notifications:
 #  email:
 #    - julien@danjou.info
