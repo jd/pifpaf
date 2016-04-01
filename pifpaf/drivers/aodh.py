@@ -86,8 +86,9 @@ class AodhDriver(drivers.Driver):
         g = self.useFixture(gnocchi.GnocchiDriver(
             port=self.gnocchi_port,
             indexer_port=self.gnocchi_indexer_port,
-            create_legacy_resource_types=
-            self.gnocchi_create_legacy_resource_types,
+            create_legacy_resource_types=(
+                self.gnocchi_create_legacy_resource_types
+            ),
         ))
 
         conffile = os.path.join(self.tempdir, "aodh.conf")
