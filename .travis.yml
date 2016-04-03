@@ -11,6 +11,7 @@ python:
 addons:
   apt:
     packages:
+    - mongodb-server
     - mysql-server
     - rabbitmq-server
     - redis-server
