@@ -266,3 +266,7 @@ class TestDrivers(testtools.TestCase):
         self.assertEqual(a.nodename + "-3@localhost",
                          os.getenv("PIFPAF_RABBITMQ_NODENAME3"))
         self.assertEqual(str(a.port), os.getenv("PIFPAF_RABBITMQ_PORT"))
+
+        a.kill_node(a.nodename + "-2@localhost")
+        a.stop_node(a.nodename + "-3@localhost")
+        a.start_node(a.nodename + "-3@localhost")
