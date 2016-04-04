@@ -30,6 +30,7 @@ Pifpaf currently supports:
 * `Gnocchi`_
 * `Aodh`_
 * `Ceph`_
+* `RabbitMQ`_
 
 .. _PostgreSQL: http://postgresql.org
 .. _MySQL: http://mysql.org
@@ -42,6 +43,7 @@ Pifpaf currently supports:
 .. _Gnocchi: http://gnocchi.xyz
 .. _Aodh: http://launchpad.net/aodh
 .. _Ceph: http://ceph.com
+.. _RabbitMQ: https://www.rabbitmq.com/
 
 Usage
 =====
