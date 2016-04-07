@@ -34,7 +34,8 @@ class RabbitMQDriver(drivers.Driver):
         self.username = username
         self.password = password
         self.cluster = cluster
-        self._path = ["/usr/lib/rabbitmq/bin/"]
+        self._path = ["/usr/lib/rabbitmq/bin/",
+                      "/usr/local/sbin"]
         self._process = {}
         self._ports = {}
         self._next_port = itertools.count(self.port)

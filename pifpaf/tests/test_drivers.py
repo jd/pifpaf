@@ -41,6 +41,7 @@ os.environ["PATH"] = ":".join((
     os.getenv("PATH", ""),
     "/opt/influxdb",
     "/usr/share/elasticsearch/bin",
+    "/usr/local/sbin",
 ))
 
 
