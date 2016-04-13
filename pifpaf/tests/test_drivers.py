@@ -175,14 +175,13 @@ class TestDrivers(testtools.TestCase):
         r = requests.get("http://localhost:%d/" % port)
         self.assertEqual(200, r.status_code)
 
-    @testtools.skip("No version of Gnocchi have that released yet")
     @testtools.skipUnless(spawn.find_executable("gnocchi-api"),
                           "Gnocchi not found")
     def test_gnocchi_legacy(self):
-        port = gnocchi.GnocchiDriver.DEFAULT_PORT
+        port = gnocchi.GnocchiDriver.DEFAULT_PORT + 10
         self.useFixture(gnocchi.GnocchiDriver(
             create_legacy_resource_types=True,
-            port=8141,
+            port=port,
             indexer_port=8143))
         self.assertEqual("gnocchi://localhost:%d" % port,
                          os.getenv("PIFPAF_URL"))
@@ -200,7 +199,6 @@ class TestDrivers(testtools.TestCase):
         r = requests.get(os.getenv("PIFPAF_AODH_HTTP_URL"))
         self.assertEqual(200, r.status_code)
 
-    @testtools.skip("No version of Gnocchi have that released yet")
     @testtools.skipUnless(spawn.find_executable("gnocchi-api"),
                           "Gnocchi not found")
     @testtools.skipUnless(spawn.find_executable("aodh-api"),
