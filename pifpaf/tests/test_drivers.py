@@ -126,7 +126,7 @@ class TestDrivers(testtools.TestCase):
         port = 9825
         f = self.useFixture(postgresql.PostgreSQLDriver(port=port))
         self.assertEqual(
-            "postgresql://localhost/template1?host=%s&port=%d"
+            "postgresql://localhost/postgres?host=%s&port=%d"
             % (f.tempdir, port),
             os.getenv("PIFPAF_URL"))
         self._run("psql template1 -c 'CREATE TABLE FOOBAR();'")

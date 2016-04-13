@@ -40,12 +40,12 @@ class PostgreSQLDriver(drivers.Driver):
         self.putenv("PGPORT", str(self.port))
         self.putenv("PGHOST", self.tempdir)
         self.putenv("PGDATA", self.tempdir)
-        self.putenv("PGDATABASE", "template1")
+        self.putenv("PGDATABASE", "postgres")
         self._exec([self.pgctl, "-o", "'-A trust'", "initdb"])
         self._exec([self.pgctl, "-w", "-o",
                     "-k %s -p %d" % (self.tempdir, self.port),
                     "start"])
         self.addCleanup(self._exec, [self.pgctl, "-w", "stop"])
-        self.url = "postgresql://localhost/template1?host=%s&port=%d" % (
+        self.url = "postgresql://localhost/postgres?host=%s&port=%d" % (
             self.tempdir, self.port)
         self.putenv("PIFPAF_URL", self.url)
