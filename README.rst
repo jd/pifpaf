@@ -31,6 +31,7 @@ Pifpaf currently supports:
 * `Aodh`_
 * `Ceph`_
 * `RabbitMQ`_
+* `FakeS3`_
 
 .. _PostgreSQL: http://postgresql.org
 .. _MySQL: http://mysql.org
@@ -44,6 +45,7 @@ Pifpaf currently supports:
 .. _Aodh: http://launchpad.net/aodh
 .. _Ceph: http://ceph.com
 .. _RabbitMQ: https://www.rabbitmq.com/
+.. _FakeS3: https://github.com/jubos/fake-s3
 
 Usage
 =====

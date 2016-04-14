@@ -24,6 +24,7 @@ from pifpaf.drivers import aodh
 from pifpaf.drivers import ceph
 from pifpaf.drivers import elasticsearch
 from pifpaf.drivers import etcd
+from pifpaf.drivers import fakes3
 from pifpaf.drivers import gnocchi
 from pifpaf.drivers import influxdb
 from pifpaf.drivers import memcached
@@ -97,6 +98,15 @@ class TestDrivers(testtools.TestCase):
         self.assertEqual("memcached://localhost:%d" % port,
                          os.getenv("PIFPAF_URL"))
         self.assertEqual(str(port), os.getenv("PIFPAF_MEMCACHED_PORT"))
+
+    @testtools.skipUnless(spawn.find_executable("fakes3"),
+                          "fakes3 not found")
+    def test_fakes3(self):
+        port = 8990
+        self.useFixture(fakes3.FakeS3Driver(port=port))
+        self.assertEqual("s3://localhost:%d" % port,
+                         os.getenv("PIFPAF_URL"))
+        self.assertEqual(str(port), os.getenv("PIFPAF_FAKES3_PORT"))
 
     @testtools.skipUnless(spawn.find_executable("mongod"),
                           "mongod not found")

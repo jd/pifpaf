@@ -24,6 +24,7 @@ before_install:
   - echo deb http://download.ceph.com/debian-hammer/ $(lsb_release -sc) main | sudo tee /etc/apt/sources.list.d/ceph.list
   - sudo apt-get update -yq
   - sudo apt-get install -yq ceph
+  - sudo gem install fakes3
 install:
     # The install requirements in travis virtualenv that will be cached
   - pip install tox-travis .[test]
