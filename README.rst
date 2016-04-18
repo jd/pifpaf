@@ -98,3 +98,16 @@ Pifpaf exports a few environment variable:
   such as port, database name, URL, etc.
 
 .. _integration testing: https://en.wikipedia.org/wiki/Integration_testing
+
+How it works under the wood
+===========================
+
+Pifpaf will start the asked daemon as current UNIX user, the data file of the
+daemon will be placed in a temporary directory. The system configured daemon
+is not touched at all.
+
+Pifpaf expected to find daemon binaries on your system (like
+mysql/mysqld/pg_config/pg_ctl/rabbitmq-server/...).
+
+When the python fixture is cleaned or pifpaf pid cleaned, the daemons
+are stopped and the temporary directory removed.
