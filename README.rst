@@ -97,7 +97,7 @@ Pifpaf exports a few environment variable:
 
 .. _integration testing: https://en.wikipedia.org/wiki/Integration_testing
 
-How it works under the wood
+How it works under the hood
 ===========================
 
 Pifpaf will start the asked daemon as current UNIX user, the data file of the
