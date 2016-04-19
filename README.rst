@@ -99,15 +99,15 @@ Pifpaf exports a few environment variable:
 
 .. _integration testing: https://en.wikipedia.org/wiki/Integration_testing
 
-How it works under the wood
+How it works under the hood
 ===========================
 
-Pifpaf will start the asked daemon as current UNIX user, the data file of the
-daemon will be placed in a temporary directory. The system configured daemon
-is not touched at all.
+Pifpaf will start the asked daemon using the current Posix user. The data file
+of the daemon will be placed in a temporary directory. The system-wide
+configured daemon that might exists is not touched at all.
 
-Pifpaf expected to find daemon binaries on your system (like
-mysql/mysqld/pg_config/pg_ctl/rabbitmq-server/...).
+Pifpaf expected to find daemon binaries on your system (like `mysql`, `mysqld`,
+`pg_config`, `pg_ctl`, `rabbitmq-server`, etc).
 
-When the python fixture is cleaned or pifpaf pid cleaned, the daemons
-are stopped and the temporary directory removed.
+When the Python fixture is cleaned or when Pifpaf is terminated, the daemon is
+stopped and the temporary directory removed.
