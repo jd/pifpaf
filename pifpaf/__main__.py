@@ -15,11 +15,13 @@ import os
 import signal
 import subprocess
 import sys
+import traceback
 
 from cliff import app
 from cliff import command
 from cliff import commandmanager
 from cliff import lister
+import fixtures
 import pbr.version
 import six
 from stevedore import extension
@@ -28,6 +30,27 @@ from stevedore import extension
 def _raise(m, ep, e):
     raise e
 
+
+def _format_multiple_exceptions(e):
+    valid_excs = []
+    excs = list(e.args)
+    while excs:
+        (etype, value, tb) = excs.pop(0)
+        if (etype == fixtures.MultipleExceptions):
+            excs.extend(value.args)
+        elif (etype == fixtures.SetupError):
+            continue
+        else:
+            valid_excs.append((etype, value, tb))
+
+    if len(valid_excs) == 1:
+        (etype, value, tb) = valid_excs[0]
+        traceback.print_exception(etype, value, tb)
+    else:
+        print("MultipleExceptions raised:")
+        for n, (etype, value, tb) in enumerate(valid_excs):
+            print("- exception %d:" % n)
+            traceback.print_exception(etype, value, tb)
 
 DAEMONS = extension.ExtensionManager("pifpaf.daemons",
                                      on_load_failure_callback=_raise)
@@ -56,13 +79,17 @@ def create_RunDaemon(daemon):
             command = parsed_args.__dict__.pop("command", None)
             driver = plugin(**parsed_args.__dict__)
             if command:
-                with driver:
-                    os.putenv("PIFPAF_PID", str(os.getpid()))
-                    os.putenv("PIFPAF_DAEMON", daemon)
-                    os.putenv("PIFPAF_%s_URL" % daemon.upper(),
-                              os.getenv("PIFPAF_URL"))
-                    c = subprocess.Popen(command)
-                    return c.wait()
+                try:
+                    with driver:
+                        os.putenv("PIFPAF_PID", str(os.getpid()))
+                        os.putenv("PIFPAF_DAEMON", daemon)
+                        os.putenv("PIFPAF_%s_URL" % daemon.upper(),
+                                  os.getenv("PIFPAF_URL"))
+                        c = subprocess.Popen(command)
+                        return c.wait()
+                except fixtures.MultipleExceptions as e:
+                    _format_multiple_exceptions(e)
+                    sys.exit(1)
             else:
                 try:
                     driver.setUp()

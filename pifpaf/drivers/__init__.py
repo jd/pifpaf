@@ -74,7 +74,9 @@ class Driver(fixtures.Fixture):
         complete_env = {}
         app = command[0]
 
-        if stdout or wait_for_line:
+        debug = LOG.getEffectiveLevel() >= logging.DEBUG
+
+        if stdout or wait_for_line or debug:
             stdout_fd = subprocess.PIPE
         else:
             # TODO(jd) Need to close at some point
@@ -120,14 +122,16 @@ class Driver(fixtures.Fixture):
                 lines.append(line)
                 if wait_for_line and wait_for_line in line:
                     break
+            stdout_str = b"".join(lines)
+        else:
+            stdout_str = None
+
+        if stdout or wait_for_line or debug:
             # Continue to read
             t = threading.Thread(target=self._read_in_bg,
                                  args=(app, c.stdout,))
             t.setDaemon(True)
             t.start()
-            stdout_str = b"".join(lines)
-        else:
-            stdout_str = None
 
         if not wait_for_line:
             status = c.wait()
