@@ -50,10 +50,15 @@ class Driver(fixtures.Fixture):
 
     @staticmethod
     def find_config_file(filename):
-        for d in ("/usr/local/etc",
-                  "/etc",
-                  os.path.expanduser("~/.local/etc"),
-                  os.getenv("VIRTUAL_ENV", "") + "/etc"):
+        # NOTE(sileht): order matter, we first check into virtualenv
+        # then global user installation, next system installation,
+        # and to finish local user installation
+        check_dirs = ["/usr/local/etc",
+                      "/etc",
+                      os.path.expanduser("~/.local/etc")]
+        if "VIRTUAL_ENV" in os.environ:
+            check_dirs.insert(0, os.getenv("VIRTUAL_ENV") + "/etc")
+        for d in check_dirs:
             fullpath = os.path.join(d, filename)
             if os.path.exists(fullpath):
                 return fullpath
@@ -74,7 +79,9 @@ class Driver(fixtures.Fixture):
         complete_env = {}
         app = command[0]
 
-        if stdout or wait_for_line:
+        debug = LOG.getEffectiveLevel() >= logging.DEBUG
+
+        if stdout or wait_for_line or debug:
             stdout_fd = subprocess.PIPE
         else:
             # TODO(jd) Need to close at some point
@@ -120,14 +127,16 @@ class Driver(fixtures.Fixture):
                 lines.append(line)
                 if wait_for_line and wait_for_line in line:
                     break
+            stdout_str = b"".join(lines)
+        else:
+            stdout_str = None
+
+        if stdout or wait_for_line or debug:
             # Continue to read
             t = threading.Thread(target=self._read_in_bg,
                                  args=(app, c.stdout,))
             t.setDaemon(True)
             t.start()
-            stdout_str = b"".join(lines)
-        else:
-            stdout_str = None
 
         if not wait_for_line:
             status = c.wait()
