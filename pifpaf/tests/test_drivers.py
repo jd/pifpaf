@@ -113,7 +113,7 @@ class TestDrivers(testtools.TestCase):
     def test_mongodb(self):
         port = 29002
         self.useFixture(mongodb.MongoDBDriver(port=port))
-        self.assertEqual("mongodb://localhost:%d" % port,
+        self.assertEqual("mongodb://localhost:%d/test" % port,
                          os.getenv("PIFPAF_URL"))
         self.assertEqual(str(port), os.getenv("PIFPAF_MONGODB_PORT"))
         self._run(

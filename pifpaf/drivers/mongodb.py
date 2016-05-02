@@ -50,4 +50,4 @@ class MongoDBDriver(drivers.Driver):
         self.addCleanup(self._kill, c.pid)
 
         self.putenv("PIFPAF_MONGODB_PORT", str(self.port))
-        self.putenv("PIFPAF_URL", "mongodb://localhost:%d" % self.port)
+        self.putenv("PIFPAF_URL", "mongodb://localhost:%d/test" % self.port)
