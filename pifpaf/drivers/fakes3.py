@@ -18,8 +18,9 @@ class FakeS3Driver(drivers.Driver):
 
     DEFAULT_PORT = 8989
 
-    def __init__(self, port=DEFAULT_PORT):
-        super(FakeS3Driver, self).__init__()
+    def __init__(self, port=DEFAULT_PORT,
+                 **kwargs):
+        super(FakeS3Driver, self).__init__(**kwargs)
         self.port = port
 
     @classmethod
@@ -41,5 +42,5 @@ class FakeS3Driver(drivers.Driver):
 
         self.addCleanup(self._kill, c.pid)
 
-        self.putenv("PIFPAF_FAKES3_PORT", str(self.port))
-        self.putenv("PIFPAF_URL", "s3://localhost:%d" % self.port)
+        self.putenv("FAKES3_PORT", str(self.port))
+        self.putenv("URL", "s3://localhost:%d" % self.port)

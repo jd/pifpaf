@@ -24,19 +24,22 @@ LOG = logging.getLogger(__name__)
 
 
 class Driver(fixtures.Fixture):
-    def __init__(self):
+    def __init__(self, env_prefix="PIFPAF"):
         super(Driver, self).__init__()
+        self.env_prefix = env_prefix
         self.env = {}
 
     def _setUp(self):
         self.tempdir = self.useFixture(fixtures.TempDir()).path
-        self.putenv("PIFPAF_DATA", self.tempdir)
+        self.putenv("DATA", self.tempdir)
 
     @staticmethod
     def get_parser(parser):
         return parser
 
-    def putenv(self, key, value):
+    def putenv(self, key, value, raw=False):
+        if not raw:
+            key = self.env_prefix + "_" + key
         self.env[key] = value
         return self.useFixture(fixtures.EnvironmentVariable(key, value))
 

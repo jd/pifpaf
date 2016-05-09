@@ -18,8 +18,8 @@ class MemcachedDriver(drivers.Driver):
 
     DEFAULT_PORT = 11212
 
-    def __init__(self, port=DEFAULT_PORT):
-        super(MemcachedDriver, self).__init__()
+    def __init__(self, port=DEFAULT_PORT, **kwargs):
+        super(MemcachedDriver, self).__init__(**kwargs)
         self.port = port
 
     @classmethod
@@ -40,5 +40,5 @@ class MemcachedDriver(drivers.Driver):
 
         self.addCleanup(self._kill, c.pid)
 
-        self.putenv("PIFPAF_MEMCACHED_PORT", str(self.port))
-        self.putenv("PIFPAF_URL", "memcached://localhost:%d" % self.port)
+        self.putenv("MEMCACHED_PORT", str(self.port))
+        self.putenv("URL", "memcached://localhost:%d" % self.port)

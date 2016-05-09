@@ -75,16 +75,20 @@ def create_RunDaemon(daemon):
                                 help="command to run")
             return parser
 
+        def putenv(self, key, value):
+            return os.putenv(self.app.options.env_prefix + "_" + key, value)
+
         def take_action(self, parsed_args):
             command = parsed_args.__dict__.pop("command", None)
-            driver = plugin(**parsed_args.__dict__)
+            driver = plugin(env_prefix=self.app.options.env_prefix,
+                            **parsed_args.__dict__)
             if command:
                 try:
                     with driver:
-                        os.putenv("PIFPAF_PID", str(os.getpid()))
-                        os.putenv("PIFPAF_DAEMON", daemon)
-                        os.putenv("PIFPAF_%s_URL" % daemon.upper(),
-                                  os.getenv("PIFPAF_URL"))
+                        self.putenv("PID", str(os.getpid()))
+                        self.putenv("DAEMON", daemon)
+                        self.putenv("%s_URL" % daemon.upper(),
+                                    os.getenv(driver.env_prefix + "_URL"))
                         c = subprocess.Popen(command)
                         return c.wait()
                 except fixtures.MultipleExceptions as e:
@@ -118,10 +122,14 @@ def create_RunDaemon(daemon):
                 else:
                     for k, v in six.iteritems(driver.env):
                         print("export %s=\"%s\";" % (k, v))
-                    print("export PIFPAF_PID=%d;" % pid)
-                    print("export PIFPAF_DAEMON=\"%s\";" % daemon)
-                    print("export PIFPAF_%s_URL=\"%s\";"
-                          % (daemon.upper(), driver.env['PIFPAF_URL']))
+                    print("export %s_PID=%d;"
+                          % (self.app.options.env_prefix, pid))
+                    print("export %s_DAEMON=\"%s\";"
+                          % (self.app.options.env_prefix, daemon))
+                    print("export %s_%s_URL=\"%s\";"
+                          % (self.app.options.env_prefix,
+                             daemon.upper(),
+                             driver.env['%s_URL' % driver.env_prefix]))
 
         run = take_action
 
@@ -146,6 +154,15 @@ class PifpafApp(app.App):
             "Daemon management tool for testing",
             pbr.version.VersionInfo('pifpaf').version_string(),
             command_manager=PifpafCommandManager(None))
+
+    def build_option_parser(self, description, version):
+        parser = super(PifpafApp, self).build_option_parser(
+            description, version)
+        parser.add_argument(
+            "--env-prefix", "-e",
+            default="PIFPAF",
+            help="prefix to use for environment variables (default: PIFPAF)")
+        return parser
 
     def configure_logging(self):
         if self.options.debug:

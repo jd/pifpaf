@@ -18,8 +18,9 @@ class EtcdDriver(drivers.Driver):
 
     DEFAULT_PORT = 4001
 
-    def __init__(self, port=DEFAULT_PORT):
-        super(EtcdDriver, self).__init__()
+    def __init__(self, port=DEFAULT_PORT,
+                 **kwargs):
+        super(EtcdDriver, self).__init__(**kwargs)
         self.port = port
 
     @classmethod
@@ -41,5 +42,5 @@ class EtcdDriver(drivers.Driver):
 
         self.addCleanup(self._kill, c.pid)
 
-        self.putenv("PIFPAF_ETCD_PORT", str(self.port))
-        self.putenv("PIFPAF_URL", "etcd://localhost:%d" % self.port)
+        self.putenv("ETCD_PORT", str(self.port))
+        self.putenv("URL", "etcd://localhost:%d" % self.port)

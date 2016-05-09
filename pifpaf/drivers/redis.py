@@ -22,8 +22,9 @@ class RedisDriver(drivers.Driver):
     DEFAULT_PORT_SENTINEL = 6380
 
     def __init__(self, port=DEFAULT_PORT,
-                 sentinel=False, sentinel_port=DEFAULT_PORT_SENTINEL):
-        super(RedisDriver, self).__init__()
+                 sentinel=False, sentinel_port=DEFAULT_PORT_SENTINEL,
+                 **kwargs):
+        super(RedisDriver, self).__init__(**kwargs)
         self.port = port
         self.sentinel = sentinel
         self.sentinel_port = sentinel_port
@@ -69,8 +70,8 @@ sentinel monitor pifpaf localhost %d 1"""
 
             self.addCleanup(self._kill, c.pid)
 
-            self.putenv("PIFPAF_REDIS_SENTINEL_PORT",
+            self.putenv("REDIS_SENTINEL_PORT",
                         str(self.sentinel_port))
 
-        self.putenv("PIFPAF_REDIS_PORT", str(self.port))
-        self.putenv("PIFPAF_URL", "redis://localhost:%d" % self.port)
+        self.putenv("REDIS_PORT", str(self.port))
+        self.putenv("URL", "redis://localhost:%d" % self.port)

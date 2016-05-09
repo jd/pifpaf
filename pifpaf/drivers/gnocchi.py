@@ -24,8 +24,9 @@ class GnocchiDriver(drivers.Driver):
     DEFAULT_PORT_INDEXER = 9541
 
     def __init__(self, port=DEFAULT_PORT, indexer_port=DEFAULT_PORT_INDEXER,
-                 create_legacy_resource_types=False):
-        super(GnocchiDriver, self).__init__()
+                 create_legacy_resource_types=False,
+                 **kwargs):
+        super(GnocchiDriver, self).__init__(**kwargs)
         self.port = port
         self.indexer_port = indexer_port
         self.create_legacy_resource_types = create_legacy_resource_types
@@ -83,9 +84,9 @@ url = %s""" % (self.tempdir, self.port, pg.url))
 
         self.http_url = "http://localhost:%d" % self.port
 
-        self.putenv("PIFPAF_GNOCCHI_PORT", str(self.port))
-        self.putenv("PIFPAF_URL", "gnocchi://localhost:%d" % self.port)
-        self.putenv("PIFPAF_GNOCCHI_HTTP_URL", self.http_url)
+        self.putenv("GNOCCHI_PORT", str(self.port))
+        self.putenv("URL", "gnocchi://localhost:%d" % self.port)
+        self.putenv("GNOCCHI_HTTP_URL", self.http_url)
         self.putenv("GNOCCHI_ENDPOINT", self.http_url)
         self.putenv("OS_AUTH_TYPE", "gnocchi-noauth")
         self.putenv("GNOCCHI_USER_ID", "admin")

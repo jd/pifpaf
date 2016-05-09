@@ -23,8 +23,9 @@ from pifpaf import drivers
 class CephDriver(drivers.Driver):
     DEFAULT_PORT = 6790
 
-    def __init__(self, port=DEFAULT_PORT):
-        super(CephDriver, self).__init__()
+    def __init__(self, port=DEFAULT_PORT,
+                 **kwargs):
+        super(CephDriver, self).__init__(**kwargs)
         self.port = port
 
     @classmethod
@@ -144,6 +145,6 @@ mon addr = 127.0.0.1:%(port)d
             if b"HEALTH_ERR" in out:
                 raise RuntimeError("Fail to deploy ceph")
 
+        self.putenv("CEPH_CONF", conffile, True)
         self.putenv("CEPH_CONF", conffile)
-        self.putenv("PIFPAF_CEPH_CONF", conffile)
-        self.putenv("PIFPAF_URL", "ceph://localhost:%d" % self.port)
+        self.putenv("URL", "ceph://localhost:%d" % self.port)

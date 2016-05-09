@@ -27,8 +27,9 @@ class RabbitMQDriver(drivers.Driver):
 
     def __init__(self, port=DEFAULT_PORT, nodename=DEFAULT_NODENAME,
                  username=DEFAULT_USERNAME, password=DEFAULT_PASSWORD,
-                 cluster=False):
-        super(RabbitMQDriver, self).__init__()
+                 cluster=False,
+                 **kwargs):
+        super(RabbitMQDriver, self).__init__(**kwargs)
         self.port = port
         self.nodename = nodename
         self.username = username
@@ -139,19 +140,19 @@ class RabbitMQDriver(drivers.Driver):
         self.rabbitmqctl(n1, ["set_permissions", self.username,
                               ".*", ".*", ".*"])
 
-        self.putenv("PIFPAF_RABBITMQ_HOME", self.tempdir)
-        self.putenv("PIFPAF_RABBITMQ_PORT", str(self.port))
+        self.putenv("RABBITMQ_HOME", self.tempdir)
+        self.putenv("RABBITMQ_PORT", str(self.port))
         if self.cluster:
-            self.putenv("PIFPAF_RABBITMQ_NODENAME", n1)
-            self.putenv("PIFPAF_RABBITMQ_NODENAME1", n1)
-            self.putenv("PIFPAF_RABBITMQ_NODENAME2", n2)
-            self.putenv("PIFPAF_RABBITMQ_NODENAME3", n3)
+            self.putenv("RABBITMQ_NODENAME", n1)
+            self.putenv("RABBITMQ_NODENAME1", n1)
+            self.putenv("RABBITMQ_NODENAME2", n2)
+            self.putenv("RABBITMQ_NODENAME3", n3)
             self.putenv(
-                "PIFPAF_URL",
+                "URL",
                 "rabbit://%s:%s@localhost:%d,localhost:%d,localhost:%d//" % (
                     self.username, self.password,
                     self.port, self.port + 1, self.port + 2))
         else:
-            self.putenv("PIFPAF_RABBITMQ_NODENAME", n1)
-            self.putenv("PIFPAF_URL", "rabbit://%s:%s@localhost:%d//" % (
+            self.putenv("RABBITMQ_NODENAME", n1)
+            self.putenv("URL", "rabbit://%s:%s@localhost:%d//" % (
                 self.username, self.password, self.port))

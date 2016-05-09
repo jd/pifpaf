@@ -22,8 +22,9 @@ class InfluxDBDriver(drivers.Driver):
     DEFAULT_DATABASE = "test"
 
     def __init__(self, port=DEFAULT_PORT,
-                 database=DEFAULT_DATABASE):
-        super(InfluxDBDriver, self).__init__()
+                 database=DEFAULT_DATABASE,
+                 **kwargs):
+        super(InfluxDBDriver, self).__init__(**kwargs)
         self.port = port
         self.database = database
 
@@ -73,7 +74,7 @@ class InfluxDBDriver(drivers.Driver):
                     "-port", str(self.port),
                     "-execute", "CREATE DATABASE " + self.database])
 
-        self.putenv("PIFPAF_INFLUXDB_PORT", str(self.port))
-        self.putenv("PIFPAF_INFLUXDB_DATABASE", self.database)
-        self.putenv("PIFPAF_URL", "influxdb://localhost:%d/%s"
+        self.putenv("INFLUXDB_PORT", str(self.port))
+        self.putenv("INFLUXDB_DATABASE", self.database)
+        self.putenv("URL", "influxdb://localhost:%d/%s"
                     % (self.port, self.database))

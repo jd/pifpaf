@@ -38,6 +38,6 @@ class MySQLDriver(drivers.Driver):
                     "--no-defaults",
                     "-S", self.socket,
                     "-e", "CREATE DATABASE test;"])
-        self.putenv("PIFPAF_MYSQL_SOCKET", self.socket)
-        self.putenv("PIFPAF_URL",
+        self.putenv("MYSQL_SOCKET", self.socket)
+        self.putenv("URL",
                     "mysql://root@localhost/test?unix_socket=" + self.socket)

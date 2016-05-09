@@ -28,8 +28,8 @@ class PostgreSQLDriver(drivers.Driver):
                             help="port to use for PostgreSQL")
         return parser
 
-    def __init__(self, port=DEFAULT_PORT):
-        super(PostgreSQLDriver, self).__init__()
+    def __init__(self, port=DEFAULT_PORT, **kwargs):
+        super(PostgreSQLDriver, self).__init__(**kwargs)
         _, pgbindir = self._exec(["pg_config", "--bindir"],
                                  stdout=True)
         self.pgctl = os.path.join(pgbindir.strip(), b"pg_ctl")
@@ -37,10 +37,10 @@ class PostgreSQLDriver(drivers.Driver):
 
     def _setUp(self):
         super(PostgreSQLDriver, self)._setUp()
-        self.putenv("PGPORT", str(self.port))
-        self.putenv("PGHOST", self.tempdir)
-        self.putenv("PGDATA", self.tempdir)
-        self.putenv("PGDATABASE", "postgres")
+        self.putenv("PGPORT", str(self.port), True)
+        self.putenv("PGHOST", self.tempdir, True)
+        self.putenv("PGDATA", self.tempdir, True)
+        self.putenv("PGDATABASE", "postgres", True)
         self._exec([self.pgctl, "-o", "'-A trust'", "initdb"])
         self._exec([self.pgctl, "-w", "-o",
                     "-k %s -p %d" % (self.tempdir, self.port),
@@ -48,4 +48,4 @@ class PostgreSQLDriver(drivers.Driver):
         self.addCleanup(self._exec, [self.pgctl, "-w", "stop"])
         self.url = "postgresql://localhost/postgres?host=%s&port=%d" % (
             self.tempdir, self.port)
-        self.putenv("PIFPAF_URL", self.url)
+        self.putenv("URL", self.url)

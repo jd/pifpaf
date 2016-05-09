@@ -19,8 +19,9 @@ from pifpaf import drivers
 class ElasticsearchDriver(drivers.Driver):
     DEFAULT_PORT = 9200
 
-    def __init__(self, port=DEFAULT_PORT):
-        super(ElasticsearchDriver, self).__init__()
+    def __init__(self, port=DEFAULT_PORT,
+                 **kwargs):
+        super(ElasticsearchDriver, self).__init__(**kwargs)
         self.port = port
 
     @classmethod
@@ -46,5 +47,5 @@ class ElasticsearchDriver(drivers.Driver):
 
         self.addCleanup(self._kill, c.pid)
 
-        self.putenv("PIFPAF_ELASTICSEARCH_PORT", str(self.port))
-        self.putenv("PIFPAF_URL", "es://localhost:%d" % self.port)
+        self.putenv("ELASTICSEARCH_PORT", str(self.port))
+        self.putenv("URL", "es://localhost:%d" % self.port)

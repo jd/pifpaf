@@ -18,8 +18,8 @@ class MongoDBDriver(drivers.Driver):
 
     DEFAULT_PORT = 29000
 
-    def __init__(self, port=DEFAULT_PORT):
-        super(MongoDBDriver, self).__init__()
+    def __init__(self, port=DEFAULT_PORT, **kwargs):
+        super(MongoDBDriver, self).__init__(**kwargs)
         self.port = port
 
     @classmethod
@@ -49,5 +49,5 @@ class MongoDBDriver(drivers.Driver):
 
         self.addCleanup(self._kill, c.pid)
 
-        self.putenv("PIFPAF_MONGODB_PORT", str(self.port))
-        self.putenv("PIFPAF_URL", "mongodb://localhost:%d/test" % self.port)
+        self.putenv("MONGODB_PORT", str(self.port))
+        self.putenv("URL", "mongodb://localhost:%d/test" % self.port)

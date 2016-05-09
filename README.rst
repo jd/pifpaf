@@ -99,6 +99,29 @@ Pifpaf exports a few environment variable:
 
 .. _integration testing: https://en.wikipedia.org/wiki/Integration_testing
 
+
+Running several programs at once
+================================
+Pifpaf provides the ability to change the prefix of its environment variable,
+allowing you to nest several Pifpaf instances and therefore running several
+daemons at once::
+
+  $ pifpaf --env-prefix STORAGE run memcached -- pifpaf --env-prefix INDEX run postgresql $SHELL
+  $ env | grep STORAGE
+  STORAGE_DATA=/var/folders/7k/pwdhb_mj2cv4zyr0kyrlzjx40000gq/T/tmpVreJ0J
+  STORAGE_MEMCACHED_PORT=11212
+  STORAGE_URL=memcached://localhost:11212
+  STORAGE_PID=71019
+  STORAGE_DAEMON=memcached
+  STORAGE_MEMCACHED_URL=memcached://localhost:11212
+  $ env | grep INDEX
+  ZLE_LINE_ABORTED=pifpaf --env-prefix STORAGE run memcached -- pifpaf --env-prefix INDEX run postgresql zsh
+  INDEX_DATA=/var/folders/7k/pwdhb_mj2cv4zyr0kyrlzjx40000gq/T/tmphAG7tf
+  INDEX_URL=postgresql://localhost/postgres?host=/var/folders/7k/pwdhb_mj2cv4zyr0kyrlzjx40000gq/T/tmphAG7tf&port=9824
+  INDEX_PID=71021
+  INDEX_DAEMON=postgresql
+  INDEX_POSTGRESQL_URL=postgresql://localhost/postgres?host=/var/folders/7k/pwdhb_mj2cv4zyr0kyrlzjx40000gq/T/tmphAG7tf&port=9824
+
 How it works under the hood
 ===========================
 

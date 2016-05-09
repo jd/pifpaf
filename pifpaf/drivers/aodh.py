@@ -31,8 +31,9 @@ class AodhDriver(drivers.Driver):
                  database_port=DEFAULT_PORT_DB,
                  gnocchi_port=DEFAULT_PORT_GNOCCHI,
                  gnocchi_indexer_port=DEFAULT_PORT_GNOCCHI_INDEXER,
-                 gnocchi_create_legacy_resource_types=False):
-        super(AodhDriver, self).__init__()
+                 gnocchi_create_legacy_resource_types=False,
+                 **kwargs):
+        super(AodhDriver, self).__init__(**kwargs)
         self.port = port
         self.database_port = database_port
         self.gnocchi_port = gnocchi_port
@@ -114,9 +115,9 @@ endpoint = %s""" % (pg.url, self.port, user, project, g.http_url))
                           wait_for_line=b"Running on http://0.0.0.0")
         self.addCleanup(self._kill, c.pid)
 
-        self.putenv("PIFPAF_AODH_PORT", str(self.port))
-        self.putenv("PIFPAF_AODH_GNOCCHI_USER_ID", user)
-        self.putenv("PIFPAF_AODH_GNOCCHI_PROJECT_ID", project)
-        self.putenv("PIFPAF_URL", "aodh://localhost:%d" % self.port)
-        self.putenv("PIFPAF_AODH_HTTP_URL",
+        self.putenv("AODH_PORT", str(self.port))
+        self.putenv("AODH_GNOCCHI_USER_ID", user)
+        self.putenv("AODH_GNOCCHI_PROJECT_ID", project)
+        self.putenv("URL", "aodh://localhost:%d" % self.port)
+        self.putenv("AODH_HTTP_URL",
                     "http://localhost:%d" % self.port)
