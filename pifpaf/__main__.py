@@ -78,6 +78,12 @@ def create_RunDaemon(daemon):
         def putenv(self, key, value):
             return os.putenv(self.app.options.env_prefix + "_" + key, value)
 
+        def expand_urls_var(self, url):
+            current_urls = os.getenv(self.app.options.global_urls_variable)
+            if current_urls:
+                return current_urls + ";" + url
+            return url
+
         def take_action(self, parsed_args):
             command = parsed_args.__dict__.pop("command", None)
             driver = plugin(env_prefix=self.app.options.env_prefix,
@@ -87,8 +93,10 @@ def create_RunDaemon(daemon):
                     with driver:
                         self.putenv("PID", str(os.getpid()))
                         self.putenv("DAEMON", daemon)
-                        self.putenv("%s_URL" % daemon.upper(),
-                                    os.getenv(driver.env_prefix + "_URL"))
+                        url = os.getenv(driver.env_prefix + "_URL")
+                        self.putenv("%s_URL" % daemon.upper(), url)
+                        os.putenv(self.app.options.global_urls_variable,
+                                  self.expand_urls_var(url))
                         c = subprocess.Popen(command)
                         return c.wait()
                 except fixtures.MultipleExceptions as e:
@@ -126,10 +134,14 @@ def create_RunDaemon(daemon):
                           % (self.app.options.env_prefix, pid))
                     print("export %s_DAEMON=\"%s\";"
                           % (self.app.options.env_prefix, daemon))
+                    url = driver.env['%s_URL' % driver.env_prefix]
                     print("export %s_%s_URL=\"%s\";"
                           % (self.app.options.env_prefix,
                              daemon.upper(),
-                             driver.env['%s_URL' % driver.env_prefix]))
+                             url))
+                    print("export %s=\"%s\";"
+                          % (self.app.options.global_urls_variable,
+                             self.expand_urls_var(url)))
 
         run = take_action
 
@@ -162,6 +174,12 @@ class PifpafApp(app.App):
             "--env-prefix", "-e",
             default="PIFPAF",
             help="prefix to use for environment variables (default: PIFPAF)")
+        parser.add_argument(
+            "--global-urls-variable", "-g",
+            default="PIFPAF_URLS",
+            help="global variable name to use to append connection URL when  "
+            "chaining multiple pifpaf instances (default: PIFPAF_URLS)")
+
         return parser
 
     def configure_logging(self):

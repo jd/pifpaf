@@ -62,3 +62,28 @@ class TestCli(testtools.TestCase):
                          env[b"export FOOBAR_URL"])
         self.assertEqual(b"\"memcached://localhost:11215\";\n",
                          env[b"export FOOBAR_MEMCACHED_URL"])
+
+    @testtools.skipUnless(spawn.find_executable("memcached"),
+                          "memcached not found")
+    def test_global_urls_varibale(self):
+        c = subprocess.Popen(["pifpaf",
+                              "--env-prefix", "FOOBAR",
+                              "run", "memcached", "--port", "11217",
+                              "--",
+                              "pifpaf",
+                              "run", "memcached", "--port", "11218"],
+                             stdout=subprocess.PIPE)
+        self.assertEqual(0, c.wait())
+        env = {}
+        for line in c.stdout.readlines():
+            k, _, v = line.partition(b"=")
+            env[k] = v
+        os.kill(int(env[b"export PIFPAF_PID"].strip()[:-1]), signal.SIGTERM)
+
+        self.assertEqual(b"\"memcached://localhost:11218\";\n",
+                         env[b"export PIFPAF_URL"])
+        self.assertEqual(b"\"memcached://localhost:11218\";\n",
+                         env[b"export PIFPAF_MEMCACHED_URL"])
+        self.assertEqual(
+            b"\"memcached://localhost:11217;memcached://localhost:11218\";\n",
+            env[b"export PIFPAF_URLS"])

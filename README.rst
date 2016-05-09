@@ -120,6 +120,12 @@ daemons at once::
   INDEX_PID=71021
   INDEX_DAEMON=postgresql
   INDEX_POSTGRESQL_URL=postgresql://localhost/postgres?host=/var/folders/7k/pwdhb_mj2cv4zyr0kyrlzjx40000gq/T/tmphAG7tf&port=9824
+  $ echo $PIFPAF_URLS
+  memcached://localhost:11212;postgresql://localhost/postgres?host=/var/folders/7k/pwdhb_mj2cv4zyr0kyrlzjx40000gq/T/tmpQ2BWFH&port=9824
+
+The `PIFPAF_URLS` environment variable will contain the list of all URLs
+detected and set-up by Pifpaf. You can override this variable name with the
+`--gobal-urls-variable` option.
 
 How it works under the hood
 ===========================
