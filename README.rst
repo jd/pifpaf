@@ -115,7 +115,6 @@ daemons at once::
   STORAGE_DAEMON=memcached
   STORAGE_MEMCACHED_URL=memcached://localhost:11212
   $ env | grep INDEX
-  ZLE_LINE_ABORTED=pifpaf --env-prefix STORAGE run memcached -- pifpaf --env-prefix INDEX run postgresql zsh
   INDEX_DATA=/var/folders/7k/pwdhb_mj2cv4zyr0kyrlzjx40000gq/T/tmphAG7tf
   INDEX_URL=postgresql://localhost/postgres?host=/var/folders/7k/pwdhb_mj2cv4zyr0kyrlzjx40000gq/T/tmphAG7tf&port=9824
   INDEX_PID=71021
