@@ -11,6 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
 import os
 import signal
 import subprocess
@@ -31,7 +32,10 @@ def _raise(m, ep, e):
     raise e
 
 
-def _format_multiple_exceptions(e):
+LOG = logging.getLogger("pifpaf")
+
+
+def _format_multiple_exceptions(e, debug=False):
     valid_excs = []
     excs = list(e.args)
     while excs:
@@ -45,12 +49,19 @@ def _format_multiple_exceptions(e):
 
     if len(valid_excs) == 1:
         (etype, value, tb) = valid_excs[0]
-        traceback.print_exception(etype, value, tb)
+        if debug:
+            LOG.error("".join(traceback.format_exception(etype, value, tb)))
+        else:
+            raise value
     else:
-        print("MultipleExceptions raised:")
+        LOG.error("MultipleExceptions raised:")
         for n, (etype, value, tb) in enumerate(valid_excs):
-            print("- exception %d:" % n)
-            traceback.print_exception(etype, value, tb)
+            if debug:
+                LOG.error("- exception %d:" % n)
+                LOG.error("".join(
+                    traceback.format_exception(etype, value, tb)))
+            else:
+                LOG.error(value)
 
 DAEMONS = extension.ExtensionManager("pifpaf.daemons",
                                      on_load_failure_callback=_raise)
@@ -104,7 +115,7 @@ def create_RunDaemon(daemon):
                                                % " ".join(command))
                         return c.wait()
                 except fixtures.MultipleExceptions as e:
-                    _format_multiple_exceptions(e)
+                    _format_multiple_exceptions(e, self.app.options.debug)
                     sys.exit(1)
             else:
                 try:
