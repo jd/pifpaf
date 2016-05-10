@@ -97,7 +97,11 @@ def create_RunDaemon(daemon):
                         self.putenv("%s_URL" % daemon.upper(), url)
                         os.putenv(self.app.options.global_urls_variable,
                                   self.expand_urls_var(url))
-                        c = subprocess.Popen(command)
+                        try:
+                            c = subprocess.Popen(command)
+                        except Exception:
+                            raise RuntimeError("Unable to start command: %s"
+                                               % " ".join(command))
                         return c.wait()
                 except fixtures.MultipleExceptions as e:
                     _format_multiple_exceptions(e)
