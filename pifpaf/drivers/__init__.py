@@ -139,7 +139,8 @@ class Driver(fixtures.Fixture):
 
         if not wait_for_line:
             status = c.wait()
-            assert(ignore_failure or status == 0)
+            if not ignore_failure and status != 0:
+                raise RuntimeError("Error while running command: %s" % command)
 
         return c, stdout_str
 
