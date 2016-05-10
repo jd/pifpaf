@@ -51,7 +51,7 @@ class PostgreSQLDriver(drivers.Driver):
         self._exec([self.pgctl, "-w", "-o",
                     "-k %s -p %d -h \"%s\""
                     % (self.tempdir, self.port, self.host),
-                    "start"])
+                    "start"], allow_debug=False)
         self.addCleanup(self._exec, [self.pgctl, "-w", "stop"])
         self.url = "postgresql://localhost/postgres?host=%s&port=%d" % (
             self.tempdir, self.port)

@@ -80,13 +80,16 @@ class Driver(fixtures.Fixture):
         LOG.debug("%s[%d] output: %s", appname, pid, data.rstrip())
 
     def _exec(self, command, stdout=False, ignore_failure=False,
-              stdin=None, wait_for_line=None, path=[], env=None):
+              stdin=None, wait_for_line=None, path=[], env=None,
+              allow_debug=True):
         LOG.debug("executing: %s" % command)
 
         complete_env = {}
         app = command[0]
 
-        if stdout or wait_for_line:
+        debug = allow_debug and LOG.isEnabledFor(logging.DEBUG)
+
+        if stdout or wait_for_line or debug:
             stdout_fd = subprocess.PIPE
         else:
             # TODO(jd) Need to close at some point
@@ -136,14 +139,16 @@ class Driver(fixtures.Fixture):
                     break
                 if wait_for_line and re.search(wait_for_line, line.decode()):
                     break
+            stdout_str = b"".join(lines)
+        else:
+            stdout_str = None
+
+        if stdout or wait_for_line or debug:
             # Continue to read
             t = threading.Thread(target=self._read_in_bg,
                                  args=(app, c.pid, c.stdout,))
             t.setDaemon(True)
             t.start()
-            stdout_str = b"".join(lines)
-        else:
-            stdout_str = None
 
         if not wait_for_line:
             status = c.wait()
