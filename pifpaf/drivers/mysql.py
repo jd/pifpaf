@@ -39,5 +39,5 @@ class MySQLDriver(drivers.Driver):
                     "-S", self.socket,
                     "-e", "CREATE DATABASE test;"])
         self.putenv("MYSQL_SOCKET", self.socket)
-        self.putenv("URL",
-                    "mysql://root@localhost/test?unix_socket=" + self.socket)
+        self.url = "mysql://root@localhost/test?unix_socket=" + self.socket
+        self.putenv("URL", self.url)

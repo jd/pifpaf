@@ -127,6 +127,10 @@ class TestDrivers(testtools.TestCase):
             "mysql://root@localhost/test?unix_socket=%s/mysql.socket"
             % f.tempdir,
             os.getenv("PIFPAF_URL"))
+        self.assertEqual(
+            "mysql://root@localhost/test?unix_socket=%s/mysql.socket"
+            % f.tempdir,
+            f.url)
         self._run(
             "mysql --no-defaults -S %s -e 'SHOW TABLES;' test" % f.socket)
 
