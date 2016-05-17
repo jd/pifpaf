@@ -119,5 +119,6 @@ endpoint = %s""" % (pg.url, self.port, user, project, g.http_url))
         self.putenv("AODH_GNOCCHI_USER_ID", user)
         self.putenv("AODH_GNOCCHI_PROJECT_ID", project)
         self.putenv("URL", "aodh://localhost:%d" % self.port)
-        self.putenv("AODH_HTTP_URL",
-                    "http://localhost:%d" % self.port)
+        url = "http://localhost:%d" % self.port
+        self.putenv("AODH_HTTP_URL", url)
+        self.putenv("AODH_ENDPOINT", url, True)
