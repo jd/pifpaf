@@ -22,6 +22,7 @@ import testtools
 
 from pifpaf.drivers import aodh
 from pifpaf.drivers import ceph
+from pifpaf.drivers import consul
 from pifpaf.drivers import elasticsearch
 from pifpaf.drivers import etcd
 from pifpaf.drivers import fakes3
@@ -76,6 +77,18 @@ class TestDrivers(testtools.TestCase):
                          os.getenv("PIFPAF_URL"))
         self.assertEqual(str(port), os.getenv("PIFPAF_ETCD_PORT"))
         r = requests.get("http://localhost:%d/version" % port)
+        self.assertEqual(200, r.status_code)
+
+    @testtools.skipUnless(spawn.find_executable("consul"),
+                          "consul not found")
+    def test_consul(self):
+        port = 8601
+        host = consul.ConsulDriver.DEFAULT_HOST
+        self.useFixture(consul.ConsulDriver(port=port))
+        self.assertEqual("consul://%s:%d" % (host, port),
+                         os.getenv("PIFPAF_URL"))
+        self.assertEqual(str(port), os.getenv("PIFPAF_CONSUL_PORT"))
+        r = requests.get("http://%s:%d/v1/status/leader" % (host, port))
         self.assertEqual(200, r.status_code)
 
     @testtools.skipUnless(spawn.find_executable("influxd"),

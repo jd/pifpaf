@@ -32,7 +32,9 @@ Pifpaf currently supports:
 * `Ceph`_
 * `RabbitMQ`_
 * `FakeS3`_
+* `Consul`_
 
+.. _Consul: https://www.consul.io/
 .. _PostgreSQL: http://postgresql.org
 .. _MySQL: http://mysql.org
 .. _Memcached: http://memcached.org
