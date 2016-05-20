@@ -6,6 +6,9 @@
     :target: https://travis-ci.org/jd/pifpaf
     :alt: Build Status
 
+.. image:: https://badge.fury.io/py/pifpaf.svg
+    :target: https://badge.fury.io/py/pifpaf
+
 Pifpaf is a suite of `fixtures`_ and a command-line tool that allows to start
 and stop daemons for a quick throw-away usage. This is typically useful when
 needing these daemons to run `integration testing`_. It originaly evolved from
