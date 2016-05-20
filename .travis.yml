@@ -17,7 +17,6 @@ addons:
     - redis-server
     - zookeeper
     - mongodb
-    - etcd
 before_install:
   - curl 'https://git.ceph.com/?p=ceph.git;a=blob_plain;f=keys/release.asc' | sudo apt-key add -
   - echo deb http://download.ceph.com/debian-hammer/ $(lsb_release -sc) main | sudo tee /etc/apt/sources.list.d/ceph.list
