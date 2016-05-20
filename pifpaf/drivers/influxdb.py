@@ -13,6 +13,8 @@
 
 import os
 
+import six
+
 from pifpaf import drivers
 
 
@@ -65,7 +67,7 @@ class InfluxDBDriver(drivers.Driver):
 
         c, _ = self._exec(
             ["influxd", "-config", cfgfile],
-            wait_for_line=b"Listening on HTTP: [::]:%d" % self.port,
+            wait_for_line=b"Listening on HTTP: [::]:" + six.b(str(2)),
             path=["/opt/influxdb"])
 
         self.addCleanup(self._kill, c.pid)
