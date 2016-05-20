@@ -16,7 +16,6 @@ addons:
     - rabbitmq-server
     - redis-server
     - zookeeper
-    - influxdb
     - mongodb
     - etcd
 before_install:
@@ -25,6 +24,8 @@ before_install:
   - sudo apt-get update -yq
   - sudo apt-get install -yq ceph
   - sudo gem install fakes3
+  - wget https://dl.influxdata.com/influxdb/releases/influxdb_0.13.0_amd64.deb
+  - sudo dpkg -i influxdb_0.13.0_amd64.deb
 install:
     # The install requirements in travis virtualenv that will be cached
   - pip install tox-travis .[test]
