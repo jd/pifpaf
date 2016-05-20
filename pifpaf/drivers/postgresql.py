@@ -19,6 +19,7 @@ from pifpaf import drivers
 class PostgreSQLDriver(drivers.Driver):
 
     DEFAULT_PORT = 9824
+    DEFAULT_HOST = ""
 
     @classmethod
     def get_parser(cls, parser):
@@ -26,14 +27,19 @@ class PostgreSQLDriver(drivers.Driver):
                             type=int,
                             default=cls.DEFAULT_PORT,
                             help="port to use for PostgreSQL")
+        parser.add_argument("--host",
+                            default=cls.DEFAULT_HOST,
+                            help="host to listen on")
         return parser
 
-    def __init__(self, port=DEFAULT_PORT, **kwargs):
+    def __init__(self, port=DEFAULT_PORT, host=DEFAULT_HOST,
+                 **kwargs):
         super(PostgreSQLDriver, self).__init__(**kwargs)
         _, pgbindir = self._exec(["pg_config", "--bindir"],
                                  stdout=True)
         self.pgctl = os.path.join(pgbindir.strip(), b"pg_ctl")
         self.port = port
+        self.host = host
 
     def _setUp(self):
         super(PostgreSQLDriver, self)._setUp()
@@ -43,7 +49,8 @@ class PostgreSQLDriver(drivers.Driver):
         self.putenv("PGDATABASE", "postgres", True)
         self._exec([self.pgctl, "-o", "'-A trust'", "initdb"])
         self._exec([self.pgctl, "-w", "-o",
-                    "-k %s -p %d" % (self.tempdir, self.port),
+                    "-k %s -p %d -h \"%s\""
+                    % (self.tempdir, self.port, self.host),
                     "start"])
         self.addCleanup(self._exec, [self.pgctl, "-w", "stop"])
         self.url = "postgresql://localhost/postgres?host=%s&port=%d" % (
