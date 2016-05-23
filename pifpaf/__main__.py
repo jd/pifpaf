@@ -122,10 +122,13 @@ def create_RunDaemon(daemon):
             else:
                 try:
                     driver.setUp()
+                except fixtures.MultipleExceptions as e:
+                    _format_multiple_exceptions(e, self.app.options.debug)
+                    sys.exit(1)
                 except Exception:
-                    print("Unable to start %s, "
-                          "use --debug for more information"
-                          % daemon)
+                    LOG.error("Unable to start %s, "
+                              "use --debug for more information"
+                              % daemon, exc_info=True)
                     sys.exit(1)
                 pid = os.fork()
                 if pid == 0:
