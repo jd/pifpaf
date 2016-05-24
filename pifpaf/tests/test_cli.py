@@ -56,7 +56,7 @@ class TestCli(testtools.TestCase):
         for line in c.stdout.readlines():
             k, _, v = line.partition(b"=")
             env[k] = v
-        os.kill(int(env[b"export FOOBAR_PID"].strip()[:-1]), signal.SIGTERM)
+        os.kill(int(env[b"export PIFPAF_PID"].strip()[:-1]), signal.SIGTERM)
 
         self.assertEqual(b"\"memcached://localhost:11215\";\n",
                          env[b"export FOOBAR_URL"])

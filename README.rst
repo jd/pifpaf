@@ -87,10 +87,11 @@ You can also run it with no command line provided::
   PIFPAF_DAEMON=memcached
   PIFPAF_URL=memcached://localhost:11212
   PIFPAF_MEMCACHED_URL=memcached://localhost:11212
-  $ kill $PIFPAF_PID
+  $ pifpaf_stop
 
 Killing the daemon whose PID is contained in `$PIFPAF_PID` will stop the
-launched daemon and clean the test environment.
+launched daemon and clean the test environment. You can kill it yourself or use
+the defined function `pifpaf_stop`.
 
 Environment variables
 =====================

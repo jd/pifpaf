@@ -1,3 +1,5 @@
+# -*- encoding: utf-8 -*-
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -145,8 +147,7 @@ def create_RunDaemon(daemon):
                 else:
                     for k, v in six.iteritems(driver.env):
                         print("export %s=\"%s\";" % (k, v))
-                    print("export %s_PID=%d;"
-                          % (self.app.options.env_prefix, pid))
+                    print("export PIFPAF_PID=%d;" % pid)
                     print("export %s_DAEMON=\"%s\";"
                           % (self.app.options.env_prefix, daemon))
                     url = driver.env['%s_URL' % driver.env_prefix]
@@ -157,7 +158,11 @@ def create_RunDaemon(daemon):
                     print("export %s=\"%s\";"
                           % (self.app.options.global_urls_variable,
                              self.expand_urls_var(url)))
-
+                    print("pifpaf_stop () "
+                          "{ if test -z \"$PIFPAF_PID\"; then "
+                          "echo 'No PID found in $PIFPAF_PID'; return -1; fi; "
+                          "if kill $PIFPAF_PID; then "
+                          "unset PIFPAF_PID; unset -f pifpaf_stop; fi; }")
         run = take_action
 
     RunDaemon.__doc__ = "run %s" % daemon
