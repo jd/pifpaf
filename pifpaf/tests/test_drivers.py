@@ -1,3 +1,5 @@
+# -*- encoding: utf-8 -*-
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -28,6 +30,7 @@ from pifpaf.drivers import etcd
 from pifpaf.drivers import fakes3
 from pifpaf.drivers import gnocchi
 from pifpaf.drivers import influxdb
+from pifpaf.drivers import keystone
 from pifpaf.drivers import memcached
 from pifpaf.drivers import mongodb
 from pifpaf.drivers import mysql
@@ -242,6 +245,16 @@ class TestDrivers(testtools.TestCase):
                          os.getenv("PIFPAF_URL"))
         r = requests.get(os.getenv("PIFPAF_AODH_HTTP_URL"))
         self.assertEqual(200, r.status_code)
+
+    @testtools.skipUnless(spawn.find_executable("keystone-manage"),
+                          "Keystone not found")
+    def test_keystone(self):
+        self.skipTest("until https://review.openstack.org/#/c/320880/ is merged")
+        a = self.useFixture(keystone.KeystoneDriver())
+        self.assertEqual("keystone://localhost:%d" % a.port,
+                         os.getenv("PIFPAF_URL"))
+        r = requests.get(os.getenv("PIFPAF_KEYSTONE_HTTP_URL"))
+        self.assertEqual(300, r.status_code)
 
     @testtools.skipUnless(spawn.find_executable("ceph-mon"),
                           "Ceph Monitor not found")
