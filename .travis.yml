@@ -25,7 +25,6 @@ before_install:
   - sudo gem install fakes3
   - wget https://dl.influxdata.com/influxdb/releases/influxdb_0.13.0_amd64.deb
   - sudo dpkg -i influxdb_0.13.0_amd64.deb
-  - pip install http://tarballs.openstack.org/keystone/keystone-master.tar.gz
 install:
     # The install requirements in travis virtualenv that will be cached
   - pip install tox-travis .[test]
