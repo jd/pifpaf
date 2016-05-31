@@ -101,13 +101,17 @@ class Driver(fixtures.Fixture):
                 "PATH": ":".join(path) + ":" + os.getenv("PATH", ""),
             })
 
-        c = subprocess.Popen(
-            command,
-            close_fds=True,
-            stdin=stdin_fd,
-            stdout=stdout_fd,
-            stderr=subprocess.STDOUT,
-            env=complete_env or None)
+        try:
+            c = subprocess.Popen(
+                command,
+                close_fds=True,
+                stdin=stdin_fd,
+                stdout=stdout_fd,
+                stderr=subprocess.STDOUT,
+                env=complete_env or None)
+        except OSError as e:
+            raise RuntimeError(
+                "Unable to run command `%s': %s" % (" ".join(command), e))
 
         if stdin:
             LOG.debug("%s input: %s" % (app, stdin))
