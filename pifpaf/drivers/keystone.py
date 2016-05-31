@@ -81,7 +81,7 @@ connection = sqlite:///%s/sqlite.db
              "--port", str(self.port),
              "--",
              "--config-file", conffile],
-            wait_for_line=b"Available at http://127.0.0.1:%d" % self.port)
+            wait_for_line=b"Available at http://")
         self.addCleanup(self._kill, c.pid)
 
         c, _ = self._exec(
