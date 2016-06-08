@@ -89,8 +89,7 @@ connection = sqlite:///%s/sqlite.db
              "--port", str(self.admin_port),
              "--",
              "--config-file", conffile],
-            wait_for_line=b"Available at http://127.0.0.1:%d"
-            % self.admin_port)
+            wait_for_line=b"Available at http://")
         self.addCleanup(self._kill, c.pid)
 
         self.putenv("OS_AUTH_URL", self.http_url, True)
