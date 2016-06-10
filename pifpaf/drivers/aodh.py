@@ -115,6 +115,10 @@ endpoint = %s""" % (pg.url, self.port, user, project, g.http_url))
                           wait_for_line=b"Running on http://0.0.0.0")
         self.addCleanup(self._kill, c.pid)
 
+        c, _ = self._exec(["aodh-evaluator", "--config-file=%s" % conffile],
+                          wait_for_line=b"initiating evaluation cycle")
+        self.addCleanup(self._kill, c.pid)
+
         self.putenv("AODH_PORT", str(self.port))
         self.putenv("AODH_GNOCCHI_USER_ID", user)
         self.putenv("AODH_GNOCCHI_PROJECT_ID", project)
