@@ -14,6 +14,8 @@
 import os
 import shutil
 
+import six
+
 from pifpaf import drivers
 from pifpaf.drivers import postgresql
 
@@ -64,10 +66,8 @@ class GnocchiDriver(drivers.Driver):
             f.write("""[storage]
 file_basepath = %s
 driver = file
-[api]
-port = %d
 [indexer]
-url = %s""" % (self.tempdir, self.port, pg.url))
+url = %s""" % (self.tempdir, pg.url))
 
         gnocchi_upgrade = ["gnocchi-upgrade", "--config-file=%s" % conffile]
         if self.create_legacy_resource_types:
@@ -78,8 +78,14 @@ url = %s""" % (self.tempdir, self.port, pg.url))
                           wait_for_line=b"Metricd reporting")
         self.addCleanup(self._kill, c.pid)
 
-        c, _ = self._exec(["gnocchi-api", "--config-file=%s" % conffile],
-                          wait_for_line=b"Running on http://0.0.0.0")
+        c, _ = self._exec(
+            ["gnocchi-api", "--port", str(self.port),
+             "--", "--config-file=%s" % conffile],
+            wait_for_line=(
+                b"Available at http://127.0.0.1:"
+                + six.b(str(self.port))
+            )
+        )
         self.addCleanup(self._kill, c.pid)
 
         self.http_url = "http://localhost:%d" % self.port
