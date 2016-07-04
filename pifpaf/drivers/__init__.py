@@ -13,6 +13,7 @@
 
 import logging
 import os
+import re
 import signal
 import subprocess
 import threading
@@ -130,7 +131,7 @@ class Driver(fixtures.Fixture):
                             % wait_for_line)
                     break
                 lines.append(line)
-                if wait_for_line and wait_for_line in line:
+                if wait_for_line and re.search(wait_for_line, line):
                     break
             # Continue to read
             t = threading.Thread(target=self._read_in_bg,
