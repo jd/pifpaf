@@ -73,13 +73,13 @@ url = %s""" % (self.tempdir, pg.url))
         self._exec(gnocchi_upgrade)
 
         c, _ = self._exec(["gnocchi-metricd", "--config-file=%s" % conffile],
-                          wait_for_line=b"Metricd reporting")
+                          wait_for_line="Metricd reporting")
         self.addCleanup(self._kill, c.pid)
 
         c, _ = self._exec(
             ["gnocchi-api", "--port", str(self.port),
              "--", "--config-file=%s" % conffile],
-            wait_for_line=b"Available at http://")
+            wait_for_line="Available at http://")
         self.addCleanup(self._kill, c.pid)
 
         self.http_url = "http://localhost:%d" % self.port

@@ -38,7 +38,7 @@ class FakeS3Driver(drivers.Driver):
             ["fakes3",
              "--root", self.tempdir,
              "--port", str(self.port)],
-            wait_for_line=b"INFO  WEBrick::HTTPServer#start: pid=")
+            wait_for_line="INFO  WEBrick::HTTPServer#start: pid=")
 
         self.addCleanup(self._kill, c.pid)
 

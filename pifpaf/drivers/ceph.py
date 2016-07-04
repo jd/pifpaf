@@ -134,9 +134,9 @@ mon addr = 127.0.0.1:%(port)d
                                 "root=default"])
         self._exec(osd_opts + ["--mkfs", "--mkjournal"])
         if version < pkg_resources.parse_version("0.94.0"):
-            wait_for_line = b"journal close"
+            wait_for_line = "journal close"
         else:
-            wait_for_line = b"done with init"
+            wait_for_line = "done with init"
         osd, _ = self._exec(osd_opts, wait_for_line=wait_for_line)
         self.addCleanup(self._kill, osd.pid)
 

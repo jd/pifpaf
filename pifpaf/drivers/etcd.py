@@ -38,7 +38,7 @@ class EtcdDriver(drivers.Driver):
                            "--data-dir=" + self.tempdir,
                            "--listen-client-urls=" + http_url,
                            "--advertise-client-urls=" + http_url],
-                          wait_for_line=b"listening for client requests on")
+                          wait_for_line="listening for client requests on")
 
         self.addCleanup(self._kill, c.pid)
 

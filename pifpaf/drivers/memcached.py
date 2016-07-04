@@ -36,7 +36,7 @@ class MemcachedDriver(drivers.Driver):
         c, _ = self._exec(["memcached",
                            "-vv",
                            "-p " + str(self.port)],
-                          wait_for_line=b"server listening")
+                          wait_for_line="server listening")
 
         self.addCleanup(self._kill, c.pid)
 

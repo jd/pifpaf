@@ -191,9 +191,9 @@ class TestDrivers(testtools.TestCase):
                          os.getenv("PIFPAF_URL"))
         self.assertEqual(str(port), os.getenv("PIFPAF_ZOOKEEPER_PORT"))
         s = socket.create_connection(("localhost", f.port))
-        s.send("ruok\n")
+        s.send(b"ruok\n")
         reply = s.recv(1024)
-        self.assertEqual("imok", reply)
+        self.assertEqual(b"imok", reply)
 
     @testtools.skipUnless(spawn.find_executable("gnocchi-api"),
                           "Gnocchi not found")

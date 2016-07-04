@@ -41,7 +41,7 @@ class ConsulDriver(drivers.Driver):
                            "-node=%s" % self.DEFAULT_NODE,
                            "-bind=%s" % self.DEFAULT_HOST,
                            "-http-port=%s" % self.port],
-                          wait_for_line=b"New leader elected")
+                          wait_for_line="New leader elected")
 
         self.addCleanup(self._kill, c.pid)
 

@@ -31,7 +31,7 @@ class MySQLDriver(drivers.Driver):
                     "--socket=" + self.socket,
                     "--skip-networking",
                     "--skip-grant-tables"],
-                   wait_for_line=b"mysqld: ready for connections.",
+                   wait_for_line="mysqld: ready for connections.",
                    path=["/usr/libexec"])
         self.addCleanup(self._kill_pid_file, pidfile)
         self._exec(["mysql",

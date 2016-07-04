@@ -112,11 +112,11 @@ endpoint = %s""" % (pg.url, self.port, user, project, g.http_url))
         self._exec(["aodh-dbsync", "--config-file=%s" % conffile])
 
         c, _ = self._exec(["aodh-api", "--config-file=%s" % conffile],
-                          wait_for_line=b"Running on http://0.0.0.0")
+                          wait_for_line="Running on http://0.0.0.0")
         self.addCleanup(self._kill, c.pid)
 
         c, _ = self._exec(["aodh-evaluator", "--config-file=%s" % conffile],
-                          wait_for_line=b"initiating evaluation cycle")
+                          wait_for_line="initiating evaluation cycle")
         self.addCleanup(self._kill, c.pid)
 
         self.putenv("AODH_PORT", str(self.port))

@@ -53,7 +53,7 @@ clientPort=%s""" % (self.tempdir, self.port))
 
         c, _ = self._exec(
             ["zkServer.sh", "start", cfgfile],
-            wait_for_line=b"STARTED",
+            wait_for_line="STARTED",
             path=path)
 
         self.addCleanup(self._exec,
