@@ -249,6 +249,8 @@ class TestDrivers(testtools.TestCase):
     @testtools.skipUnless(spawn.find_executable("keystone-manage"),
                           "Keystone not found")
     def test_keystone(self):
+        self.skipTest(
+            "Keystone does not provide configuration files in venv")
         a = self.useFixture(keystone.KeystoneDriver())
         self.assertEqual("keystone://localhost:%d" % a.port,
                          os.getenv("PIFPAF_URL"))
