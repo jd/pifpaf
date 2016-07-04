@@ -82,7 +82,7 @@ url = %s""" % (self.tempdir, pg.url))
             ["gnocchi-api", "--port", str(self.port),
              "--", "--config-file=%s" % conffile],
             wait_for_line=(
-                b"Available at http://127.0.0.1:"
+                b"Available at http://"
                 + six.b(str(self.port))
             )
         )
