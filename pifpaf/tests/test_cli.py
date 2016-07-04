@@ -30,7 +30,7 @@ class TestCli(testtools.TestCase):
     @testtools.skipUnless(spawn.find_executable("memcached"),
                           "memcached not found")
     def test_eval(self):
-        c = subprocess.Popen(["pifpaf", "run", "memcached", "--port", "11215"],
+        c = subprocess.Popen(["pifpaf", "run", "memcached", "--port", "11219"],
                              stdout=subprocess.PIPE)
         self.assertEqual(0, c.wait())
         env = {}
@@ -39,9 +39,9 @@ class TestCli(testtools.TestCase):
             env[k] = v
         os.kill(int(env[b"export PIFPAF_PID"].strip()[:-1]), signal.SIGTERM)
 
-        self.assertEqual(b"\"memcached://localhost:11215\";\n",
+        self.assertEqual(b"\"memcached://localhost:11219\";\n",
                          env[b"export PIFPAF_URL"])
-        self.assertEqual(b"\"memcached://localhost:11215\";\n",
+        self.assertEqual(b"\"memcached://localhost:11219\";\n",
                          env[b"export PIFPAF_MEMCACHED_URL"])
 
     @testtools.skipUnless(spawn.find_executable("memcached"),
