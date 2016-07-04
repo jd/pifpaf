@@ -14,8 +14,6 @@
 import os
 import shutil
 
-import six
-
 from pifpaf import drivers
 from pifpaf.drivers import postgresql
 
@@ -81,7 +79,7 @@ url = %s""" % (self.tempdir, pg.url))
         c, _ = self._exec(
             ["gnocchi-api", "--port", str(self.port),
              "--", "--config-file=%s" % conffile],
-            wait_for_line= b"Available at http://")
+            wait_for_line=b"Available at http://")
         self.addCleanup(self._kill, c.pid)
 
         self.http_url = "http://localhost:%d" % self.port
