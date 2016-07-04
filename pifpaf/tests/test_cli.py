@@ -50,17 +50,19 @@ class TestCli(testtools.TestCase):
         c = subprocess.Popen(["pifpaf",
                               "--env-prefix", "FOOBAR",
                               "run", "memcached", "--port", "11215"],
+                             bufsize=0,
                              stdout=subprocess.PIPE)
+        (stdout, stderr) = c.communicate()
         self.assertEqual(0, c.wait())
         env = {}
-        for line in c.stdout.readlines():
+        for line in stdout.split(b"\n"):
             k, _, v = line.partition(b"=")
             env[k] = v
         os.kill(int(env[b"export PIFPAF_PID"].strip()[:-1]), signal.SIGTERM)
 
-        self.assertEqual(b"\"memcached://localhost:11215\";\n",
+        self.assertEqual(b"\"memcached://localhost:11215\";",
                          env[b"export FOOBAR_URL"])
-        self.assertEqual(b"\"memcached://localhost:11215\";\n",
+        self.assertEqual(b"\"memcached://localhost:11215\";",
                          env[b"export FOOBAR_MEMCACHED_URL"])
 
     @testtools.skipUnless(spawn.find_executable("memcached"),
@@ -72,18 +74,20 @@ class TestCli(testtools.TestCase):
                               "--",
                               "pifpaf",
                               "run", "memcached", "--port", "11218"],
+                             bufsize=0,
                              stdout=subprocess.PIPE)
+        (stdout, stderr) = c.communicate()
         self.assertEqual(0, c.wait())
         env = {}
-        for line in c.stdout.readlines():
+        for line in stdout.split(b"\n"):
             k, _, v = line.partition(b"=")
             env[k] = v
         os.kill(int(env[b"export PIFPAF_PID"].strip()[:-1]), signal.SIGTERM)
 
-        self.assertEqual(b"\"memcached://localhost:11218\";\n",
+        self.assertEqual(b"\"memcached://localhost:11218\";",
                          env[b"export PIFPAF_URL"])
-        self.assertEqual(b"\"memcached://localhost:11218\";\n",
+        self.assertEqual(b"\"memcached://localhost:11218\";",
                          env[b"export PIFPAF_MEMCACHED_URL"])
         self.assertEqual(
-            b"\"memcached://localhost:11217;memcached://localhost:11218\";\n",
+            b"\"memcached://localhost:11217;memcached://localhost:11218\";",
             env[b"export PIFPAF_URLS"])
