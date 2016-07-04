@@ -123,7 +123,8 @@ mon addr = 127.0.0.1:%(port)d
         self._exec(mon_opts + ["--mkfs"])
         self._touch(os.path.join(mondir, "done"))
         mon, _ = self._exec(mon_opts,
-                            wait_for_line=b"mon.a@0(leader).mds e1 print_map")
+                            wait_for_line=r"mon.a@0\(leader\).mds e1 print_map")
+
         self.addCleanup(self._kill, mon.pid)
 
         # Create and start OSD
