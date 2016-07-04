@@ -66,7 +66,7 @@ sentinel monitor pifpaf localhost %d 1"""
 
             c, _ = self._exec(
                 ["redis-sentinel", cfg],
-                wait_for_line=b"# Sentinel runid is")
+                wait_for_line=r"# Sentinel (runid|ID) is")
 
             self.addCleanup(self._kill, c.pid)
 
