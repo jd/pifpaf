@@ -124,13 +124,13 @@ class Driver(fixtures.Fixture):
             while True:
                 line = c.stdout.readline()
                 LOG.debug("%s output: %s", app, line.rstrip())
+                lines.append(line)
                 if not line:
                     if wait_for_line:
                         raise RuntimeError(
-                            "Program did not print: `%s'"
-                            % wait_for_line)
+                            "Program did not print: `%s'\nOutput: %s"
+                            % (wait_for_line, lines))
                     break
-                lines.append(line)
                 if wait_for_line and re.search(wait_for_line, line.decode()):
                     break
             # Continue to read
