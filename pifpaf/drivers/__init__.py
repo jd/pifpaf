@@ -129,7 +129,7 @@ class Driver(fixtures.Fixture):
                     if wait_for_line:
                         raise RuntimeError(
                             "Program did not print: `%s'\nOutput: %s"
-                            % (wait_for_line, lines))
+                            % (wait_for_line, b"".join(lines)))
                     break
                 if wait_for_line and re.search(wait_for_line, line.decode()):
                     break
