@@ -100,19 +100,19 @@ class AodhDriver(drivers.Driver):
         with open(conffile, "w") as f:
             f.write("""[database]
 connection = %s
-[api]
-port = %d
 [service_credentials]
 auth_type = gnocchi-noauth
 user_id = %s
 project_id = %s
 roles = admin
-endpoint = %s""" % (pg.url, self.port, user, project, g.http_url))
+endpoint = %s""" % (pg.url, user, project, g.http_url))
 
         self._exec(["aodh-dbsync", "--config-file=%s" % conffile])
 
-        c, _ = self._exec(["aodh-api", "--config-file=%s" % conffile],
-                          wait_for_line="Running on http://0.0.0.0")
+        c, _ = self._exec(["aodh-api", "--port", str(self.port),
+                           "--",
+                           "--config-file=%s" % conffile],
+                          wait_for_line="Available at http://")
         self.addCleanup(self._kill, c.pid)
 
         c, _ = self._exec(["aodh-evaluator", "--config-file=%s" % conffile],
