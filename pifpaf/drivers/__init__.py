@@ -68,13 +68,16 @@ class Driver(fixtures.Fixture):
                 return fullpath
         raise RuntimeError("Configuration file `%s' not found" % filename)
 
-    @staticmethod
-    def _read_in_bg(app, fd):
+    def _read_in_bg(self, app, pid, fd):
         while True:
             data = fd.readline()
             if not data:
                 break
-            LOG.debug("%s output: %s", app, data.rstrip())
+            self._log_output(app, pid, data)
+
+    @staticmethod
+    def _log_output(appname, pid, data):
+        LOG.debug("%s[%d] output: %s", appname, pid, data.rstrip())
 
     def _exec(self, command, stdout=False, ignore_failure=False,
               stdin=None, wait_for_line=None, path=[], env=None):
@@ -123,7 +126,7 @@ class Driver(fixtures.Fixture):
             lines = []
             while True:
                 line = c.stdout.readline()
-                LOG.debug("%s output: %s", app, line.rstrip())
+                self._log_output(app, c.pid, line)
                 lines.append(line)
                 if not line:
                     if wait_for_line:
@@ -135,7 +138,7 @@ class Driver(fixtures.Fixture):
                     break
             # Continue to read
             t = threading.Thread(target=self._read_in_bg,
-                                 args=(app, c.stdout,))
+                                 args=(app, c.pid, c.stdout,))
             t.setDaemon(True)
             t.start()
             stdout_str = b"".join(lines)
