@@ -75,7 +75,21 @@ class TestDrivers(testtools.TestCase):
                           "etcd not found")
     def test_etcd(self):
         port = 4005
-        self.useFixture(etcd.EtcdDriver(port=port))
+        peer_port = 4006
+        self.useFixture(etcd.EtcdDriver(port=port, peer_port=peer_port))
+        self.assertEqual("etcd://localhost:%d" % port,
+                         os.getenv("PIFPAF_URL"))
+        self.assertEqual(str(port), os.getenv("PIFPAF_ETCD_PORT"))
+        r = requests.get("http://localhost:%d/version" % port)
+        self.assertEqual(200, r.status_code)
+
+    @testtools.skipUnless(spawn.find_executable("etcd"),
+                          "etcd not found")
+    def test_etcd_cluster(self):
+        port = 4007
+        peer_port = 4008
+        self.useFixture(etcd.EtcdDriver(port=port, peer_port=peer_port,
+                                        cluster=True))
         self.assertEqual("etcd://localhost:%d" % port,
                          os.getenv("PIFPAF_URL"))
         self.assertEqual(str(port), os.getenv("PIFPAF_ETCD_PORT"))
