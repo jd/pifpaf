@@ -16,12 +16,15 @@ from pifpaf import drivers
 
 class EtcdDriver(drivers.Driver):
 
-    DEFAULT_PORT = 4001
+    DEFAULT_PORT = 2379
+    DEFAULT_PEER_PORT = 2380
 
     def __init__(self, port=DEFAULT_PORT,
+                 peer_port=DEFAULT_PEER_PORT,
                  **kwargs):
         super(EtcdDriver, self).__init__(**kwargs)
         self.port = port
+        self.peer_port = peer_port
 
     @classmethod
     def get_parser(cls, parser):
@@ -29,18 +32,26 @@ class EtcdDriver(drivers.Driver):
                             type=int,
                             default=cls.DEFAULT_PORT,
                             help="port to use for etcd")
+        parser.add_argument("--peer-port",
+                            type=int,
+                            default=cls.DEFAULT_PEER_PORT,
+                            help="port to use for etcd peers")
         return parser
 
     def _setUp(self):
         super(EtcdDriver, self)._setUp()
-        http_url = "http://localhost:%d" % self.port
+        client_url = "http://localhost:%d" % self.port
+        peer_url = "http://localhost:%d" % self.peer_port
         c, _ = self._exec(["etcd",
-                           "--data-dir=" + self.tempdir,
-                           "--listen-client-urls=" + http_url,
-                           "--advertise-client-urls=" + http_url],
+                           "--data-dir", self.tempdir,
+                           "--listen-peer-urls", peer_url,
+                           "--listen-client-urls", client_url,
+                           "--advertise-client-urls", client_url],
                           wait_for_line="listening for client requests on")
 
         self.addCleanup(self._kill, c.pid)
 
         self.putenv("ETCD_PORT", str(self.port))
+        self.putenv("ETCD_PEER_PORT", str(self.peer_port))
+        self.putenv("HTTP_URL", "etcd://localhost:%d" % self.port)
         self.putenv("URL", "etcd://localhost:%d" % self.port)
