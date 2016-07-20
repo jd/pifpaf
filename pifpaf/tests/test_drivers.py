@@ -82,6 +82,7 @@ class TestDrivers(testtools.TestCase):
         self.assertEqual(str(port), os.getenv("PIFPAF_ETCD_PORT"))
         r = requests.get("http://localhost:%d/version" % port)
         self.assertEqual(200, r.status_code)
+        self._run("etcdctl cluster-health")
 
     @testtools.skipUnless(spawn.find_executable("etcd"),
                           "etcd not found")
@@ -95,6 +96,7 @@ class TestDrivers(testtools.TestCase):
         self.assertEqual(str(port), os.getenv("PIFPAF_ETCD_PORT"))
         r = requests.get("http://localhost:%d/version" % port)
         self.assertEqual(200, r.status_code)
+        self._run("etcdctl cluster-health")
 
     @testtools.skipUnless(spawn.find_executable("consul"),
                           "consul not found")
