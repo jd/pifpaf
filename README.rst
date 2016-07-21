@@ -26,7 +26,7 @@ Pifpaf currently supports:
 * `MySQL`_
 * `Memcached`_
 * `InfluxDB`_
-* `Etcd`_
+* `Etcd`_ (with clustering)
 * `Redis`_ (with sentinel mode)
 * `Elasticsearch`_
 * `ZooKeeper`_
