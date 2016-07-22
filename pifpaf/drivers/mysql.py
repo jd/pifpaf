@@ -20,12 +20,18 @@ class MySQLDriver(drivers.Driver):
         super(MySQLDriver, self)._setUp()
         self.socket = os.path.join(self.tempdir, "mysql.socket")
         pidfile = os.path.join(self.tempdir, "mysql.pid")
+        tempdir = os.path.join(self.tempdir, "tmp")
+        os.mkdir(tempdir)
         self._exec(["mysqld",
+                    "--no-defaults",
+                    "--tmpdir=" + tempdir,
                     "--initialize-insecure",
                     "--datadir=" + self.tempdir],
                    ignore_failure=True,
                    path=["/usr/libexec"])
         self._exec(["mysqld",
+                    "--no-defaults",
+                    "--tmpdir=" + tempdir,
                     "--datadir=" + self.tempdir,
                     "--pid-file=" + pidfile,
                     "--socket=" + self.socket,
