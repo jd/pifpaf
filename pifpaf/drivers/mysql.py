@@ -20,19 +20,27 @@ class MySQLDriver(drivers.Driver):
         super(MySQLDriver, self)._setUp()
         self.socket = os.path.join(self.tempdir, "mysql.socket")
         pidfile = os.path.join(self.tempdir, "mysql.pid")
+        datadir = os.path.join(self.tempdir, "data")
         tempdir = os.path.join(self.tempdir, "tmp")
+        os.mkdir(datadir)
         os.mkdir(tempdir)
+        c, _ = self._exec(["mysqld",
+                           "--no-defaults",
+                           "--tmpdir=" + tempdir,
+                           "--initialize-insecure",
+                           "--datadir=" + datadir],
+                          ignore_failure=True,
+                          path=["/usr/libexec"])
+        if c.returncode != 0:
+            # Use the old deprecated way
+            c, _ = self._exec(["mysql_install_db",
+                               "--no-defaults",
+                               "--tmpdir=" + tempdir,
+                               "--datadir=" + datadir])
         self._exec(["mysqld",
                     "--no-defaults",
                     "--tmpdir=" + tempdir,
-                    "--initialize-insecure",
-                    "--datadir=" + self.tempdir],
-                   ignore_failure=True,
-                   path=["/usr/libexec"])
-        self._exec(["mysqld",
-                    "--no-defaults",
-                    "--tmpdir=" + tempdir,
-                    "--datadir=" + self.tempdir,
+                    "--datadir=" + datadir,
                     "--pid-file=" + pidfile,
                     "--socket=" + self.socket,
                     "--skip-networking",
