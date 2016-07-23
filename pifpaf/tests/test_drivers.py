@@ -156,15 +156,15 @@ class TestDrivers(testtools.TestCase):
     def test_mysql(self):
         f = self.useFixture(mysql.MySQLDriver())
         self.assertEqual(
-            "mysql://root@localhost/test?unix_socket=%s/mysql.socket"
+            "mysql://root@localhost/pifpaf?unix_socket=%s/mysql.socket"
             % f.tempdir,
             os.getenv("PIFPAF_URL"))
         self.assertEqual(
-            "mysql://root@localhost/test?unix_socket=%s/mysql.socket"
+            "mysql://root@localhost/pifpaf?unix_socket=%s/mysql.socket"
             % f.tempdir,
             f.url)
         self._run(
-            "mysql --no-defaults -S %s -e 'SHOW TABLES;' test" % f.socket)
+            "mysql --no-defaults -S %s -e 'SHOW TABLES;' pifpaf" % f.socket)
 
     @testtools.skipUnless(spawn.find_executable("pg_config"),
                           "pg_config not found")
