@@ -56,5 +56,5 @@ class MySQLDriver(drivers.Driver):
                     "-S", self.socket,
                     "-e", "CREATE DATABASE pifpaf;"])
         self.putenv("MYSQL_SOCKET", self.socket)
-        self.url = "mysql://root@localhost/pifpafunix_socket=" + self.socket
+        self.url = "mysql://root@localhost/pifpaf?unix_socket=" + self.socket
         self.putenv("URL", self.url)
