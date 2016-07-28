@@ -28,7 +28,6 @@ class MySQLDriver(drivers.Driver):
                            "--no-defaults",
                            "--tmpdir=" + tempdir,
                            "--initialize-insecure",
-                           "--basedir=/usr",
                            "--datadir=" + datadir],
                           ignore_failure=True,
                           path=["/usr/libexec"])
@@ -36,12 +35,10 @@ class MySQLDriver(drivers.Driver):
             # Use the old deprecated way
             c, _ = self._exec(["mysql_install_db",
                                "--no-defaults",
-                               "--basedir=/usr",
                                "--tmpdir=" + tempdir,
                                "--datadir=" + datadir])
         self._exec(["mysqld",
                     "--no-defaults",
-                    "--basedir=/usr",
                     "--tmpdir=" + tempdir,
                     "--datadir=" + datadir,
                     "--pid-file=" + pidfile,
