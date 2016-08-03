@@ -73,7 +73,7 @@ url = %s""" % (self.tempdir, pg.url))
         self._exec(gnocchi_upgrade)
 
         c, _ = self._exec(["gnocchi-metricd", "--config-file=%s" % conffile],
-                          wait_for_line="Metricd reporting")
+                          wait_for_line="metrics wait to be processed")
         self.addCleanup(self._kill, c.pid)
 
         c, _ = self._exec(

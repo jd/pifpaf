@@ -16,6 +16,7 @@ import os
 import re
 import signal
 import subprocess
+import sys
 import threading
 
 import fixtures
@@ -57,11 +58,10 @@ class Driver(fixtures.Fixture):
         # NOTE(sileht): order matter, we first check into virtualenv
         # then global user installation, next system installation,
         # and to finish local user installation
-        check_dirs = ["/usr/local/etc",
+        check_dirs = [sys.prefix + "/etc",
+                      "/usr/local/etc",
                       "/etc",
                       os.path.expanduser("~/.local/etc")]
-        if "VIRTUAL_ENV" in os.environ:
-            check_dirs.insert(0, os.getenv("VIRTUAL_ENV") + "/etc")
         for d in check_dirs:
             fullpath = os.path.join(d, filename)
             if os.path.exists(fullpath):
