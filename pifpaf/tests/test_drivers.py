@@ -25,6 +25,7 @@ import testtools
 from pifpaf.drivers import aodh
 from pifpaf.drivers import ceph
 from pifpaf.drivers import consul
+from pifpaf.drivers import couchdb
 from pifpaf.drivers import elasticsearch
 from pifpaf.drivers import etcd
 from pifpaf.drivers import fakes3
@@ -326,3 +327,13 @@ class TestDrivers(testtools.TestCase):
         a.kill_node(a.nodename + "-2@localhost")
         a.stop_node(a.nodename + "-3@localhost")
         a.start_node(a.nodename + "-3@localhost")
+
+    @testtools.skipUnless(spawn.find_executable("couchdb"),
+                          "CouchDB not found")
+    def test_couchdb(self):
+        port = 6984
+        self.useFixture(couchdb.CouchDBDriver(port=port))
+        self.assertEqual("couchdb://localhost:%d" % port,
+                         os.getenv("PIFPAF_URL"))
+        r = requests.get("http://localhost:%d/" % port)
+        self.assertEqual(r.json()["couchdb"], "Welcome")
