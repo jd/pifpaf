@@ -37,6 +37,7 @@ Pifpaf currently supports:
 * `FakeS3`_
 * `Consul`_
 * `Keystone`_
+* `CouchDB`_
 
 .. _Consul: https://www.consul.io/
 .. _PostgreSQL: http://postgresql.org
@@ -53,6 +54,7 @@ Pifpaf currently supports:
 .. _RabbitMQ: https://www.rabbitmq.com/
 .. _FakeS3: https://github.com/jubos/fake-s3
 .. _Keystone: https://launchpad.net/keystone
+.. _CouchDB: http://couchdb.apache.org/
 
 Usage
 =====
