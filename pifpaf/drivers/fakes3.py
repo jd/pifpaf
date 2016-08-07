@@ -44,3 +44,4 @@ class FakeS3Driver(drivers.Driver):
 
         self.putenv("FAKES3_PORT", str(self.port))
         self.putenv("URL", "s3://localhost:%d" % self.port)
+        self.putenv("HTTP_URL", "http://localhost:%d" % self.port)
