@@ -137,7 +137,7 @@ daemons at once::
 
 The `PIFPAF_URLS` environment variable will contain the list of all URLs
 detected and set-up by Pifpaf. You can override this variable name with the
-`--gobal-urls-variable` option.
+`--global-urls-variable` option.
 
 How it works under the hood
 ===========================
