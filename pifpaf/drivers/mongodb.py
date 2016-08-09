@@ -33,6 +33,16 @@ class MongoDBDriver(drivers.Driver):
     def _setUp(self):
         super(MongoDBDriver, self)._setUp()
 
+        c, output = self._exec(["mongod", "--help"], stdout=True)
+
+        # We need to specify the storage engine if --storageEngine is present \
+        # but WiredTiger isn't.
+        if b"WiredTiger options:" not in output and \
+           b"--storageEngine" in output:
+            storage_engine = ["--storageEngine", "mmapv1"]
+        else:
+            storage_engine = []
+
         c, _ = self._exec(
             ["mongod",
              "--nojournal",
@@ -43,7 +53,7 @@ class MongoDBDriver(drivers.Driver):
              "--port", str(self.port),
              "--dbpath", self.tempdir,
              "--bind_ip", "localhost",
-             "--config", "/dev/null"],
+             "--config", "/dev/null"] + storage_engine,
             wait_for_line="waiting for connections on port %d" % self.port)
 
         self.addCleanup(self._kill, c.pid)
