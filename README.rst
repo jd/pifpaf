@@ -39,6 +39,7 @@ Pifpaf currently supports:
 * `Keystone`_
 * `CouchDB`_
 * `S3rver`_
+* `MongoDB`_
 
 .. _Consul: https://www.consul.io/
 .. _PostgreSQL: http://postgresql.org
@@ -57,6 +58,7 @@ Pifpaf currently supports:
 .. _Keystone: https://launchpad.net/keystone
 .. _CouchDB: http://couchdb.apache.org/
 .. _S3rver: https://www.npmjs.com/package/s3rver
+.. _MongoDB: https://www.mongodb.com
 
 Usage
 =====
