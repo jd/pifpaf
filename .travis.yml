@@ -19,12 +19,14 @@ addons:
     - mongodb
     - couchdb
     - couchdb-bin
+    - npm
 before_install:
   - curl 'https://git.ceph.com/?p=ceph.git;a=blob_plain;f=keys/release.asc' | sudo apt-key add -
   - echo deb http://download.ceph.com/debian-hammer/ $(lsb_release -sc) main | sudo tee /etc/apt/sources.list.d/ceph.list
   - sudo apt-get update -yq
   - sudo apt-get install -yq ceph
   - sudo gem install fakes3
+  - sudo npm install s3rver -g
   - wget https://dl.influxdata.com/influxdb/releases/influxdb_0.13.0_amd64.deb
   - sudo dpkg -i influxdb_0.13.0_amd64.deb
 install:

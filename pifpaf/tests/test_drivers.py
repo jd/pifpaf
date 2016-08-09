@@ -141,6 +141,16 @@ class TestDrivers(testtools.TestCase):
                          os.getenv("PIFPAF_URL"))
         self.assertEqual(str(port), os.getenv("PIFPAF_FAKES3_PORT"))
 
+    @testtools.skipUnless(spawn.find_executable("s3rver"),
+                          "s3rver not found")
+    def test_s3rver(self):
+        port = 4569
+        self.useFixture(fakes3.FakeS3Driver(port=port))
+        self.assertEqual("s3://localhost:%d" % port,
+                         os.getenv("PIFPAF_URL"))
+        self.assertEqual("http://localhost:%d" % port,
+                         os.getenv("PIFPAF_HTTP_URL"))
+
     @testtools.skipUnless(spawn.find_executable("mongod"),
                           "mongod not found")
     def test_mongodb(self):
