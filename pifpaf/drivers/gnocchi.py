@@ -25,10 +25,12 @@ class GnocchiDriver(drivers.Driver):
 
     def __init__(self, port=DEFAULT_PORT, indexer_port=DEFAULT_PORT_INDEXER,
                  create_legacy_resource_types=False,
+                 indexer_url=None,
                  **kwargs):
         super(GnocchiDriver, self).__init__(**kwargs)
         self.port = port
         self.indexer_port = indexer_port
+        self.indexer_url = indexer_url
         self.create_legacy_resource_types = create_legacy_resource_types
 
     @classmethod
@@ -45,6 +47,7 @@ class GnocchiDriver(drivers.Driver):
                             action='store_true',
                             default=False,
                             help="create legacy Ceilometer resource types")
+        parser.add_argument("--indexer-url", help="indexer URL to use")
         return parser
 
     def _setUp(self):
@@ -55,8 +58,10 @@ class GnocchiDriver(drivers.Driver):
         shutil.copy(self.find_config_file("gnocchi/policy.json"),
                     self.tempdir)
 
-        pg = self.useFixture(
-            postgresql.PostgreSQLDriver(port=self.indexer_port))
+        if self.indexer_url is None:
+            pg = self.useFixture(
+                postgresql.PostgreSQLDriver(port=self.indexer_port))
+            self.indexer_url = pg.url
 
         conffile = os.path.join(self.tempdir, "gnocchi.conf")
 
@@ -65,7 +70,7 @@ class GnocchiDriver(drivers.Driver):
 file_basepath = %s
 driver = file
 [indexer]
-url = %s""" % (self.tempdir, pg.url))
+url = %s""" % (self.tempdir, self.indexer_url))
 
         gnocchi_upgrade = ["gnocchi-upgrade", "--config-file=%s" % conffile]
         if self.create_legacy_resource_types:

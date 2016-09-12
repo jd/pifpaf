@@ -234,6 +234,18 @@ class TestDrivers(testtools.TestCase):
 
     @testtools.skipUnless(spawn.find_executable("gnocchi-api"),
                           "Gnocchi not found")
+    def test_gnocchi_with_existing_indexer(self):
+        port = gnocchi.GnocchiDriver.DEFAULT_PORT + 10
+        pg = self.useFixture(postgresql.PostgreSQLDriver(port=9833))
+        self.useFixture(gnocchi.GnocchiDriver(
+            indexer_url=pg.url, port=port))
+        self.assertEqual("gnocchi://localhost:%d" % port,
+                         os.getenv("PIFPAF_URL"))
+        r = requests.get("http://localhost:%d/" % port)
+        self.assertEqual(200, r.status_code)
+
+    @testtools.skipUnless(spawn.find_executable("gnocchi-api"),
+                          "Gnocchi not found")
     def test_gnocchi_legacy(self):
         port = gnocchi.GnocchiDriver.DEFAULT_PORT + 10
         self.useFixture(gnocchi.GnocchiDriver(
