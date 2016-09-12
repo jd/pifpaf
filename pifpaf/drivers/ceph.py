@@ -89,7 +89,7 @@ mon cluster log file = %(tempdir)s/$cluster.log
 filestore xattr use omap = True
 
 # workaround for ext4 and last Jewel version
-osd max object name len = 64
+osd max object name len = 256
 
 # Don't fail until it's really full
 mon_osd_nearfull_ratio = 1
