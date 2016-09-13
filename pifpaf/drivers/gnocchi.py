@@ -14,6 +14,8 @@
 import os
 import shutil
 
+import six.moves.urllib.parse as urlparse
+
 from pifpaf import drivers
 from pifpaf.drivers import postgresql
 
@@ -26,11 +28,13 @@ class GnocchiDriver(drivers.Driver):
     def __init__(self, port=DEFAULT_PORT, indexer_port=DEFAULT_PORT_INDEXER,
                  create_legacy_resource_types=False,
                  indexer_url=None,
+                 storage_url=None,
                  **kwargs):
         super(GnocchiDriver, self).__init__(**kwargs)
         self.port = port
         self.indexer_port = indexer_port
         self.indexer_url = indexer_url
+        self.storage_url = storage_url
         self.create_legacy_resource_types = create_legacy_resource_types
 
     @classmethod
@@ -48,6 +52,7 @@ class GnocchiDriver(drivers.Driver):
                             default=False,
                             help="create legacy Ceilometer resource types")
         parser.add_argument("--indexer-url", help="indexer URL to use")
+        parser.add_argument("--storage-url", help="storage URL to use")
         return parser
 
     def _setUp(self):
@@ -63,14 +68,32 @@ class GnocchiDriver(drivers.Driver):
                 postgresql.PostgreSQLDriver(port=self.indexer_port))
             self.indexer_url = pg.url
 
+        if self.storage_url is None:
+            self.storage_url = "file://%s" % self.tempdir
+
         conffile = os.path.join(self.tempdir, "gnocchi.conf")
+
+        storage_parsed = urlparse.urlparse(self.storage_url)
+        storage_driver = storage_parsed.scheme
+        if storage_driver not in ["file", "ceph"]:
+            raise RuntimeError("Storage driver %s is not supported" %
+                               storage_driver)
+
+        storage_conf_name = {
+            "ceph": "ceph_conffile",
+            "file": "file_basepath"
+        }[storage_driver]
+        storage_conf_value = storage_parsed.path
 
         with open(conffile, "w") as f:
             f.write("""[storage]
-file_basepath = %s
-driver = file
+driver = %s
+%s = %s
 [indexer]
-url = %s""" % (self.tempdir, self.indexer_url))
+url = %s""" % (storage_driver,
+               storage_conf_name,
+               storage_conf_value,
+               self.indexer_url))
 
         gnocchi_upgrade = ["gnocchi-upgrade", "--config-file=%s" % conffile]
         if self.create_legacy_resource_types:

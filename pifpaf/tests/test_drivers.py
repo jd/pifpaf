@@ -246,6 +246,36 @@ class TestDrivers(testtools.TestCase):
 
     @testtools.skipUnless(spawn.find_executable("gnocchi-api"),
                           "Gnocchi not found")
+    @testtools.skipUnless(spawn.find_executable("ceph-mon"),
+                          "Ceph Monitor not found")
+    @testtools.skipUnless(spawn.find_executable("ceph-osd"),
+                          "Ceph OSD not found")
+    @testtools.skipUnless(spawn.find_executable("ceph"),
+                          "Ceph client not found")
+    def test_gnocchi_with_existing_ceph(self):
+        port = gnocchi.GnocchiDriver.DEFAULT_PORT + 10
+        tempdir = self.useFixture(fixtures.TempDir()).path
+
+        ceph_driver = ceph.CephDriver()
+        try:
+            ceph_driver._ensure_xattr_support(tempdir)
+        except RuntimeError as e:
+            self.skipTest(str(e))
+        self.useFixture(ceph_driver)
+
+        ceph_driver._exec(["rados", "-c", os.getenv("CEPH_CONF"), "mkpool",
+                           "gnocchi"]),
+
+        self.useFixture(gnocchi.GnocchiDriver(
+            storage_url="ceph://%s" % os.getenv("CEPH_CONF"),
+            port=port))
+        self.assertEqual("gnocchi://localhost:%d" % port,
+                         os.getenv("PIFPAF_URL"))
+        r = requests.get("http://localhost:%d/" % port)
+        self.assertEqual(200, r.status_code)
+
+    @testtools.skipUnless(spawn.find_executable("gnocchi-api"),
+                          "Gnocchi not found")
     def test_gnocchi_legacy(self):
         port = gnocchi.GnocchiDriver.DEFAULT_PORT + 10
         self.useFixture(gnocchi.GnocchiDriver(
