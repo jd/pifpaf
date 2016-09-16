@@ -61,6 +61,11 @@ class CephDriver(drivers.Driver):
         os.makedirs(mondir)
         os.makedirs(osddir)
 
+        if os.path.exists("/dev/shm") and os.access('/dev/shm', os.W_OK):
+            journal_path = "/dev/shm/$cluster-$id-journal"
+        else:
+            journal_path = "%s/osd/$cluster-$id/journal" % self.tempdir
+
         with open(conffile, "w") as f:
             f.write("""[global]
 fsid = %(fsid)s
@@ -81,7 +86,7 @@ pid file = %(tempdir)s/$type.$id.pid
 admin socket = %(tempdir)s/$cluster-$name.asok
 mon data = %(tempdir)s/mon/$cluster-$id
 osd data = %(tempdir)s/osd/$cluster-$id
-osd journal = %(tempdir)s/osd/$cluster-$id/journal
+osd journal = %(journal_path)s
 log file = %(tempdir)s/$cluster-$name.log
 mon cluster log file = %(tempdir)s/$cluster.log
 
@@ -89,7 +94,10 @@ mon cluster log file = %(tempdir)s/$cluster.log
 filestore xattr use omap = True
 
 # workaround for ext4 and last Jewel version
-osd max object name len = 256
+osd max object name len = 1024
+osd op threads = 10
+filestore max sync interval = 10001
+filestore min sync interval = 10000
 
 # Don't fail until it's really full
 mon_osd_nearfull_ratio = 1
@@ -108,7 +116,8 @@ setuser match path = %(tempdir)s/$type/$cluster-$id
 [mon.a]
 host = localhost
 mon addr = 127.0.0.1:%(port)d
-""" % dict(fsid=fsid, tempdir=self.tempdir, port=self.port))
+""" % dict(fsid=fsid, tempdir=self.tempdir, port=self.port,
+           journal_path=journal_path))
 
         ceph_opts = ["ceph", "-c", conffile]
         mon_opts = ["ceph-mon", "-c", conffile, "--id", "a", "-d"]
