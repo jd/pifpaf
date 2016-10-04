@@ -13,6 +13,7 @@
 
 import os
 import shutil
+import uuid
 
 import six.moves.urllib.parse as urlparse
 
@@ -26,6 +27,7 @@ class GnocchiDriver(drivers.Driver):
     DEFAULT_PORT_INDEXER = 9541
 
     def __init__(self, port=DEFAULT_PORT, indexer_port=DEFAULT_PORT_INDEXER,
+                 statsd_port=None,
                  create_legacy_resource_types=False,
                  indexer_url=None,
                  storage_url=None,
@@ -35,6 +37,7 @@ class GnocchiDriver(drivers.Driver):
         self.indexer_port = indexer_port
         self.indexer_url = indexer_url
         self.storage_url = storage_url
+        self.statsd_port = statsd_port
         self.create_legacy_resource_types = create_legacy_resource_types
 
     @classmethod
@@ -42,7 +45,10 @@ class GnocchiDriver(drivers.Driver):
         parser.add_argument("--port",
                             type=int,
                             default=cls.DEFAULT_PORT,
-                            help="port to use for Gnocchi")
+                            help="port to use for Gnocchi HTTP API")
+        parser.add_argument("--statsd-port",
+                            type=int,
+                            help="port to use for gnocchi-statsd")
         parser.add_argument("--indexer-port",
                             type=int,
                             default=cls.DEFAULT_PORT_INDEXER,
@@ -85,14 +91,21 @@ class GnocchiDriver(drivers.Driver):
         }[storage_driver]
         storage_conf_value = storage_parsed.path
 
+        statsd_resource_id = str(uuid.uuid4())
+
         with open(conffile, "w") as f:
             f.write("""[storage]
 driver = %s
 %s = %s
+[statsd]
+resource_id = %s
+user_id = admin
+project_id = admin
 [indexer]
 url = %s""" % (storage_driver,
                storage_conf_name,
                storage_conf_value,
+               statsd_resource_id,
                self.indexer_url))
 
         gnocchi_upgrade = ["gnocchi-upgrade", "--config-file=%s" % conffile]
@@ -102,6 +115,10 @@ url = %s""" % (storage_driver,
 
         c, _ = self._exec(["gnocchi-metricd", "--config-file=%s" % conffile],
                           wait_for_line="metrics wait to be processed")
+        self.addCleanup(self._kill, c.pid)
+
+        c, _ = self._exec(["gnocchi-statsd", "--config-file=%s" % conffile],
+                          wait_for_line="Started on ")
         self.addCleanup(self._kill, c.pid)
 
         c, _ = self._exec(
@@ -117,5 +134,6 @@ url = %s""" % (storage_driver,
         self.putenv("GNOCCHI_HTTP_URL", self.http_url)
         self.putenv("GNOCCHI_ENDPOINT", self.http_url, True)
         self.putenv("OS_AUTH_TYPE", "gnocchi-noauth", True)
+        self.putenv("GNOCCHI_STATSD_RESOURCE_ID", statsd_resource_id, True)
         self.putenv("GNOCCHI_USER_ID", "admin", True)
         self.putenv("GNOCCHI_PROJECT_ID", "admin", True)
