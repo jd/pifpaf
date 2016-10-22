@@ -39,6 +39,7 @@ from pifpaf.drivers import postgresql
 from pifpaf.drivers import rabbitmq
 from pifpaf.drivers import redis
 from pifpaf.drivers import zookeeper
+from pifpaf.drivers import kafka
 
 
 # FIXME(jd) These are path grabbed from the various modules imported above, do
@@ -389,3 +390,9 @@ class TestDrivers(testtools.TestCase):
                          os.getenv("PIFPAF_URL"))
         r = requests.get("http://localhost:%d/" % port)
         self.assertEqual(r.json()["couchdb"], "Welcome")
+
+    def test_kafka(self):
+        a = self.useFixture(kafka.KafkaDriver())
+        self.assertEqual("9092", os.getenv("PIFPAF_KAFKA_PORT"))
+        self.assertEqual("PLAINTEXT://localhost:9092", os.getenv("PIFPAF_KAFKA_URL"))
+
