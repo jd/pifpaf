@@ -51,6 +51,7 @@ class InfluxDBDriver(drivers.Driver):
             cfg.write("""[meta]
    dir = "%(tempdir)s/meta"
    bind-address = ":51233"
+   http-bind-address = ":51232"
 [admin]
   enabled = false
 [data]
