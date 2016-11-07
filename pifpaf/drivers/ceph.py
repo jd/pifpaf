@@ -116,8 +116,7 @@ setuser match path = %(tempdir)s/$type/$cluster-$id
 [mon.a]
 host = localhost
 mon addr = 127.0.0.1:%(port)d
-""" % dict(fsid=fsid, tempdir=self.tempdir, port=self.port,
-           journal_path=journal_path))
+""" % dict(fsid=fsid, tempdir=self.tempdir, port=self.port, journal_path=journal_path))  # noqa
 
         ceph_opts = ["ceph", "-c", conffile]
         mon_opts = ["ceph-mon", "-c", conffile, "--id", "a", "-d"]
