@@ -54,9 +54,13 @@ os.environ["PATH"] = ":".join((
 class TestDrivers(testtools.TestCase):
     def setUp(self):
         super(TestDrivers, self).setUp()
-        if os.getenv('PIFPAF_DEBUG'):
-            logging.basicConfig(format="%(levelname)8s [%(name)s] %(message)s",
-                                level=logging.DEBUG)
+        self.logger = self.useFixture(
+            fixtures.FakeLogger(
+                format="%(levelname)8s [%(name)s] %(message)s",
+                level=logging.DEBUG,
+                nuke_handlers=True,
+            )
+        )
 
     def _run(self, cmd):
         self.assertEqual(0, os.system(cmd + " >/dev/null 2>&1"))
