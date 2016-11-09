@@ -61,10 +61,11 @@ class CephDriver(drivers.Driver):
         os.makedirs(mondir)
         os.makedirs(osddir)
 
-        if os.path.exists("/dev/shm") and os.access('/dev/shm', os.W_OK):
-            journal_path = "/dev/shm/$cluster-$id-journal"
-        else:
-            journal_path = "%s/osd/$cluster-$id/journal" % self.tempdir
+        # FIXME(sileht): check availible space on /dev/shm
+        # if os.path.exists("/dev/shm") and os.access('/dev/shm', os.W_OK):
+        #     journal_path = "/dev/shm/$cluster-$id-journal"
+        # else:
+        journal_path = "%s/osd/$cluster-$id/journal" % self.tempdir
 
         with open(conffile, "w") as f:
             f.write("""[global]
