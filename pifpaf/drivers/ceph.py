@@ -94,7 +94,8 @@ mon cluster log file = %(tempdir)s/$cluster.log
 filestore xattr use omap = True
 
 # workaround for ext4 and last Jewel version
-osd max object name len = 1024
+osd max object name len = 256
+osd max object namespace len = 64
 osd op threads = 10
 filestore max sync interval = 10001
 filestore min sync interval = 10000
