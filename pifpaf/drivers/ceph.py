@@ -61,10 +61,11 @@ class CephDriver(drivers.Driver):
         os.makedirs(mondir)
         os.makedirs(osddir)
 
-        if os.path.exists("/dev/shm") and os.access('/dev/shm', os.W_OK):
-            journal_path = "/dev/shm/$cluster-$id-journal"
-        else:
-            journal_path = "%s/osd/$cluster-$id/journal" % self.tempdir
+        # FIXME(sileht): check availible space on /dev/shm
+        # if os.path.exists("/dev/shm") and os.access('/dev/shm', os.W_OK):
+        #     journal_path = "/dev/shm/$cluster-$id-journal"
+        # else:
+        journal_path = "%s/osd/$cluster-$id/journal" % self.tempdir
 
         with open(conffile, "w") as f:
             f.write("""[global]
@@ -94,7 +95,8 @@ mon cluster log file = %(tempdir)s/$cluster.log
 filestore xattr use omap = True
 
 # workaround for ext4 and last Jewel version
-osd max object name len = 1024
+osd max object name len = 256
+osd max object namespace len = 64
 osd op threads = 10
 filestore max sync interval = 10001
 filestore min sync interval = 10000

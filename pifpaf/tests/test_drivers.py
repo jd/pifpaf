@@ -38,6 +38,7 @@ from pifpaf.drivers import mysql
 from pifpaf.drivers import postgresql
 from pifpaf.drivers import rabbitmq
 from pifpaf.drivers import redis
+from pifpaf.drivers import s3rver
 from pifpaf.drivers import zookeeper
 
 
@@ -54,9 +55,13 @@ os.environ["PATH"] = ":".join((
 class TestDrivers(testtools.TestCase):
     def setUp(self):
         super(TestDrivers, self).setUp()
-        if os.getenv('PIFPAF_DEBUG'):
-            logging.basicConfig(format="%(levelname)8s [%(name)s] %(message)s",
-                                level=logging.DEBUG)
+        self.logger = self.useFixture(
+            fixtures.FakeLogger(
+                format="%(levelname)8s [%(name)s] %(message)s",
+                level=logging.DEBUG,
+                nuke_handlers=True,
+            )
+        )
 
     def _run(self, cmd):
         self.assertEqual(0, os.system(cmd + " >/dev/null 2>&1"))
@@ -145,7 +150,7 @@ class TestDrivers(testtools.TestCase):
                           "s3rver not found")
     def test_s3rver(self):
         port = 4569
-        self.useFixture(fakes3.FakeS3Driver(port=port))
+        self.useFixture(s3rver.S3rverDriver(port=port))
         self.assertEqual("s3://localhost:%d" % port,
                          os.getenv("PIFPAF_URL"))
         self.assertEqual("http://localhost:%d" % port,
@@ -209,8 +214,9 @@ class TestDrivers(testtools.TestCase):
         self.assertEqual("6380", os.getenv("PIFPAF_REDIS_SENTINEL_PORT"))
         self._run("redis-cli -p %d sentinel master pifpaf" % f.sentinel_port)
 
-    @testtools.skipUnless(spawn.find_executable("zkServer"),
-                          "ZooKeeper not found")
+    @testtools.skipUnless(spawn.find_executable(
+        "zkServer.sh", path=":".join(zookeeper.ZooKeeperDriver.PATH)),
+        "ZooKeeper not found")
     def test_zookeeper(self):
         port = 2182
         f = self.useFixture(zookeeper.ZooKeeperDriver(port=port))
