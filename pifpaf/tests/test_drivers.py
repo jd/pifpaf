@@ -38,6 +38,7 @@ from pifpaf.drivers import mysql
 from pifpaf.drivers import postgresql
 from pifpaf.drivers import rabbitmq
 from pifpaf.drivers import redis
+from pifpaf.drivers import s3rver
 from pifpaf.drivers import zookeeper
 
 
@@ -149,7 +150,7 @@ class TestDrivers(testtools.TestCase):
                           "s3rver not found")
     def test_s3rver(self):
         port = 4569
-        self.useFixture(fakes3.FakeS3Driver(port=port))
+        self.useFixture(s3rver.S3rverDriver(port=port))
         self.assertEqual("s3://localhost:%d" % port,
                          os.getenv("PIFPAF_URL"))
         self.assertEqual("http://localhost:%d" % port,
