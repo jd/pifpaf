@@ -20,6 +20,9 @@ class ZooKeeperDriver(drivers.Driver):
 
     DEFAULT_PORT = 2181
 
+    PATH = ["/usr/share/zookeeper/bin",
+            "/usr/local/opt/zookeeper/libexec/bin"]
+
     def __init__(self, port=DEFAULT_PORT,
                  **kwargs):
         super(ZooKeeperDriver, self).__init__(**kwargs)
@@ -48,17 +51,14 @@ clientPort=%s""" % (self.tempdir, self.port))
         self.putenv("ZOOCFG", cfgfile, True)
         self.putenv("ZOO_LOG_DIR", logdir, True)
 
-        path = ["/usr/share/zookeeper/bin",
-                "/usr/local/opt/zookeeper/libexec/bin"]
-
         c, _ = self._exec(
             ["zkServer.sh", "start", cfgfile],
             wait_for_line="STARTED",
-            path=path)
+            path=self.PATH)
 
         self.addCleanup(self._exec,
                         ["zkServer.sh", "stop", cfgfile],
-                        path=path)
+                        path=self.PATH)
 
         self.putenv("ZOOKEEPER_PORT", str(self.port))
         self.putenv("URL", "zookeeper://localhost:%d" % self.port)

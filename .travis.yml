@@ -14,6 +14,8 @@ before_install:
   - sudo npm install s3rver -g
   - wget https://dl.influxdata.com/influxdb/releases/influxdb_0.13.0_amd64.deb
   - sudo dpkg -i influxdb_0.13.0_amd64.deb
+  # zkEnv.sh can't be overriden with the deb version of zookeeper, this workaround that
+  - sudo chmod 777 /var/log/zookeeper
 install:
     # The install requirements in travis virtualenv that will be cached
   - pip install tox-travis .[test]
