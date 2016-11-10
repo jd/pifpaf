@@ -118,7 +118,8 @@ url = %s""" % (storage_driver,
         self.addCleanup(self._kill, c.pid)
 
         c, _ = self._exec(["gnocchi-statsd", "--config-file=%s" % conffile],
-                          wait_for_line="Started on ")
+                          wait_for_line=("(Resource .* already exists"
+                                         "|Created resource )"))
         self.addCleanup(self._kill, c.pid)
 
         c, _ = self._exec(
