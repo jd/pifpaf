@@ -33,7 +33,7 @@ Pifpaf currently supports:
 * `Gnocchi`_
 * `Aodh`_
 * `Ceph`_
-* `RabbitMQ`_
+* `RabbitMQ`_ (with clustering)
 * `FakeS3`_
 * `Consul`_
 * `Keystone`_
