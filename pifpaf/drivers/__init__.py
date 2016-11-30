@@ -20,6 +20,15 @@ import sys
 import threading
 
 import fixtures
+import six
+
+if six.PY3:
+    fsdecode = os.fsdecode
+else:
+    def fsdecode(s):
+        if isinstance(s, unicode):
+            return s
+        return s.decode(sys.getfilesystemencoding())
 
 
 LOG = logging.getLogger(__name__)
@@ -77,6 +86,7 @@ class Driver(fixtures.Fixture):
 
     @staticmethod
     def _log_output(appname, pid, data):
+        data = fsdecode(data)
         LOG.debug("%s[%d] output: %s", appname, pid, data.rstrip())
 
     def _exec(self, command, stdout=False, ignore_failure=False,
@@ -137,7 +147,9 @@ class Driver(fixtures.Fixture):
                             "Program did not print: `%s'\nOutput: %s"
                             % (wait_for_line, b"".join(lines)))
                     break
-                if wait_for_line and re.search(wait_for_line, line.decode()):
+                decoded_line = fsdecode(line)
+                if wait_for_line and re.search(wait_for_line,
+                                               decoded_line):
                     break
             stdout_str = b"".join(lines)
         else:
