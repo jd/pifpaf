@@ -11,9 +11,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from distutils import spawn
 import logging
 import os
 import re
+import select
 import signal
 import subprocess
 import sys
@@ -63,6 +65,14 @@ class Driver(fixtures.Fixture):
         self._kill(pid)
 
     @staticmethod
+    def find_executable(filename, extra_paths):
+        paths = extra_paths + os.getenv('PATH', os.defpath).split(os.pathsep)
+        for path in paths:
+            loc = spawn.find_executable(filename, path)
+            if loc is not None:
+                return loc
+
+    @staticmethod
     def find_config_file(filename):
         # NOTE(sileht): order matter, we first check into virtualenv
         # then global user installation, next system installation,
@@ -91,6 +101,7 @@ class Driver(fixtures.Fixture):
 
     def _exec(self, command, stdout=False, ignore_failure=False,
               stdin=None, wait_for_line=None, path=[], env=None,
+              forbidden_line_after_start=None,
               allow_debug=True):
         LOG.debug("executing: %s" % command)
 
@@ -148,12 +159,31 @@ class Driver(fixtures.Fixture):
                             % (wait_for_line, b"".join(lines)))
                     break
                 decoded_line = fsdecode(line)
+
                 if wait_for_line and re.search(wait_for_line,
                                                decoded_line):
                     break
             stdout_str = b"".join(lines)
         else:
             stdout_str = None
+
+        if (stdout or wait_for_line) and forbidden_line_after_start:
+            timeout, forbidden_output = forbidden_line_after_start
+            r, w, x = select.select([c.stdout.fileno()], [], [], timeout)
+            if r:
+                line = c.stdout.readline()
+                self._log_output(app, c.pid, line)
+                lines.append(line)
+                if c.poll() is not None:
+                    # Read the rest if the process is dead, this help debugging
+                    while line:
+                        line = c.stdout.readline()
+                        self._log_output(app, c.pid, line)
+                        lines.append(line)
+                if line and re.search(forbidden_output, fsdecode(line)):
+                    raise RuntimeError(
+                        "Program print a forbidden line: `%s'\nOutput: %s"
+                        % (forbidden_output, b"".join(lines)))
 
         if stdout or wait_for_line or debug:
             # Continue to read

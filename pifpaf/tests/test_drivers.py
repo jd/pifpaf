@@ -31,6 +31,7 @@ from pifpaf.drivers import etcd
 from pifpaf.drivers import fakes3
 from pifpaf.drivers import gnocchi
 from pifpaf.drivers import influxdb
+from pifpaf.drivers import kafka
 from pifpaf.drivers import keystone
 from pifpaf.drivers import memcached
 from pifpaf.drivers import mongodb
@@ -49,6 +50,7 @@ os.environ["PATH"] = ":".join((
     "/opt/influxdb",
     "/usr/share/elasticsearch/bin",
     "/usr/local/sbin",
+    "/opt/kafka/bin",
 ))
 
 
@@ -395,3 +397,16 @@ class TestDrivers(testtools.TestCase):
                          os.getenv("PIFPAF_URL"))
         r = requests.get("http://localhost:%d/" % port)
         self.assertEqual(r.json()["couchdb"], "Welcome")
+
+    @testtools.skipUnless(spawn.find_executable("kafka-server-start.sh"),
+                          "Kafka not found")
+    def test_kafka(self):
+        a = self.useFixture(kafka.KafkaDriver(port=54321,
+                                              zookeeper_port=12345))
+        self.assertEqual("kafka://localhost:54321",
+                         os.getenv("PIFPAF_URL"))
+        self.assertEqual(12345, a.zookeeper_port)
+        self.assertEqual("54321", os.getenv("PIFPAF_KAFKA_PORT"))
+        self.assertEqual("PLAINTEXT", os.getenv("PIFPAF_KAFKA_PROTOCOL"))
+        self.assertEqual("PLAINTEXT://localhost:54321",
+                         os.getenv("PIFPAF_KAFKA_URL"))
