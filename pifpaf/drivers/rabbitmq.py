@@ -77,7 +77,8 @@ class RabbitMQDriver(drivers.Driver):
             complete_env.update(self.env)
             c, _ = self._exec(["rabbitmq-server"], env=complete_env,
                               path=self._path,
-                              wait_for_line=("completed with .* plugins"))
+                              wait_for_line=("completed with .* plugins"),
+                              session=True)
             self.addCleanup(self.kill_node, nodename, ignore_not_exists=True)
             self._process[nodename] = c
         return port
@@ -96,7 +97,7 @@ class RabbitMQDriver(drivers.Driver):
 
         c = self._process.pop(nodename)
         try:
-            self._kill(c.pid, signal=signal)
+            os.killpg(c.pid, signal)
             os.waitpid(c.pid, 0)
         except OSError:
             pass

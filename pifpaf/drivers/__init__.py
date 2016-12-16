@@ -102,7 +102,7 @@ class Driver(fixtures.Fixture):
     def _exec(self, command, stdout=False, ignore_failure=False,
               stdin=None, wait_for_line=None, path=[], env=None,
               forbidden_line_after_start=None,
-              allow_debug=True):
+              allow_debug=True, session=False):
         LOG.debug("executing: %s" % command)
 
         complete_env = {}
@@ -136,7 +136,9 @@ class Driver(fixtures.Fixture):
                 stdin=stdin_fd,
                 stdout=stdout_fd,
                 stderr=subprocess.STDOUT,
-                env=complete_env or None)
+                env=complete_env or None,
+                preexec_fn=os.setsid if session else None
+            )
         except OSError as e:
             raise RuntimeError(
                 "Unable to run command `%s': %s" % (" ".join(command), e))

@@ -393,6 +393,7 @@ class TestDrivers(testtools.TestCase):
         a.kill_node(a.nodename + "-2@localhost")
         a.stop_node(a.nodename + "-3@localhost")
         a.start_node(a.nodename + "-3@localhost")
+        a.start_node(a.nodename + "-2@localhost")
 
     @testtools.skipUnless(spawn.find_executable("couchdb"),
                           "CouchDB not found")
