@@ -147,11 +147,15 @@ class RabbitMQDriver(drivers.Driver):
             self.putenv("RABBITMQ_NODENAME1", n1)
             self.putenv("RABBITMQ_NODENAME2", n2)
             self.putenv("RABBITMQ_NODENAME3", n3)
-            self.putenv(
-                "URL",
-                "rabbit://%s:%s@localhost:%d,localhost:%d,localhost:%d//" % (
-                    self.username, self.password,
-                    self.port, self.port + 1, self.port + 2))
+            self.putenv("URL", "rabbit://"
+                        "%(username)s:%(password)s@localhost:%(port1)d,"
+                        "%(username)s:%(password)s@localhost:%(port2)d,"
+                        "%(username)s:%(password)s@localhost:%(port3)d//" % {
+                            'username': self.username,
+                            'password': self.password,
+                            'port1': self.port,
+                            'port2': self.port + 1,
+                            'port3': self.port + 2})
         else:
             self.putenv("RABBITMQ_NODENAME", n1)
             self.putenv("URL", "rabbit://%s:%s@localhost:%d//" % (
