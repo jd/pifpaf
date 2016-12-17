@@ -371,8 +371,14 @@ class TestDrivers(testtools.TestCase):
     def test_rabbitmq_cluster(self):
         a = self.useFixture(rabbitmq.RabbitMQDriver(cluster=True, port=12345))
         self.assertEqual(
-            "rabbit://%s:%s@localhost:%d,localhost:%d,localhost:%d//" % (
-                a.username, a.password, a.port, a.port + 1, a.port + 2),
+            "rabbit://%(user)s:%(pass)s@localhost:%(port1)d,"
+            "%(user)s:%(pass)s@localhost:%(port2)d,"
+            "%(user)s:%(pass)s@localhost:%(port3)d//" % {
+                "user": a.username,
+                "pass": a.password,
+                "port1": a.port,
+                "port2": a.port + 1,
+                "port3": a.port + 2},
             os.getenv("PIFPAF_URL"))
         self.assertEqual(a.nodename + "-1@localhost",
                          os.getenv("PIFPAF_RABBITMQ_NODENAME"))
@@ -387,6 +393,7 @@ class TestDrivers(testtools.TestCase):
         a.kill_node(a.nodename + "-2@localhost")
         a.stop_node(a.nodename + "-3@localhost")
         a.start_node(a.nodename + "-3@localhost")
+        a.start_node(a.nodename + "-2@localhost")
 
     @testtools.skipUnless(spawn.find_executable("couchdb"),
                           "CouchDB not found")

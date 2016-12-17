@@ -77,7 +77,8 @@ class RabbitMQDriver(drivers.Driver):
             complete_env.update(self.env)
             c, _ = self._exec(["rabbitmq-server"], env=complete_env,
                               path=self._path,
-                              wait_for_line=("completed with .* plugins"))
+                              wait_for_line=("completed with .* plugins"),
+                              session=True)
             self.addCleanup(self.kill_node, nodename, ignore_not_exists=True)
             self._process[nodename] = c
         return port
@@ -96,7 +97,7 @@ class RabbitMQDriver(drivers.Driver):
 
         c = self._process.pop(nodename)
         try:
-            self._kill(c.pid, signal=signal)
+            os.killpg(c.pid, signal)
             os.waitpid(c.pid, 0)
         except OSError:
             pass
@@ -147,11 +148,15 @@ class RabbitMQDriver(drivers.Driver):
             self.putenv("RABBITMQ_NODENAME1", n1)
             self.putenv("RABBITMQ_NODENAME2", n2)
             self.putenv("RABBITMQ_NODENAME3", n3)
-            self.putenv(
-                "URL",
-                "rabbit://%s:%s@localhost:%d,localhost:%d,localhost:%d//" % (
-                    self.username, self.password,
-                    self.port, self.port + 1, self.port + 2))
+            self.putenv("URL", "rabbit://"
+                        "%(username)s:%(password)s@localhost:%(port1)d,"
+                        "%(username)s:%(password)s@localhost:%(port2)d,"
+                        "%(username)s:%(password)s@localhost:%(port3)d//" % {
+                            'username': self.username,
+                            'password': self.password,
+                            'port1': self.port,
+                            'port2': self.port + 1,
+                            'port3': self.port + 2})
         else:
             self.putenv("RABBITMQ_NODENAME", n1)
             self.putenv("URL", "rabbit://%s:%s@localhost:%d//" % (
