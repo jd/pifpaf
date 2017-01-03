@@ -64,10 +64,16 @@ class GnocchiDriver(drivers.Driver):
     def _setUp(self):
         super(GnocchiDriver, self)._setUp()
 
-        shutil.copy(self.find_config_file("gnocchi/api-paste.ini"),
-                    self.tempdir)
-        shutil.copy(self.find_config_file("gnocchi/policy.json"),
-                    self.tempdir)
+        try:
+            shutil.copy(self.find_config_file("gnocchi/api-paste.ini"),
+                        self.tempdir)
+        except RuntimeError:
+            pass
+        try:
+            shutil.copy(self.find_config_file("gnocchi/policy.json"),
+                        self.tempdir)
+        except RuntimeError:
+            pass
 
         if self.indexer_url is None:
             pg = self.useFixture(
