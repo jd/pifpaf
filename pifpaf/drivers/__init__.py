@@ -102,7 +102,7 @@ class Driver(fixtures.Fixture):
     def _exec(self, command, stdout=False, ignore_failure=False,
               stdin=None, wait_for_line=None, path=[], env=None,
               forbidden_line_after_start=None,
-              allow_debug=True, session=False):
+              allow_debug=True, session=False, shell=False):
         LOG.debug("executing: %s" % command)
 
         complete_env = {}
@@ -136,6 +136,7 @@ class Driver(fixtures.Fixture):
                 stdin=stdin_fd,
                 stdout=stdout_fd,
                 stderr=subprocess.STDOUT,
+                shell=shell,
                 env=complete_env or None,
                 preexec_fn=os.setsid if session else None
             )

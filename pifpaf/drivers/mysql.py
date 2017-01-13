@@ -54,4 +54,8 @@ class MySQLDriver(drivers.Driver):
                     "-e", "CREATE DATABASE pifpaf;"])
         self.putenv("MYSQL_SOCKET", self.socket)
         self.url = "mysql://root@localhost/pifpaf?unix_socket=" + self.socket
+        # NOTE(sileht): Load timezone in mysql... yeah you have really read
+        # that. timezones are optional in mysql...
+        self._exec("mysql_tzinfo_to_sql /usr/share/zoneinfo | "
+                   "mysql -S %s -u root mysql" % self.socket, shell=True)
         self.putenv("URL", self.url)
