@@ -74,7 +74,7 @@ class AodhDriver(drivers.Driver):
             with open(os.path.join(self.tempdir, "api_paste.ini"), "w") as dst:
                 for line in src.readlines():
                     if line.startswith("pipeline = "):
-                        dst.write("pipeline = request_id api-server")
+                        dst.write("pipeline = aodhversions")
                     else:
                         dst.write(line)
 
