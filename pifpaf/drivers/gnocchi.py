@@ -106,7 +106,8 @@ driver = %s
 [statsd]
 resource_id = %s
 user_id = admin
-project_id = admin
+[api]
+auth_mode = noauth
 [indexer]
 url = %s""" % (storage_driver,
                storage_conf_name,
