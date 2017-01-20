@@ -12,7 +12,6 @@
 # limitations under the License.
 
 import os
-import shutil
 import uuid
 
 from pifpaf import drivers
@@ -70,17 +69,6 @@ class AodhDriver(drivers.Driver):
     def _setUp(self):
         super(AodhDriver, self)._setUp()
 
-        with open(self.find_config_file("aodh/api_paste.ini"), "r") as src:
-            with open(os.path.join(self.tempdir, "api_paste.ini"), "w") as dst:
-                for line in src.readlines():
-                    if line.startswith("pipeline = "):
-                        dst.write("pipeline = request_id api-server")
-                    else:
-                        dst.write(line)
-
-        shutil.copy(self.find_config_file("aodh/policy.json"),
-                    self.tempdir)
-
         pg = self.useFixture(
             postgresql.PostgreSQLDriver(port=self.database_port))
 
@@ -100,6 +88,8 @@ class AodhDriver(drivers.Driver):
         with open(conffile, "w") as f:
             f.write("""[database]
 connection = %s
+[api]
+auth_mode=
 [service_credentials]
 auth_type = gnocchi-noauth
 user_id = %s
