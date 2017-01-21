@@ -12,7 +12,6 @@
 # limitations under the License.
 
 import os
-import uuid
 
 from pifpaf import drivers
 from pifpaf.drivers import gnocchi
@@ -82,20 +81,15 @@ class AodhDriver(drivers.Driver):
 
         conffile = os.path.join(self.tempdir, "aodh.conf")
 
-        user = str(uuid.uuid4())
-        project = str(uuid.uuid4())
-
         with open(conffile, "w") as f:
             f.write("""[database]
 connection = %s
 [api]
 auth_mode=
 [service_credentials]
-auth_type = gnocchi-noauth
-user_id = %s
-project_id = %s
-roles = admin
-endpoint = %s""" % (pg.url, user, project, g.http_url))
+auth_type = gnocchi-basic
+user = admin
+endpoint = %s""" % (pg.url, g.http_url))
 
         self._exec(["aodh-dbsync", "--config-file=%s" % conffile])
 
@@ -110,8 +104,7 @@ endpoint = %s""" % (pg.url, user, project, g.http_url))
         self.addCleanup(self._kill, c.pid)
 
         self.putenv("AODH_PORT", str(self.port))
-        self.putenv("AODH_GNOCCHI_USER_ID", user)
-        self.putenv("AODH_GNOCCHI_PROJECT_ID", project)
+        self.putenv("AODH_GNOCCHI_USER", "admin")
         self.putenv("URL", "aodh://localhost:%d" % self.port)
         url = "http://localhost:%d" % self.port
         self.putenv("AODH_HTTP_URL", url)
