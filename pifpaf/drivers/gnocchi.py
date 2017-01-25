@@ -105,8 +105,7 @@ driver = %s
 %s = %s
 [statsd]
 resource_id = %s
-user_id = admin
-project_id = admin
+creator = admin
 [indexer]
 url = %s""" % (storage_driver,
                storage_conf_name,
