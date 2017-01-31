@@ -27,21 +27,27 @@ class TestCli(testtools.TestCase):
         self.assertEqual(0, os.system(
             "pifpaf run memcached --port 11216 echo >/dev/null 2>&1"))
 
+    @staticmethod
+    def _read_stdout_and_kill(stdout):
+        env = {}
+        for line in stdout.split(b'\n'):
+            k, _, v = line.partition(b"=")
+            env[k] = v
+        os.kill(int(env[b"export PIFPAF_PID"].strip("\" \n;")), signal.SIGTERM)
+        return env
+
     @testtools.skipUnless(spawn.find_executable("memcached"),
                           "memcached not found")
     def test_eval(self):
         c = subprocess.Popen(["pifpaf", "run", "memcached", "--port", "11219"],
                              stdout=subprocess.PIPE)
+        (stdout, stderr) = c.communicate()
         self.assertEqual(0, c.wait())
-        env = {}
-        for line in c.stdout.readlines():
-            k, _, v = line.partition(b"=")
-            env[k] = v
-        os.kill(int(env[b"export PIFPAF_PID"].strip()[:-1]), signal.SIGTERM)
+        env = self._read_stdout_and_kill(stdout)
 
-        self.assertEqual(b"\"memcached://localhost:11219\";\n",
+        self.assertEqual(b"\"memcached://localhost:11219\";",
                          env[b"export PIFPAF_URL"])
-        self.assertEqual(b"\"memcached://localhost:11219\";\n",
+        self.assertEqual(b"\"memcached://localhost:11219\";",
                          env[b"export PIFPAF_MEMCACHED_URL"])
 
     @testtools.skipUnless(spawn.find_executable("memcached"),
@@ -54,11 +60,7 @@ class TestCli(testtools.TestCase):
                              stdout=subprocess.PIPE)
         (stdout, stderr) = c.communicate()
         self.assertEqual(0, c.wait())
-        env = {}
-        for line in stdout.split(b"\n"):
-            k, _, v = line.partition(b"=")
-            env[k] = v
-        os.kill(int(env[b"export PIFPAF_PID"].strip()[:-1]), signal.SIGTERM)
+        env = self._read_stdout_and_kill(stdout)
 
         self.assertEqual(b"\"memcached://localhost:11215\";",
                          env[b"export FOOBAR_URL"])
@@ -78,11 +80,7 @@ class TestCli(testtools.TestCase):
                              stdout=subprocess.PIPE)
         (stdout, stderr) = c.communicate()
         self.assertEqual(0, c.wait())
-        env = {}
-        for line in stdout.split(b"\n"):
-            k, _, v = line.partition(b"=")
-            env[k] = v
-        os.kill(int(env[b"export PIFPAF_PID"].strip()[:-1]), signal.SIGTERM)
+        env = self._read_stdout_and_kill(stdout)
 
         self.assertEqual(b"\"memcached://localhost:11218\";",
                          env[b"export PIFPAF_URL"])
