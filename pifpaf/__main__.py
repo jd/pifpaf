@@ -155,7 +155,10 @@ def create_RunDaemon(daemon):
                         (self.app.options.env_prefix + "_"
                          + daemon.upper() + "_URL"): url,
                         self.app.options.global_urls_variable:
-                        self.expand_urls_var(url)
+                        self.expand_urls_var(url),
+                        "PIFPAF_OLD_PS1": os.getenv("PS1", ""),
+                        "PS1":
+                        "(pifpaf/" + daemon + ") " + os.getenv("PS1", ""),
                     })
                     for k, v in six.iteritems(driver.env):
                         print("export %s=\"%s\";" % (k, v))
@@ -163,7 +166,9 @@ def create_RunDaemon(daemon):
                           "{ if test -z \"$PIFPAF_PID\"; then "
                           "echo 'No PID found in $PIFPAF_PID'; return -1; fi; "
                           "if kill $PIFPAF_PID; then "
+                          "_PS1=$PIFPAF_OLD_PS1; "
                           "unset %s; "
+                          "PS1=$_PS1; unset _PS1; "
                           "unset -f pifpaf_stop; fi; }"
                           % " ".join(driver.env))
         run = take_action
