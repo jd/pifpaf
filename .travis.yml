@@ -1,7 +1,7 @@
 language: python
 dist: xenial
 sudo: required
-cache: 
+cache:
   - pip
 python:
     - 2.7
@@ -9,6 +9,8 @@ python:
     - 3.5
     - 3.6
 before_install:
+  # Always redownload tarball
+  - find ~/.cache/pip -name '*.dev*' -delete
   - sudo apt-get -qq update
   - sudo apt-get purge -y mysql-server-5.6 mysql-server-core-5.6 mysql-client-core-5.6 mysql-client-5.6
   - sudo rm -rf /var/lib/mysql
