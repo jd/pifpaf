@@ -33,7 +33,8 @@ class TestCli(testtools.TestCase):
         for line in stdout.split(b'\n'):
             k, _, v = line.partition(b"=")
             env[k] = v
-        os.kill(int(env[b"export PIFPAF_PID"].strip("\" \n;")), signal.SIGTERM)
+        os.kill(int(env[b"export PIFPAF_PID"].strip(b"\" \n;")),
+                signal.SIGTERM)
         return env
 
     @testtools.skipUnless(spawn.find_executable("memcached"),
