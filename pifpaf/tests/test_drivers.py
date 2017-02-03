@@ -254,6 +254,21 @@ class TestDrivers(testtools.TestCase):
 
     @testtools.skipUnless(spawn.find_executable("gnocchi-api"),
                           "Gnocchi not found")
+    @testtools.skipUnless(spawn.find_executable("s3rver"),
+                          "s3rver not found")
+    def test_gnocchi_with_existing_s3rver(self):
+        s3 = self.useFixture(s3rver.S3rverDriver(port=4569))
+        port = gnocchi.GnocchiDriver.DEFAULT_PORT + 12
+        self.useFixture(gnocchi.GnocchiDriver(
+            storage_url="s3://gnocchi:pass@localhost:%d" % s3.port,
+            port=port))
+        self.assertEqual("gnocchi://localhost:%d" % port,
+                         os.getenv("PIFPAF_URL"))
+        r = requests.get("http://localhost:%d/" % port)
+        self.assertEqual(200, r.status_code)
+
+    @testtools.skipUnless(spawn.find_executable("gnocchi-api"),
+                          "Gnocchi not found")
     @testtools.skipUnless(spawn.find_executable("ceph-mon"),
                           "Ceph Monitor not found")
     @testtools.skipUnless(spawn.find_executable("ceph-osd"),
