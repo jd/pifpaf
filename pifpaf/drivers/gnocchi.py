@@ -129,6 +129,8 @@ metric_cleanup_delay = 1
 [statsd]
 resource_id = %s
 creator = admin
+user_id = admin
+project_id = admin
 [indexer]
 url = %s""" % (storage_driver,
                storage_config_string,
