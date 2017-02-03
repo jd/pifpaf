@@ -103,6 +103,9 @@ class GnocchiDriver(drivers.Driver):
             f.write("""[storage]
 driver = %s
 %s = %s
+[metricd]
+metric_processing_delay = 1
+metric_cleanup_delay = 1
 [statsd]
 resource_id = %s
 creator = admin
