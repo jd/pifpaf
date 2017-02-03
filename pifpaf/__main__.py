@@ -151,26 +151,35 @@ def create_RunDaemon(daemon):
                     url = driver.env['%s_URL' % driver.env_prefix]
                     driver.env.update({
                         "PIFPAF_PID": pid,
+                        self.app.options.env_prefix + "_PID": pid,
                         self.app.options.env_prefix + "_DAEMON": daemon,
                         (self.app.options.env_prefix + "_"
                          + daemon.upper() + "_URL"): url,
                         self.app.options.global_urls_variable:
                         self.expand_urls_var(url),
-                        "PIFPAF_OLD_PS1": os.getenv("PS1", ""),
+                        "%s_OLD_PS1" % self.app.options.env_prefix:
+                        os.getenv("PS1", ""),
                         "PS1":
                         "(pifpaf/" + daemon + ") " + os.getenv("PS1", ""),
                     })
                     for k, v in six.iteritems(driver.env):
                         print("export %s=\"%s\";" % (k, v))
-                    print("pifpaf_stop () "
-                          "{ if test -z \"$PIFPAF_PID\"; then "
-                          "echo 'No PID found in $PIFPAF_PID'; return -1; fi; "
-                          "if kill $PIFPAF_PID; then "
-                          "_PS1=$PIFPAF_OLD_PS1; "
-                          "unset %s; "
+                    print("%(prefix_lower)s_stop () { "
+                          "if test -z \"$%(prefix)s_PID\"; then "
+                          "echo 'No PID found in $%(prefix)s_PID'; return -1; "
+                          "fi; "
+                          "if kill $%(prefix)s_PID; then "
+                          "_PS1=$%(prefix)s_OLD_PS1; "
+                          "unset %(vars)s; "
                           "PS1=$_PS1; unset _PS1; "
-                          "unset -f pifpaf_stop; fi; }"
-                          % " ".join(driver.env))
+                          "unset -f %(prefix_lower)s_stop; "
+                          "unalias pifpaf_stop 2>/dev/null || true; "
+                          "fi; } ; "
+                          "alias pifpaf_stop=%(prefix_lower)s_stop ; "
+                          % {"prefix": self.app.options.env_prefix,
+                             "prefix_lower":
+                             self.app.options.env_prefix.lower(),
+                             "vars": " ".join(driver.env)})
         run = take_action
 
     RunDaemon.__doc__ = "run %s" % daemon
