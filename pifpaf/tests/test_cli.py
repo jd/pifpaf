@@ -67,6 +67,8 @@ class TestCli(testtools.TestCase):
                          env[b"export FOOBAR_URL"])
         self.assertEqual(b"\"memcached://localhost:11215\";",
                          env[b"export FOOBAR_MEMCACHED_URL"])
+        self.assertEqual(env[b"export PIFPAF_PID"],
+                         env[b"export FOOBAR_PID"])
 
     @testtools.skipUnless(spawn.find_executable("memcached"),
                           "memcached not found")
