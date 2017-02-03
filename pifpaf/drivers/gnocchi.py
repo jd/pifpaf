@@ -87,22 +87,42 @@ class GnocchiDriver(drivers.Driver):
 
         storage_parsed = urlparse.urlparse(self.storage_url)
         storage_driver = storage_parsed.scheme
-        if storage_driver not in ["file", "ceph"]:
+
+        if storage_driver == "s3":
+            storage_config = {
+                "s3_access_key_id": (storage_parsed.username
+                                     or "gnocchi"),
+                "s3_secret_access_key": (storage_parsed.password
+                                         or "whatever"),
+                "s3_endpoint_url": "http://%s:%s/%s" % (
+                    storage_parsed.hostname,
+                    storage_parsed.port,
+                    storage_parsed.path,
+                )
+            }
+        elif storage_driver == "ceph":
+            storage_config = {
+                "ceph_conffile": storage_parsed.path,
+            }
+        elif storage_driver == "file":
+            storage_config = {
+                "file_basepath": (storage_parsed.path
+                                  or self.tempdir),
+            }
+        else:
             raise RuntimeError("Storage driver %s is not supported" %
                                storage_driver)
 
-        storage_conf_name = {
-            "ceph": "ceph_conffile",
-            "file": "file_basepath"
-        }[storage_driver]
-        storage_conf_value = storage_parsed.path
-
+        storage_config_string = "\n".join(
+            "%s = %s" % (k, v)
+            for k, v in storage_config.items()
+        )
         statsd_resource_id = str(uuid.uuid4())
 
         with open(conffile, "w") as f:
             f.write("""[storage]
 driver = %s
-%s = %s
+%s
 [metricd]
 metric_processing_delay = 1
 metric_cleanup_delay = 1
@@ -111,8 +131,7 @@ resource_id = %s
 creator = admin
 [indexer]
 url = %s""" % (storage_driver,
-               storage_conf_name,
-               storage_conf_value,
+               storage_config_string,
                statsd_resource_id,
                self.indexer_url))
 
