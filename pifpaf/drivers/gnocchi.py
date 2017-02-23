@@ -100,6 +100,18 @@ class GnocchiDriver(drivers.Driver):
                     storage_parsed.path,
                 )
             }
+        elif storage_driver == "swift":
+            storage_config = {
+                "swift_auth_url": "http://%s:%s/%s" % (
+                    storage_parsed.hostname,
+                    storage_parsed.port,
+                    storage_parsed.path,
+                ),
+                "swift_user": (urlparse.unquote(storage_parsed.username)
+                               or "admin:admin"),
+                "swift_key": (urlparse.unquote(storage_parsed.password)
+                              or "admin"),
+            }
         elif storage_driver == "ceph":
             storage_config = {
                 "ceph_conffile": storage_parsed.path,

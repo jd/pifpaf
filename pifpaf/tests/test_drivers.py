@@ -256,6 +256,20 @@ class TestDrivers(testtools.TestCase):
 
     @testtools.skipUnless(spawn.find_executable("gnocchi-api"),
                           "Gnocchi not found")
+    @testtools.skipUnless(six.PY2, "Swift does not support PY3")
+    @testtools.skipUnless(spawn.find_executable("swift-proxy-server"),
+                          "Swift not found")
+    def test_gnocchi_with_existing_swift(self):
+        self.useFixture(swift.SwiftDriver())
+        self.useFixture(gnocchi.GnocchiDriver(
+            storage_url=os.getenv("PIFPAF_URL")))
+        self.assertEqual("gnocchi://localhost:8041",
+                         os.getenv("PIFPAF_URL"))
+        r = requests.get("http://localhost:8041/")
+        self.assertEqual(200, r.status_code)
+
+    @testtools.skipUnless(spawn.find_executable("gnocchi-api"),
+                          "Gnocchi not found")
     @testtools.skipUnless(spawn.find_executable("s3rver"),
                           "s3rver not found")
     def test_gnocchi_with_existing_s3rver(self):
