@@ -1,6 +1,7 @@
 cliff
 stevedore
 pbr
+jinja2
 six
 fixtures
 xattr

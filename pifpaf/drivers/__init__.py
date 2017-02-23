@@ -22,6 +22,7 @@ import sys
 import threading
 
 import fixtures
+import jinja2
 import six
 
 if six.PY3:
@@ -37,10 +38,14 @@ LOG = logging.getLogger(__name__)
 
 
 class Driver(fixtures.Fixture):
-    def __init__(self, env_prefix="PIFPAF"):
+    def __init__(self, env_prefix="PIFPAF", templatedir="."):
         super(Driver, self).__init__()
         self.env_prefix = env_prefix
         self.env = {}
+
+        templatedir = os.path.join('drivers', 'templates', templatedir)
+        self.template_env = jinja2.Environment(
+            loader=jinja2.PackageLoader('pifpaf', templatedir))
 
     def _setUp(self):
         self.tempdir = self.useFixture(fixtures.TempDir()).path
@@ -105,7 +110,6 @@ class Driver(fixtures.Fixture):
               allow_debug=True, session=False):
         LOG.debug("executing: %s" % command)
 
-        complete_env = {}
         app = command[0]
 
         debug = allow_debug and LOG.isEnabledFor(logging.DEBUG)
@@ -122,12 +126,16 @@ class Driver(fixtures.Fixture):
             # TODO(jd) Need to close at some point
             stdin_fd = open(os.devnull, 'r')
 
-        if env:
-            complete_env.update(env)
-        if path:
-            complete_env.update({
-                "PATH": ":".join(path) + ":" + os.getenv("PATH", ""),
-            })
+        if path or env:
+            complete_env = dict(os.environ)
+            if env:
+                complete_env.update(env)
+            if path:
+                complete_env.update({
+                    "PATH": ":".join(path) + ":" + os.getenv("PATH", ""),
+                })
+        else:
+            complete_env = None
 
         try:
             c = subprocess.Popen(
@@ -136,7 +144,7 @@ class Driver(fixtures.Fixture):
                 stdin=stdin_fd,
                 stdout=stdout_fd,
                 stderr=subprocess.STDOUT,
-                env=complete_env or None,
+                env=complete_env,
                 preexec_fn=os.setsid if session else None
             )
         except OSError as e:
@@ -204,3 +212,8 @@ class Driver(fixtures.Fixture):
     def _touch(self, fname):
         open(fname, 'a').close()
         os.utime(fname, None)
+
+    def template(self, resource, env, dest):
+        template = self.template_env.get_template(resource)
+        with open(dest, 'w') as f:
+            f.write(template.render(**env))
