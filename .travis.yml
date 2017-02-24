@@ -14,7 +14,7 @@ before_install:
   - sudo apt-get -qq update
   - sudo apt-get purge -y mysql-server-5.6 mysql-server-core-5.6 mysql-client-core-5.6 mysql-client-5.6
   - sudo rm -rf /var/lib/mysql
-  - sudo apt-get install -y mongodb-server mysql-server-5.5 rabbitmq-server redis-server zookeeper mongodb couchdb couchdb-bin npm ceph librados-dev python-dev gcc
+  - sudo apt-get install -y mongodb-server mysql-server-5.5 rabbitmq-server redis-server zookeeper mongodb couchdb couchdb-bin nodejs ceph librados-dev python-dev gcc liberasurecode-dev liberasurecode1
   # - sudo gem install fakes3  # NOTE(sileht): fakes3 looks not installed correctly
   - sudo npm install s3rver -g
   - wget https://dl.influxdata.com/influxdb/releases/influxdb_0.13.0_amd64.deb

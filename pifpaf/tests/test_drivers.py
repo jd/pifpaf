@@ -16,6 +16,7 @@
 from distutils import spawn
 import logging
 import os
+import six
 import socket
 
 import fixtures
@@ -40,6 +41,7 @@ from pifpaf.drivers import postgresql
 from pifpaf.drivers import rabbitmq
 from pifpaf.drivers import redis
 from pifpaf.drivers import s3rver
+from pifpaf.drivers import swift
 from pifpaf.drivers import zookeeper
 
 
@@ -254,6 +256,20 @@ class TestDrivers(testtools.TestCase):
 
     @testtools.skipUnless(spawn.find_executable("gnocchi-api"),
                           "Gnocchi not found")
+    @testtools.skipUnless(six.PY2, "Swift does not support PY3")
+    @testtools.skipUnless(spawn.find_executable("swift-proxy-server"),
+                          "Swift not found")
+    def test_gnocchi_with_existing_swift(self):
+        self.useFixture(swift.SwiftDriver())
+        self.useFixture(gnocchi.GnocchiDriver(
+            storage_url=os.getenv("PIFPAF_URL")))
+        self.assertEqual("gnocchi://localhost:8041",
+                         os.getenv("PIFPAF_URL"))
+        r = requests.get("http://localhost:8041/")
+        self.assertEqual(200, r.status_code)
+
+    @testtools.skipUnless(spawn.find_executable("gnocchi-api"),
+                          "Gnocchi not found")
     @testtools.skipUnless(spawn.find_executable("s3rver"),
                           "s3rver not found")
     def test_gnocchi_with_existing_s3rver(self):
@@ -432,3 +448,21 @@ class TestDrivers(testtools.TestCase):
         self.assertEqual("PLAINTEXT", os.getenv("PIFPAF_KAFKA_PROTOCOL"))
         self.assertEqual("PLAINTEXT://localhost:54321",
                          os.getenv("PIFPAF_KAFKA_URL"))
+
+    @testtools.skipUnless(six.PY2, "Swift does not support PY3")
+    @testtools.skipUnless(spawn.find_executable("swift-proxy-server"),
+                          "Swift not found")
+    def test_swift(self):
+        a = self.useFixture(swift.SwiftDriver())
+        self.assertEqual("http://localhost:8080/auth/v1.0",
+                         os.getenv("PIFPAF_SWIFT_AUTH_URL"))
+        self.assertEqual(8080, a.port)
+        self.assertEqual("8080", os.getenv("PIFPAF_SWIFT_PORT"))
+        self.assertEqual("test:tester", os.getenv("PIFPAF_SWIFT_USERNAME"))
+        self.assertEqual("testing", os.getenv("PIFPAF_SWIFT_PASSWORD"))
+        self.assertEqual(
+            "swift://test%3Atester:testing@localhost:8080/auth/v1.0",
+            os.getenv("PIFPAF_SWIFT_URL"))
+        self.assertEqual(
+            "swift://test%3Atester:testing@localhost:8080/auth/v1.0",
+            os.getenv("PIFPAF_URL"))

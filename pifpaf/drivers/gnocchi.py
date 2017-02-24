@@ -90,15 +90,28 @@ class GnocchiDriver(drivers.Driver):
 
         if storage_driver == "s3":
             storage_config = {
-                "s3_access_key_id": (storage_parsed.username
+                "s3_access_key_id": (urlparse.unquote(storage_parsed.username)
                                      or "gnocchi"),
-                "s3_secret_access_key": (storage_parsed.password
-                                         or "whatever"),
+                "s3_secret_access_key": (
+                    urlparse.unquote(storage_parsed.password)
+                    or "whatever"),
                 "s3_endpoint_url": "http://%s:%s/%s" % (
                     storage_parsed.hostname,
                     storage_parsed.port,
                     storage_parsed.path,
                 )
+            }
+        elif storage_driver == "swift":
+            storage_config = {
+                "swift_auth_url": "http://%s:%s/%s" % (
+                    storage_parsed.hostname,
+                    storage_parsed.port,
+                    storage_parsed.path,
+                ),
+                "swift_user": (urlparse.unquote(storage_parsed.username)
+                               or "admin:admin"),
+                "swift_key": (urlparse.unquote(storage_parsed.password)
+                              or "admin"),
             }
         elif storage_driver == "ceph":
             storage_config = {
