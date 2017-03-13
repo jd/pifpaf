@@ -117,6 +117,10 @@ class GnocchiDriver(drivers.Driver):
             storage_config = {
                 "ceph_conffile": storage_parsed.path,
             }
+        elif storage_driver == "redis":
+            storage_config = {
+                "redis_url": self.storage_url,
+            }
         elif storage_driver == "file":
             storage_config = {
                 "file_basepath": (storage_parsed.path
