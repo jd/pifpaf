@@ -100,6 +100,7 @@ def create_RunDaemon(daemon):
         def take_action(self, parsed_args):
             command = parsed_args.__dict__.pop("command", None)
             driver = plugin(env_prefix=self.app.options.env_prefix,
+                            debug=self.app.options.debug,
                             **parsed_args.__dict__)
             if command:
                 try:

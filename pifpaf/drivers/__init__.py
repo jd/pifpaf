@@ -38,10 +38,11 @@ LOG = logging.getLogger(__name__)
 
 
 class Driver(fixtures.Fixture):
-    def __init__(self, env_prefix="PIFPAF", templatedir="."):
+    def __init__(self, env_prefix="PIFPAF", templatedir=".", debug=False):
         super(Driver, self).__init__()
         self.env_prefix = env_prefix
         self.env = {}
+        self.debug = debug
 
         templatedir = os.path.join('drivers', 'templates', templatedir)
         self.template_env = jinja2.Environment(
