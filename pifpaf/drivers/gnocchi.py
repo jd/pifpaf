@@ -137,7 +137,9 @@ class GnocchiDriver(drivers.Driver):
         statsd_resource_id = str(uuid.uuid4())
 
         with open(conffile, "w") as f:
-            f.write("""[storage]
+            f.write("""[DEFAULT]
+debug = %s
+[storage]
 driver = %s
 %s
 [metricd]
@@ -149,7 +151,8 @@ creator = admin
 user_id = admin
 project_id = admin
 [indexer]
-url = %s""" % (storage_driver,
+url = %s""" % (self.debug,
+               storage_driver,
                storage_config_string,
                statsd_resource_id,
                self.indexer_url))
