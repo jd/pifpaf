@@ -20,7 +20,7 @@ from pifpaf.drivers import postgresql
 
 class AodhDriver(drivers.Driver):
 
-    DEFAULT_PORT = 8042
+    DEFAULT_PORT = 0
     DEFAULT_PORT_DB = 8050
     DEFAULT_PORT_GNOCCHI = 8051
     DEFAULT_PORT_GNOCCHI_INDEXER = 8052
