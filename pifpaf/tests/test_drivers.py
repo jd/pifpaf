@@ -315,40 +315,10 @@ class TestDrivers(testtools.TestCase):
 
     @testtools.skipUnless(spawn.find_executable("gnocchi-api"),
                           "Gnocchi not found")
-    def test_gnocchi_legacy(self):
-        port = gnocchi.GnocchiDriver.DEFAULT_PORT + 10
-        self.useFixture(gnocchi.GnocchiDriver(
-            create_legacy_resource_types=True,
-            port=port,
-            indexer_port=8143))
-        self.assertEqual("gnocchi://localhost:%d" % port,
-                         os.getenv("PIFPAF_URL"))
-        r = requests.get("http://localhost:%d/" % port)
-        self.assertEqual(200, r.status_code)
-
-    @testtools.skipUnless(spawn.find_executable("gnocchi-api"),
-                          "Gnocchi not found")
     @testtools.skipUnless(spawn.find_executable("aodh-api"),
                           "Aodh not found")
     def test_aodh(self):
         a = self.useFixture(aodh.AodhDriver())
-        self.assertEqual("aodh://localhost:%d" % a.port,
-                         os.getenv("PIFPAF_URL"))
-        r = requests.get(os.getenv("PIFPAF_AODH_HTTP_URL"))
-        self.assertEqual(200, r.status_code)
-
-    @testtools.skipUnless(spawn.find_executable("gnocchi-api"),
-                          "Gnocchi not found")
-    @testtools.skipUnless(spawn.find_executable("aodh-api"),
-                          "Aodh not found")
-    def test_aodh_gnocchi_legacy(self):
-        a = self.useFixture(aodh.AodhDriver(
-            gnocchi_create_legacy_resource_types=True,
-            port=8100,
-            gnocchi_port=8101,
-            database_port=8102,
-            gnocchi_indexer_port=8201,
-        ))
         self.assertEqual("aodh://localhost:%d" % a.port,
                          os.getenv("PIFPAF_URL"))
         r = requests.get(os.getenv("PIFPAF_AODH_HTTP_URL"))

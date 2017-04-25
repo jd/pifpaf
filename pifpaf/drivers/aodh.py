@@ -29,16 +29,12 @@ class AodhDriver(drivers.Driver):
                  database_port=DEFAULT_PORT_DB,
                  gnocchi_port=DEFAULT_PORT_GNOCCHI,
                  gnocchi_indexer_port=DEFAULT_PORT_GNOCCHI_INDEXER,
-                 gnocchi_create_legacy_resource_types=False,
                  **kwargs):
         super(AodhDriver, self).__init__(**kwargs)
         self.port = port
         self.database_port = database_port
         self.gnocchi_port = gnocchi_port
         self.gnocchi_indexer_port = gnocchi_indexer_port
-        self.gnocchi_create_legacy_resource_types = (
-            gnocchi_create_legacy_resource_types
-        )
 
     @classmethod
     def get_parser(cls, parser):
@@ -58,11 +54,6 @@ class AodhDriver(drivers.Driver):
                             type=int,
                             default=cls.DEFAULT_PORT_GNOCCHI_INDEXER,
                             help="port to use for Gnocchi indexer")
-        parser.add_argument(
-            "--gnocchi-create-legacy-resource-types",
-            action='store_true',
-            default=False,
-            help="create legacy Ceilometer resource types in Gnocchi")
         return parser
 
     def _setUp(self):
@@ -74,9 +65,6 @@ class AodhDriver(drivers.Driver):
         g = self.useFixture(gnocchi.GnocchiDriver(
             port=self.gnocchi_port,
             indexer_port=self.gnocchi_indexer_port,
-            create_legacy_resource_types=(
-                self.gnocchi_create_legacy_resource_types
-            ),
         ))
 
         conffile = os.path.join(self.tempdir, "aodh.conf")
