@@ -86,6 +86,6 @@ class EtcdDriver(drivers.Driver):
 
         self.putenv("ETCD_PORT", str(self.port))
         self.putenv("ETCD_PEER_PORT", str(self.peer_port))
-        self.putenv("HTTP_URL", "etcd://localhost:%d" % self.port)
+        self.putenv("HTTP_URL", "http://localhost:%d" % self.port)
         self.putenv("URL", "etcd://localhost:%d" % self.port)
         self.putenv("ETCDCTL_ENDPOINTS", endpoints, True)
