@@ -19,17 +19,21 @@ import six.moves.urllib.parse as urlparse
 
 from pifpaf import drivers
 from pifpaf.drivers import postgresql
+from pifpaf.drivers import redis
 
 
 class GnocchiDriver(drivers.Driver):
 
     DEFAULT_PORT = 8041
     DEFAULT_PORT_INDEXER = 9541
+    DEFAULT_PORT_COORDINATION = 9542
 
     def __init__(self, port=DEFAULT_PORT, indexer_port=DEFAULT_PORT_INDEXER,
                  statsd_port=None,
                  indexer_url=None,
                  storage_url=None,
+                 coordination_driver="default",
+                 coordination_port=DEFAULT_PORT_COORDINATION,
                  **kwargs):
         super(GnocchiDriver, self).__init__(**kwargs)
         self.port = port
@@ -37,6 +41,8 @@ class GnocchiDriver(drivers.Driver):
         self.indexer_url = indexer_url
         self.storage_url = storage_url
         self.statsd_port = statsd_port
+        self.coordination_driver = coordination_driver
+        self.coordination_port = coordination_port
 
     @classmethod
     def get_parser(cls, parser):
@@ -51,6 +57,15 @@ class GnocchiDriver(drivers.Driver):
                             type=int,
                             default=cls.DEFAULT_PORT_INDEXER,
                             help="port to use for Gnocchi indexer")
+        parser.add_argument("--coordination-port",
+                            type=int,
+                            default=cls.DEFAULT_PORT_COORDINATOR,
+                            help="port to use for Gnocchi coordination")
+        parser.add_argument("--coordination-driver",
+                            default="default",
+                            choices=["default", "redis"],
+                            nargs="?",
+                            help="Select a coordination driver")
         parser.add_argument("--indexer-url", help="indexer URL to use")
         parser.add_argument("--storage-url", help="storage URL to use")
         return parser
@@ -123,6 +138,10 @@ class GnocchiDriver(drivers.Driver):
         else:
             raise RuntimeError("Storage driver %s is not supported" %
                                storage_driver)
+
+        if self.coordination_driver == "redis":
+            r = self.useFixture(redis.RedisDriver(port=self.coordination_port))
+            storage_config["coordination_url"] = r.url
 
         storage_config_string = "\n".join(
             "%s = %s" % (k, v)

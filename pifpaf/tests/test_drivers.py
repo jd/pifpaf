@@ -242,6 +242,17 @@ class TestDrivers(testtools.TestCase):
         r = requests.get("http://localhost:%d/" % port)
         self.assertEqual(200, r.status_code)
 
+    @testtools.skipUnless(spawn.find_executable("redis-server"),
+                          "redis-server not found")
+    @testtools.skipUnless(spawn.find_executable("gnocchi-api"),
+                          "Gnocchi not found")
+    def test_gnocchi_with_redis_coordinator(self):
+        self.useFixture(gnocchi.GnocchiDriver(coordination_driver="redis"))
+        self.assertEqual("gnocchi://localhost:%d" % 8041,
+                         os.getenv("PIFPAF_URL"))
+        r = requests.get("http://localhost:%d/" % 8041)
+        self.assertEqual(200, r.status_code)
+
     @testtools.skipUnless(spawn.find_executable("gnocchi-api"),
                           "Gnocchi not found")
     def test_gnocchi_with_existing_indexer(self):

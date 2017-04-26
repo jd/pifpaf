@@ -74,4 +74,5 @@ sentinel monitor pifpaf localhost %d 1"""
                         str(self.sentinel_port))
 
         self.putenv("REDIS_PORT", str(self.port))
-        self.putenv("URL", "redis://localhost:%d" % self.port)
+        self.url = "redis://localhost:%d" % self.port
+        self.putenv("URL", self.url)
