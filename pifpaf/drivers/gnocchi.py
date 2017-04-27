@@ -26,14 +26,14 @@ class GnocchiDriver(drivers.Driver):
 
     DEFAULT_PORT = 8041
     DEFAULT_PORT_INDEXER = 9541
-    DEFAULT_PORT_COORDINATION = 9542
+    DEFAULT_PORT_COORDINATOR = 9542
 
     def __init__(self, port=DEFAULT_PORT, indexer_port=DEFAULT_PORT_INDEXER,
                  statsd_port=None,
                  indexer_url=None,
                  storage_url=None,
                  coordination_driver="default",
-                 coordination_port=DEFAULT_PORT_COORDINATION,
+                 coordination_port=DEFAULT_PORT_COORDINATOR,
                  **kwargs):
         super(GnocchiDriver, self).__init__(**kwargs)
         self.port = port
