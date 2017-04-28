@@ -21,17 +21,20 @@ from pifpaf.drivers import postgresql
 class AodhDriver(drivers.Driver):
 
     DEFAULT_PORT = 8042
+    DEFAULT_DB_DRIVER = "postgresql"
     DEFAULT_PORT_DB = 8050
     DEFAULT_PORT_GNOCCHI = 8051
     DEFAULT_PORT_GNOCCHI_INDEXER = 8052
 
     def __init__(self, port=DEFAULT_PORT,
                  database_port=DEFAULT_PORT_DB,
+                 database_url=None,
                  gnocchi_port=DEFAULT_PORT_GNOCCHI,
                  gnocchi_indexer_port=DEFAULT_PORT_GNOCCHI_INDEXER,
                  **kwargs):
         super(AodhDriver, self).__init__(**kwargs)
         self.port = port
+        self.database_url = database_url
         self.database_port = database_port
         self.gnocchi_port = gnocchi_port
         self.gnocchi_indexer_port = gnocchi_indexer_port
@@ -42,6 +45,7 @@ class AodhDriver(drivers.Driver):
                             type=int,
                             default=cls.DEFAULT_PORT,
                             help="port to use for Aodh")
+        parser.add_argument("--database-url", help="database URL to use")
         parser.add_argument("--database-port",
                             type=int,
                             default=cls.DEFAULT_PORT_DB,
@@ -59,8 +63,10 @@ class AodhDriver(drivers.Driver):
     def _setUp(self):
         super(AodhDriver, self)._setUp()
 
-        pg = self.useFixture(
-            postgresql.PostgreSQLDriver(port=self.database_port))
+        if self.database_url is None:
+            pg = self.useFixture(
+                postgresql.PostgreSQLDriver(port=self.database_port))
+            self.database_url = pg.url
 
         g = self.useFixture(gnocchi.GnocchiDriver(
             port=self.gnocchi_port,
@@ -77,7 +83,7 @@ auth_mode=
 [service_credentials]
 auth_type = gnocchi-basic
 user = admin
-endpoint = %s""" % (pg.url, g.http_url))
+endpoint = %s""" % (self.database_url, g.http_url))
 
         self._exec(["aodh-dbsync", "--config-file=%s" % conffile])
 

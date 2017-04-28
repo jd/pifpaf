@@ -324,6 +324,20 @@ class TestDrivers(testtools.TestCase):
         r = requests.get("http://localhost:%d/" % port)
         self.assertEqual(200, r.status_code)
 
+    @testtools.skipUnless(spawn.find_executable("pg_config"),
+                          "pg_config not found")
+    @testtools.skipUnless(spawn.find_executable("gnocchi-api"),
+                          "Gnocchi not found")
+    @testtools.skipUnless(spawn.find_executable("aodh-api"),
+                          "Aodh not found")
+    def test_aodh_with_existing_db(self):
+        pg = self.useFixture(postgresql.PostgreSQLDriver(port=12345))
+        a = self.useFixture(aodh.AodhDriver(database_url=pg.url))
+        self.assertEqual("aodh://localhost:%d" % a.port,
+                         os.getenv("PIFPAF_URL"))
+        r = requests.get(os.getenv("PIFPAF_AODH_HTTP_URL"))
+        self.assertEqual(200, r.status_code)
+
     @testtools.skipUnless(spawn.find_executable("gnocchi-api"),
                           "Gnocchi not found")
     @testtools.skipUnless(spawn.find_executable("aodh-api"),
