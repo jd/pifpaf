@@ -70,6 +70,7 @@ class AodhDriver(drivers.Driver):
 
         g = self.useFixture(gnocchi.GnocchiDriver(
             port=self.gnocchi_port,
+            indexer_url=self.database_url,
             indexer_port=self.gnocchi_indexer_port,
         ))
 
