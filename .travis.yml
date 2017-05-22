@@ -26,7 +26,7 @@ before_install:
   - ln -s /opt/kafka_2.11-0.10.1.0 /opt/kafka
 install:
     # The install requirements in travis virtualenv that will be cached
-  - pip install tox-travis .[test]
+  - pip install tox-travis .[test,ceph]
 script: tox -v -- $PIFPAF_TESTS
 # notifications:
 #  email:

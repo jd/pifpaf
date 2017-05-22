@@ -4,4 +4,3 @@ pbr
 jinja2
 six
 fixtures
-xattr; sys_platform != 'win32'
