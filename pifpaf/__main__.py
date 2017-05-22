@@ -24,6 +24,7 @@ from cliff import app
 from cliff import command
 from cliff import commandmanager
 from cliff import lister
+import daiquiri
 import fixtures
 import pbr.version
 import six
@@ -34,7 +35,7 @@ def _raise(m, ep, e):
     raise e
 
 
-LOG = logging.getLogger("pifpaf")
+LOG = daiquiri.getLogger("pifpaf")
 
 
 def _format_multiple_exceptions(e, debug=False):
@@ -221,10 +222,26 @@ class PifpafApp(app.App):
         return parser
 
     def configure_logging(self):
-        if self.options.debug:
-            self.options.verbose_level = 3
+        formatter = daiquiri.formatter.ColorFormatter(
+            fmt="%(color)s%(levelname)s "
+            "[%(name)s] %(message)s%(color_stop)s")
 
-        return super(PifpafApp, self).configure_logging()
+        outputs = [
+            daiquiri.output.Stream(sys.stdout, formatter=formatter)
+        ]
+
+        if self.options.log_file:
+            outputs.append(daiquiri.output.File(self.options.log_file,
+                                                formatter=formatter))
+
+        if self.options.debug:
+            level = logging.DEBUG
+        elif self.options.verbose_level == 1:
+            level = logging.INFO
+        else:
+            level = logging.WARNING
+
+        daiquiri.setup(outputs=outputs, level=level)
 
 
 def main():
