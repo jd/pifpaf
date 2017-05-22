@@ -150,7 +150,7 @@ class Driver(fixtures.Fixture):
             )
         except OSError as e:
             raise RuntimeError(
-                "Unable to run command `%s': %s" % (" ".join(command), e))
+                "Unable to run command `%s': %s" % (b" ".join(command), e))
 
         if stdin:
             LOG.debug("%s input: %s" % (app, stdin))
