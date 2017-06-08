@@ -152,6 +152,7 @@ class GnocchiDriver(drivers.Driver):
         with open(conffile, "w") as f:
             f.write("""[DEFAULT]
 debug = %s
+verbose = True
 [storage]
 driver = %s
 %s
