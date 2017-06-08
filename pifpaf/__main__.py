@@ -229,7 +229,7 @@ class PifpafApp(app.App):
             "[%(name)s] %(message)s%(color_stop)s")
 
         outputs = [
-            daiquiri.output.Stream(sys.stdout, formatter=formatter)
+            daiquiri.output.Stream(sys.stderr, formatter=formatter)
         ]
 
         if self.options.log_file:
