@@ -14,6 +14,7 @@
 # limitations under the License.
 
 import logging
+import operator
 import os
 import signal
 import subprocess
@@ -27,12 +28,8 @@ from cliff import lister
 import daiquiri
 import fixtures
 import pbr.version
+import pkg_resources
 import six
-from stevedore import extension
-
-
-def _raise(m, ep, e):
-    raise e
 
 
 LOG = daiquiri.getLogger("pifpaf")
@@ -66,24 +63,29 @@ def _format_multiple_exceptions(e, debug=False):
             else:
                 LOG.error(value)
 
-DAEMONS = extension.ExtensionManager("pifpaf.daemons",
-                                     on_load_failure_callback=_raise)
+
+DAEMONS = list(map(operator.attrgetter("name"),
+                   pkg_resources.iter_entry_points("pifpaf.daemons")))
 
 
 class ListDaemons(lister.Lister):
     """list available daemons"""
 
     def take_action(self, parsed_args):
-        return ("Daemons",), ((n,) for n in DAEMONS.names())
+        return ("Daemons",), ((n,) for n in DAEMONS)
 
 
 def create_RunDaemon(daemon):
-    plugin = DAEMONS[daemon].plugin
 
     class RunDaemon(command.Command):
+        def __init__(self, app, app_args, cmd_name=None):
+            super(RunDaemon, self).__init__(app, app_args, cmd_name)
+            self.plugin = pkg_resources.load_entry_point(
+                "pifpaf", "pifpaf.daemons", daemon)
+
         def get_parser(self, prog_name):
             parser = super(RunDaemon, self).get_parser(prog_name)
-            parser = plugin.get_parser(parser)
+            parser = self.plugin.get_parser(parser)
             parser.add_argument("command",
                                 nargs='*',
                                 help="command to run")
@@ -100,9 +102,9 @@ def create_RunDaemon(daemon):
 
         def take_action(self, parsed_args):
             command = parsed_args.__dict__.pop("command", None)
-            driver = plugin(env_prefix=self.app.options.env_prefix,
-                            debug=self.app.options.debug,
-                            **parsed_args.__dict__)
+            driver = self.plugin(env_prefix=self.app.options.env_prefix,
+                                 debug=self.app.options.debug,
+                                 **parsed_args.__dict__)
             if command:
                 try:
                     with driver:
@@ -189,7 +191,7 @@ def create_RunDaemon(daemon):
 
 
 class PifpafCommandManager(commandmanager.CommandManager):
-    COMMANDS = dict(("run " + k, create_RunDaemon(k)) for k in DAEMONS.names())
+    COMMANDS = dict(("run " + k, create_RunDaemon(k)) for k in DAEMONS)
     COMMANDS.update({"list": ListDaemons})
 
     def load_commands(self, namespace):
