@@ -172,11 +172,13 @@ url = %s""" % (self.debug,
 
         self._exec(["gnocchi-upgrade", "--config-file=%s" % conffile])
 
-        c, _ = self._exec(["gnocchi-metricd", "--config-file=%s" % conffile],
+        c, _ = self._exec(["gnocchi-metricd", "--verbose",
+                           "--config-file=%s" % conffile],
                           wait_for_line="metrics wait to be processed")
         self.addCleanup(self._kill, c.pid)
 
-        c, _ = self._exec(["gnocchi-statsd", "--config-file=%s" % conffile],
+        c, _ = self._exec(["gnocchi-statsd", "--verbose",
+                           "--config-file=%s" % conffile],
                           wait_for_line=("(Resource .* already exists"
                                          "|Created resource )"))
         self.addCleanup(self._kill, c.pid)
