@@ -38,9 +38,9 @@ class ElasticsearchDriver(drivers.Driver):
         c, _ = self._exec(
             [
                 "elasticsearch",
-                "-Des.http.port=" + str(self.port),
-                "-Des.path.logs=%s" % os.path.join(self.tempdir, "log"),
-                "-Des.path.data=" + self.tempdir
+                "-Ehttp.port=" + str(self.port),
+                "-Epath.logs=%s" % os.path.join(self.tempdir, "log"),
+                "-Epath.data=" + self.tempdir
             ],
             path=["/usr/share/elasticsearch/bin"],
             wait_for_line=" started")
