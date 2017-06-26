@@ -10,7 +10,7 @@
 # implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+from distutils import spawn
 import os
 import shutil
 import uuid
@@ -182,10 +182,19 @@ url = %s""" % (self.debug,
                                          "|Created resource )"))
         self.addCleanup(self._kill, c.pid)
 
-        c, _ = self._exec(
-            ["gnocchi-api", "--port", str(self.port),
-             "--", "--config-file=%s" % conffile],
-            wait_for_line="Available at http://")
+        c, _ = self._exec([
+            "uwsgi",
+            "--plugin", "corerouter",
+            "--plugin", "python",
+            "--plugin", "http",
+            "--http", "localhost:%d" % self.port,
+            "--wsgi-file", spawn.find_executable("gnocchi-api"),
+            "--master",
+            "--die-on-term",
+            "--lazy-apps",
+            "--pyargv", "--config-file=%s" % conffile,
+        ],
+                          wait_for_line="WSGI app 0 (mountpoint='') ready")
         self.addCleanup(self._kill, c.pid)
 
         self.http_url = "http://localhost:%d" % self.port
