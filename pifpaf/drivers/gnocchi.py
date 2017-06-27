@@ -190,6 +190,7 @@ url = %s""" % (self.debug,
             "--die-on-term",
             "--lazy-apps",
             "--enable-threads",
+            "--chdir", self.tempdir,
             "--pyargv", "--config-file=%s" % conffile,
         ],
                           wait_for_line="WSGI app 0 (mountpoint='') ready")
