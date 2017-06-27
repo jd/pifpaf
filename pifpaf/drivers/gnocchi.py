@@ -193,7 +193,7 @@ url = %s""" % (self.debug,
             "--chdir", self.tempdir,
             "--pyargv", "--config-file=%s" % conffile,
         ],
-                          wait_for_line="WSGI app 0 (mountpoint='') ready")
+                          wait_for_line="WSGI app 0 \(mountpoint=''\) ready")
         self.addCleanup(self._kill, c.pid)
 
         self.http_url = "http://localhost:%d" % self.port
