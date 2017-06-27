@@ -192,7 +192,7 @@ url = %s""" % (self.debug,
             "--enable-threads",
             "--pyargv", "--config-file=%s" % conffile,
         ],
-                          wait_for_line="spawned uWSGI worker")
+                          wait_for_line="WSGI app 0 (mountpoint='') ready")
         self.addCleanup(self._kill, c.pid)
 
         self.http_url = "http://localhost:%d" % self.port
