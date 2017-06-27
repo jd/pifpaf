@@ -182,7 +182,7 @@ url = %s""" % (self.debug,
                                          "|Created resource )"))
         self.addCleanup(self._kill, c.pid)
 
-        c, _ = self._exec([
+        gnocchi_api_cmd = [
             "uwsgi",
             "--plugin", "corerouter",
             "--plugin", "python",
@@ -194,7 +194,11 @@ url = %s""" % (self.debug,
             "--lazy-apps",
             "--enable-threads",
             "--pyargv", "--config-file=%s" % conffile,
-        ],
+        ]
+        if "VIRTUAL_ENV" in os.environ:
+            gnocchi_api_cmd.extend(["-H", os.getenv("VIRTUAL_ENV")])
+
+        c, _ = self._exec(gnocchi_api_cmd,
                           wait_for_line="spawned uWSGI worker")
         self.addCleanup(self._kill, c.pid)
 
