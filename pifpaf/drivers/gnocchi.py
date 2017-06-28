@@ -159,6 +159,7 @@ driver = %s
 [metricd]
 metric_processing_delay = 1
 metric_cleanup_delay = 1
+workers = 1
 [statsd]
 resource_id = %s
 creator = admin
