@@ -8,6 +8,7 @@ python:
     - 3.5
     - 3.6
 before_install:
+  - df -h
   # Always redownload tarball
   - find ~/.cache/pip -name '*.dev*' -delete
   - sudo apt-get -qq update
