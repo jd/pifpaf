@@ -257,7 +257,7 @@ class TestDrivers(testtools.TestCase):
     @testtools.skipUnless(spawn.find_executable("gnocchi-api"),
                           "Gnocchi not found")
     def test_gnocchi_with_existing_indexer(self):
-        port = gnocchi.GnocchiDriver.DEFAULT_PORT + 10
+        port = gnocchi.GnocchiDriver.DEFAULT_PORT + 15
         pg = self.useFixture(postgresql.PostgreSQLDriver(port=9833))
         self.useFixture(gnocchi.GnocchiDriver(
             indexer_url=pg.url, port=port))
