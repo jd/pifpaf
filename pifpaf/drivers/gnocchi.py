@@ -192,6 +192,7 @@ url = %s""" % (self.debug,
             "--no-orphans",
             "--enable-threads",
             "--chdir", self.tempdir,
+            "--add-header", "Connection: close",
             "--pyargv", "--config-file=%s" % conffile,
         ],
                           wait_for_line="WSGI app 0 \(mountpoint=''\) ready")
