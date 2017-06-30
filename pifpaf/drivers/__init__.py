@@ -19,6 +19,7 @@ import select
 import signal
 import subprocess
 import sys
+import tenacity
 import threading
 
 import fixtures
@@ -62,8 +63,30 @@ class Driver(fixtures.Fixture):
         self.env[key] = value
         return self.useFixture(fixtures.EnvironmentVariable(key, value))
 
-    def _kill(self, pid, signal=signal.SIGTERM):
-        return os.kill(pid, signal)
+    def _kill(self, pid, sig=signal.SIGTERM):
+        os.kill(pid, sig)
+
+        # Wait 10 seconds max
+        if not self._wait(pid):
+            LOG.warning("%d doesn't terminate cleanly after 10 seconds, "
+                        "sending SIGKILL to its process group")
+            # Cleanup remaining processes
+            try:
+                pgrp = os.getpgid(pid)
+                os.killpg(pgrp, signal.SIGKILL)
+            except OSError:
+                pass
+
+    @tenacity.retry(wait=tenacity.wait_fixed(1),
+                    stop=tenacity.stop_after_attempt(10),
+                    retry=tenacity.retry_if_not_result(lambda dead: dead))
+    def _wait(self, pid):
+        try:
+            os.kill(pid, 0)
+        except OSError:
+            # Process is dead
+            return True
+        return False
 
     def _kill_pid_file(self, pidfile):
         with open(pidfile, "r") as f:
@@ -108,7 +131,7 @@ class Driver(fixtures.Fixture):
     def _exec(self, command, stdout=False, ignore_failure=False,
               stdin=None, wait_for_line=None, path=[], env=None,
               forbidden_line_after_start=None,
-              allow_debug=True, session=False):
+              allow_debug=True):
         LOG.debug("executing: %s" % command)
 
         app = command[0]
@@ -146,7 +169,7 @@ class Driver(fixtures.Fixture):
                 stdout=stdout_fd,
                 stderr=subprocess.STDOUT,
                 env=complete_env,
-                preexec_fn=os.setsid if session else None
+                preexec_fn=os.setsid,
             )
         except OSError as e:
             raise RuntimeError(
