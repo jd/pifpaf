@@ -67,7 +67,9 @@ class Driver(fixtures.Fixture):
         os.kill(pid, sig)
 
         # Wait 10 seconds max
-        if not self._wait(pid):
+        try:
+            self._wait(pid)
+        except tenacity.RetryError:
             LOG.warning("%d doesn't terminate cleanly after 10 seconds, "
                         "sending SIGKILL to its process group")
             # Cleanup remaining processes
