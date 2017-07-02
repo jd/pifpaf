@@ -81,14 +81,10 @@ class Driver(fixtures.Fixture):
 
     @tenacity.retry(wait=tenacity.wait_fixed(1),
                     stop=tenacity.stop_after_attempt(10),
-                    retry=tenacity.retry_if_not_result(lambda dead: dead))
-    def _wait(self, pid):
-        try:
-            os.kill(pid, 0)
-        except OSError:
-            # Process is dead
-            return True
-        return False
+                    retry=tenacity.retry_if_exception_type(OSError))
+    @staticmethod
+    def _wait(pid):
+        os.kill(pid, 0)
 
     def _kill_pid_file(self, pidfile):
         with open(pidfile, "r") as f:
