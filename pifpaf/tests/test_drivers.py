@@ -15,6 +15,7 @@
 
 from distutils import spawn
 import logging
+import mock
 import os
 import six
 import socket
@@ -23,6 +24,7 @@ import fixtures
 import requests
 import testtools
 
+from pifpaf import drivers
 from pifpaf.drivers import aodh
 from pifpaf.drivers import ceph
 from pifpaf.drivers import consul
@@ -69,6 +71,16 @@ class TestDrivers(testtools.TestCase):
 
     def _run(self, cmd):
         self.assertEqual(0, os.system(cmd + " >/dev/null 2>&1"))
+
+    def test_stuck_process(self):
+        d = drivers.Driver(debug=True)
+        c, _ = d._exec(["bash", "-c",
+                        "trap ':' TERM ; echo start; sleep 10000"],
+                       wait_for_line="start")
+        with mock.patch.object(drivers.LOG, "warning") as w:
+            d._kill(c)
+            w.assert_called_once()
+        self.assertNotEqual(None, c.poll())
 
     @testtools.skipUnless(spawn.find_executable("elasticsearch"),
                           "elasticsearch not found")

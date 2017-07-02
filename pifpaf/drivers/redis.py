@@ -54,7 +54,7 @@ class RedisDriver(drivers.Driver):
             wait_for_line="The server is now ready to "
             "accept connections on port")
 
-        self.addCleanup(self._kill, c.pid)
+        self.addCleanup(self._kill, c)
 
         if self.sentinel:
             cfg = os.path.join(self.tempdir, "redis-sentinel.conf")
@@ -68,7 +68,7 @@ sentinel monitor pifpaf localhost %d 1"""
                 ["redis-sentinel", cfg],
                 wait_for_line=r"# Sentinel (runid|ID) is")
 
-            self.addCleanup(self._kill, c.pid)
+            self.addCleanup(self._kill, c)
 
             self.putenv("REDIS_SENTINEL_PORT",
                         str(self.sentinel_port))

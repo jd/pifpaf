@@ -63,33 +63,25 @@ class Driver(fixtures.Fixture):
         self.env[key] = value
         return self.useFixture(fixtures.EnvironmentVariable(key, value))
 
-    def _kill(self, pid, sig=signal.SIGTERM):
-        os.kill(pid, sig)
-
-        # Wait 10 seconds max
+    def _kill(self, process):
+        pgrp = os.getpgid(process.pid)
+        process.terminate()
         try:
-            self._wait(pid)
+
+            self._wait(process)
         except tenacity.RetryError:
             LOG.warning("%d doesn't terminate cleanly after 10 seconds, "
                         "sending SIGKILL to its process group")
             # Cleanup remaining processes
-            try:
-                pgrp = os.getpgid(pid)
-                os.killpg(pgrp, signal.SIGKILL)
-            except OSError:
-                pass
+            os.killpg(pgrp, signal.SIGKILL)
+        process.wait()
 
     @staticmethod
     @tenacity.retry(wait=tenacity.wait_fixed(1),
                     stop=tenacity.stop_after_attempt(10),
-                    retry=tenacity.retry_if_exception_type(OSError))
-    def _wait(pid):
-        os.kill(pid, 0)
-
-    def _kill_pid_file(self, pidfile):
-        with open(pidfile, "r") as f:
-            pid = int(f.read().strip())
-        self._kill(pid)
+                    retry=tenacity.retry_if_result(lambda ret: ret is None))
+    def _wait(process):
+        return process.poll()
 
     @staticmethod
     def find_executable(filename, extra_paths):

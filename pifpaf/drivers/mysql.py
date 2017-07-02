@@ -19,7 +19,6 @@ class MySQLDriver(drivers.Driver):
     def _setUp(self):
         super(MySQLDriver, self)._setUp()
         self.socket = os.path.join(self.tempdir, "mysql.socket")
-        pidfile = os.path.join(self.tempdir, "mysql.pid")
         datadir = os.path.join(self.tempdir, "data")
         tempdir = os.path.join(self.tempdir, "tmp")
         os.mkdir(datadir)
@@ -37,17 +36,16 @@ class MySQLDriver(drivers.Driver):
                                "--no-defaults",
                                "--tmpdir=" + tempdir,
                                "--datadir=" + datadir])
-        self._exec(["mysqld",
-                    "--no-defaults",
-                    "--tmpdir=" + tempdir,
-                    "--datadir=" + datadir,
-                    "--pid-file=" + pidfile,
-                    "--socket=" + self.socket,
-                    "--skip-networking",
-                    "--skip-grant-tables"],
-                   wait_for_line="mysqld: ready for connections.",
-                   path=["/usr/libexec"])
-        self.addCleanup(self._kill_pid_file, pidfile)
+        c, _ = self._exec(["mysqld",
+                           "--no-defaults",
+                           "--tmpdir=" + tempdir,
+                           "--datadir=" + datadir,
+                           "--socket=" + self.socket,
+                           "--skip-networking",
+                           "--skip-grant-tables"],
+                          wait_for_line="mysqld: ready for connections.",
+                          path=["/usr/libexec"])
+        self.addCleanup(self._kill, c)
         self._exec(["mysql",
                     "--no-defaults",
                     "-S", self.socket,

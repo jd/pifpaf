@@ -82,7 +82,7 @@ connection = sqlite:///%s/sqlite.db
              "--",
              "--config-file", conffile],
             wait_for_line="Available at http://")
-        self.addCleanup(self._kill, c.pid)
+        self.addCleanup(self._kill, c)
 
         c, _ = self._exec(
             ["keystone-wsgi-admin",
@@ -90,7 +90,7 @@ connection = sqlite:///%s/sqlite.db
              "--",
              "--config-file", conffile],
             wait_for_line="Available at http://")
-        self.addCleanup(self._kill, c.pid)
+        self.addCleanup(self._kill, c)
 
         self.putenv("OS_AUTH_URL", self.http_url, True)
         self.putenv("OS_PROJECT_NAME", "admin", True)
