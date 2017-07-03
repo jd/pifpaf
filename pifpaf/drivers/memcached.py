@@ -38,7 +38,7 @@ class MemcachedDriver(drivers.Driver):
                            "-p " + str(self.port)],
                           wait_for_line="server listening")
 
-        self.addCleanup(self._kill, c.pid)
+        self.addCleanup(self._kill, c)
 
         self.putenv("MEMCACHED_PORT", str(self.port))
         self.putenv("URL", "memcached://localhost:%d" % self.port)

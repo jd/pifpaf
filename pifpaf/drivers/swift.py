@@ -82,6 +82,8 @@ class SwiftDriver(drivers.Driver):
     def _setUp(self):
         super(SwiftDriver, self)._setUp()
 
+        self._ensure_xattr_support()
+
         if LOG.isEnabledFor(logging.DEBUG):
             s = FakeSyslog(os.path.join(self.tempdir, "log"))
             s.start()
@@ -118,12 +120,17 @@ class SwiftDriver(drivers.Driver):
             c, _ = self._exec(["swift-%s-server" % name,
                                os.path.join(self.tempdir, "%s.conf" % name)],
                               env=env, wait_for_line="started")
-            self.addCleanup(self._kill, c.pid)
+            self.addCleanup(self._kill, c)
 
         # NOTE(sileht): we have no log, so ensure it work before returning
         # swiftclient retries 3 times before give up
+        testfile = os.path.join(self.tempdir, "pifpaf_test_file")
+        self._touch(testfile)
         self._exec(["swift", "-A", "http://localhost:8080/auth/v1.0",
                     "-U", "test:tester", "-K", "testing", "stat", "-v"])
+        self._exec(["swift", "-A", "http://localhost:8080/auth/v1.0",
+                    "-U", "test:tester", "-K", "testing", "upload", "-v",
+                    "pifpaf", testfile])
 
         self.putenv("SWIFT_PORT", str(self.port))
         self.putenv("SWIFT_USERNAME", "test:tester")

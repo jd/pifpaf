@@ -45,7 +45,7 @@ class ElasticsearchDriver(drivers.Driver):
             path=["/usr/share/elasticsearch/bin"],
             wait_for_line=" started")
 
-        self.addCleanup(self._kill, c.pid)
+        self.addCleanup(self._kill, c)
 
         self.putenv("ELASTICSEARCH_PORT", str(self.port))
         self.putenv("URL", "es://localhost:%d" % self.port)

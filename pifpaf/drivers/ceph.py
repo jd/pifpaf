@@ -15,8 +15,6 @@ import os
 import pkg_resources
 import uuid
 
-import xattr
-
 from pifpaf import drivers
 
 
@@ -35,19 +33,6 @@ class CephDriver(drivers.Driver):
                             default=cls.DEFAULT_PORT,
                             help="port to use for Ceph Monitor")
         return parser
-
-    def _ensure_xattr_support(self, tempdir=None):
-        if tempdir is None:
-            tempdir = self.tempdir
-        testfile = os.path.join(tempdir, "test")
-        self._touch(testfile)
-        try:
-            x = xattr.xattr(testfile)
-            x[b"user.test"] = b"test"
-        except (OSError, IOError) as e:
-            if e.errno == 95:
-                raise RuntimeError("TMPDIR must support xattr for Ceph driver")
-            raise
 
     def _setUp(self):
         super(CephDriver, self)._setUp()
@@ -136,7 +121,7 @@ mon addr = 127.0.0.1:%(port)d
             mon_opts,
             wait_for_line=r"mon.a@0\(leader\).mds e1 print_map")
 
-        self.addCleanup(self._kill, mon.pid)
+        self.addCleanup(self._kill, mon)
 
         # Create and start OSD
         self._exec(ceph_opts + ["osd", "create"])
@@ -148,7 +133,7 @@ mon addr = 127.0.0.1:%(port)d
         else:
             wait_for_line = "done with init"
         osd, _ = self._exec(osd_opts, wait_for_line=wait_for_line)
-        self.addCleanup(self._kill, osd.pid)
+        self.addCleanup(self._kill, osd)
 
         # Wait it's ready
         out = b""

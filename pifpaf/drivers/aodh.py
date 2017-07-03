@@ -91,11 +91,11 @@ endpoint = %s""" % (self.database_url, g.http_url))
                            "--",
                            "--config-file=%s" % conffile],
                           wait_for_line="Available at http://")
-        self.addCleanup(self._kill, c.pid)
+        self.addCleanup(self._kill, c)
 
         c, _ = self._exec(["aodh-evaluator", "--config-file=%s" % conffile],
                           wait_for_line="initiating evaluation cycle")
-        self.addCleanup(self._kill, c.pid)
+        self.addCleanup(self._kill, c)
 
         self.putenv("AODH_PORT", str(self.port))
         self.putenv("AODH_GNOCCHI_USER", "admin")

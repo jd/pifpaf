@@ -25,6 +25,10 @@ import threading
 import fixtures
 import jinja2
 import six
+try:
+    import xattr
+except ImportError:
+    xattr = None
 
 if six.PY3:
     fsdecode = os.fsdecode
@@ -39,18 +43,20 @@ LOG = logging.getLogger(__name__)
 
 
 class Driver(fixtures.Fixture):
-    def __init__(self, env_prefix="PIFPAF", templatedir=".", debug=False):
+    def __init__(self, env_prefix="PIFPAF", templatedir=".", debug=False,
+                 tmp_rootdir=None):
         super(Driver, self).__init__()
         self.env_prefix = env_prefix
         self.env = {}
         self.debug = debug
+        self.tmp_rootdir = tmp_rootdir
 
         templatedir = os.path.join('drivers', 'templates', templatedir)
         self.template_env = jinja2.Environment(
             loader=jinja2.PackageLoader('pifpaf', templatedir))
 
     def _setUp(self):
-        self.tempdir = self.useFixture(fixtures.TempDir()).path
+        self.tempdir = self.useFixture(fixtures.TempDir(self.tmp_rootdir)).path
         self.putenv("DATA", self.tempdir)
 
     @staticmethod
@@ -63,33 +69,43 @@ class Driver(fixtures.Fixture):
         self.env[key] = value
         return self.useFixture(fixtures.EnvironmentVariable(key, value))
 
-    def _kill(self, pid, sig=signal.SIGTERM):
-        os.kill(pid, sig)
+    def _ensure_xattr_support(self):
+        testfile = os.path.join(self.tempdir, "test")
+        self._touch(testfile)
+        xattr_supported = False
+        if xattr is not None:
+            try:
+                x = xattr.xattr(testfile)
+                x[b"user.test"] = b"test"
+            except (OSError, IOError) as e:
+                if e.errno != 95:
+                    raise
+            else:
+                xattr_supported = True
 
-        # Wait 10 seconds max
+        if not xattr_supported:
+            raise RuntimeError("TMPDIR must support xattr for %s" %
+                               self.__class__.__name__)
+
+    def _kill(self, process):
+        pgrp = os.getpgid(process.pid)
+        process.terminate()
         try:
-            self._wait(pid)
+
+            self._wait(process)
         except tenacity.RetryError:
             LOG.warning("%d doesn't terminate cleanly after 10 seconds, "
                         "sending SIGKILL to its process group")
             # Cleanup remaining processes
-            try:
-                pgrp = os.getpgid(pid)
-                os.killpg(pgrp, signal.SIGKILL)
-            except OSError:
-                pass
+            os.killpg(pgrp, signal.SIGKILL)
+        process.wait()
 
     @staticmethod
     @tenacity.retry(wait=tenacity.wait_fixed(1),
                     stop=tenacity.stop_after_attempt(10),
-                    retry=tenacity.retry_if_exception_type(OSError))
-    def _wait(pid):
-        os.kill(pid, 0)
-
-    def _kill_pid_file(self, pidfile):
-        with open(pidfile, "r") as f:
-            pid = int(f.read().strip())
-        self._kill(pid)
+                    retry=tenacity.retry_if_result(lambda ret: ret is None))
+    def _wait(process):
+        return process.poll()
 
     @staticmethod
     def find_executable(filename, extra_paths):
