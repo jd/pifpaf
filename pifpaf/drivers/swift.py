@@ -122,8 +122,13 @@ class SwiftDriver(drivers.Driver):
 
         # NOTE(sileht): we have no log, so ensure it work before returning
         # swiftclient retries 3 times before give up
+        testfile = os.path.join(self.tempdir, "pifpaf_test_file")
+        self._touch(testfile)
         self._exec(["swift", "-A", "http://localhost:8080/auth/v1.0",
                     "-U", "test:tester", "-K", "testing", "stat", "-v"])
+        self._exec(["swift", "-A", "http://localhost:8080/auth/v1.0",
+                    "-U", "test:tester", "-K", "testing", "upload", "-v",
+                    "pifpaf", testfile])
 
         self.putenv("SWIFT_PORT", str(self.port))
         self.putenv("SWIFT_USERNAME", "test:tester")
