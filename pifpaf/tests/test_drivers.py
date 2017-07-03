@@ -82,6 +82,8 @@ class TestDrivers(testtools.TestCase):
             w.assert_called_once()
         self.assertNotEqual(None, c.poll())
 
+    @testtools.skip("Driver need rework, it won't work with travis or "
+                    "Ubuntu xenial or Debian strech package")
     @testtools.skipUnless(spawn.find_executable("elasticsearch"),
                           "elasticsearch not found")
     def test_elasticsearch(self):
