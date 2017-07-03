@@ -284,7 +284,8 @@ class TestDrivers(testtools.TestCase):
     @testtools.skipUnless(spawn.find_executable("swift-proxy-server"),
                           "Swift not found")
     def test_gnocchi_with_existing_swift(self):
-        self.useFixture(swift.SwiftDriver())
+        tmp_rootdir = self._get_tmpdir_for_xattr()
+        self.useFixture(swift.SwiftDriver(tmp_rootdir=tmp_rootdir))
         self.useFixture(gnocchi.GnocchiDriver(
             storage_url=os.getenv("PIFPAF_URL")))
         self.assertEqual("gnocchi://localhost:8041",
@@ -317,13 +318,8 @@ class TestDrivers(testtools.TestCase):
                           "Ceph client not found")
     def test_gnocchi_with_existing_ceph(self):
         port = gnocchi.GnocchiDriver.DEFAULT_PORT + 10
-        tempdir = self.useFixture(fixtures.TempDir()).path
-
-        ceph_driver = ceph.CephDriver()
-        try:
-            ceph_driver._ensure_xattr_support(tempdir)
-        except RuntimeError as e:
-            self.skipTest(str(e))
+        tmp_rootdir = self._get_tmpdir_for_xattr()
+        ceph_driver = ceph.CephDriver(tmp_rootdir=tmp_rootdir)
         self.useFixture(ceph_driver)
 
         ceph_driver._exec(["rados", "-c", os.getenv("CEPH_CONF"), "mkpool",
@@ -380,14 +376,8 @@ class TestDrivers(testtools.TestCase):
     @testtools.skipUnless(spawn.find_executable("ceph"),
                           "Ceph client not found")
     def test_ceph(self):
-        tempdir = self.useFixture(fixtures.TempDir()).path
-        driver = ceph.CephDriver()
-        try:
-            driver._ensure_xattr_support(tempdir)
-        except RuntimeError as e:
-            self.skipTest(str(e))
-
-        a = self.useFixture(driver)
+        tmp_rootdir = self._get_tmpdir_for_xattr()
+        a = self.useFixture(ceph.CephDriver(tmp_rootdir=tmp_rootdir))
         self.assertEqual("ceph://localhost:%d" % a.port,
                          os.getenv("PIFPAF_URL"))
         self.assertIn("ceph.conf", os.getenv("CEPH_CONF"))
@@ -461,7 +451,8 @@ class TestDrivers(testtools.TestCase):
     @testtools.skipUnless(spawn.find_executable("swift-proxy-server"),
                           "Swift not found")
     def test_swift(self):
-        a = self.useFixture(swift.SwiftDriver())
+        tmp_rootdir = self._get_tmpdir_for_xattr()
+        a = self.useFixture(swift.SwiftDriver(tmp_rootdir=tmp_rootdir))
         self.assertEqual("http://localhost:8080/auth/v1.0",
                          os.getenv("PIFPAF_SWIFT_AUTH_URL"))
         self.assertEqual(8080, a.port)
@@ -474,3 +465,15 @@ class TestDrivers(testtools.TestCase):
         self.assertEqual(
             "swift://test%3Atester:testing@localhost:8080/auth/v1.0",
             os.getenv("PIFPAF_URL"))
+
+    def _get_tmpdir_for_xattr(self):
+        tmp_rootdir = os.getenv("TMPDIR_FOR_XATTR")
+        # NOTE(sileht): Don't skip test if user have explicitly set a directory
+        if not tmp_rootdir:
+            try:
+                d = drivers.Driver(tmp_rootdir=tmp_rootdir)
+                self.useFixture(d)
+                d._ensure_xattr_support()
+            except RuntimeError as e:
+                self.skipTest(str(e))
+        return tmp_rootdir

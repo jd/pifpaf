@@ -26,7 +26,8 @@ before_install:
 install:
     # The install requirements in travis virtualenv that will be cached
   - pip install tox-travis .[test,ceph]
-script: tox -v -- $PIFPAF_TESTS
+  - mkdir tmpxattr
+script: TMPDIR_FOR_XATTR=$(pwd)/tmpxattr tox -v -- $PIFPAF_TESTS
 # notifications:
 #  email:
 #    - julien@danjou.info

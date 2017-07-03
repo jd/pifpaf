@@ -82,6 +82,8 @@ class SwiftDriver(drivers.Driver):
     def _setUp(self):
         super(SwiftDriver, self)._setUp()
 
+        self._ensure_xattr_support()
+
         if LOG.isEnabledFor(logging.DEBUG):
             s = FakeSyslog(os.path.join(self.tempdir, "log"))
             s.start()

@@ -25,6 +25,10 @@ import threading
 import fixtures
 import jinja2
 import six
+try:
+    import xattr
+except ImportError:
+    xattr = None
 
 if six.PY3:
     fsdecode = os.fsdecode
@@ -39,18 +43,20 @@ LOG = logging.getLogger(__name__)
 
 
 class Driver(fixtures.Fixture):
-    def __init__(self, env_prefix="PIFPAF", templatedir=".", debug=False):
+    def __init__(self, env_prefix="PIFPAF", templatedir=".", debug=False,
+                 tmp_rootdir=None):
         super(Driver, self).__init__()
         self.env_prefix = env_prefix
         self.env = {}
         self.debug = debug
+        self.tmp_rootdir = tmp_rootdir
 
         templatedir = os.path.join('drivers', 'templates', templatedir)
         self.template_env = jinja2.Environment(
             loader=jinja2.PackageLoader('pifpaf', templatedir))
 
     def _setUp(self):
-        self.tempdir = self.useFixture(fixtures.TempDir()).path
+        self.tempdir = self.useFixture(fixtures.TempDir(self.tmp_rootdir)).path
         self.putenv("DATA", self.tempdir)
 
     @staticmethod
@@ -62,6 +68,24 @@ class Driver(fixtures.Fixture):
             key = self.env_prefix + "_" + key
         self.env[key] = value
         return self.useFixture(fixtures.EnvironmentVariable(key, value))
+
+    def _ensure_xattr_support(self):
+        testfile = os.path.join(self.tempdir, "test")
+        self._touch(testfile)
+        xattr_supported = False
+        if xattr is not None:
+            try:
+                x = xattr.xattr(testfile)
+                x[b"user.test"] = b"test"
+            except (OSError, IOError) as e:
+                if e.errno != 95:
+                    raise
+            else:
+                xattr_supported = True
+
+        if not xattr_supported:
+            raise RuntimeError("TMPDIR must support xattr for %s" %
+                               self.__class__.__name__)
 
     def _kill(self, process):
         pgrp = os.getpgid(process.pid)
