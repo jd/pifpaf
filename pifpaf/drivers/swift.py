@@ -19,6 +19,7 @@ from six.moves import socketserver
 import threading
 
 from pifpaf import drivers
+from pifpaf.drivers import memcached
 
 LOG = logging.getLogger(__name__)
 
@@ -48,16 +49,19 @@ class SwiftDriver(drivers.Driver):
     DEFAULT_PORT_ACCOUNT = 5060
     DEFAULT_PORT_CONTAINER = 5061
     DEFAULT_PORT_OBJECT = 5062
+    DEFAULT_PORT_MEMCACHED = 5063
 
     def __init__(self, port=DEFAULT_PORT, account_port=DEFAULT_PORT_ACCOUNT,
                  container_port=DEFAULT_PORT_CONTAINER,
-                 object_port=DEFAULT_PORT_OBJECT, **kwargs):
+                 object_port=DEFAULT_PORT_OBJECT,
+                 memcached_port=DEFAULT_PORT_MEMCACHED, **kwargs):
         super(SwiftDriver, self).__init__(templatedir="swift",
                                           **kwargs)
         self.port = port
         self.account_port = account_port
         self.container_port = container_port
         self.object_port = object_port
+        self.memcached_port = memcached_port
 
     @classmethod
     def get_parser(cls, parser):
@@ -77,6 +81,10 @@ class SwiftDriver(drivers.Driver):
                             type=int,
                             default=cls.DEFAULT_PORT_ACCOUNT,
                             help="port to use for Swift Account Server")
+        parser.add_argument("--memcached-port",
+                            type=int,
+                            default=cls.DEFAULT_PORT_MEMCACHED,
+                            help="port to use for memcached Server")
         return parser
 
     def _setUp(self):
@@ -95,6 +103,7 @@ class SwiftDriver(drivers.Driver):
             "ACCOUNT_PORT": self.account_port,
             "CONTAINER_PORT": self.container_port,
             "OBJECT_PORT": self.object_port,
+            "MEMCACHED_PORT": self.memcached_port,
             "USER": getpass.getuser(),
         }
 
@@ -104,6 +113,7 @@ class SwiftDriver(drivers.Driver):
                      "sitecustomize.py"]:
             self.template(name, template_env, os.path.join(self.tempdir, name))
 
+        self.useFixture(memcached.MemcachedDriver(self.memcached_port))
         for name in ["object", "container", "account"]:
             path = os.path.join(self.tempdir, "%s.builder" % name)
             port = getattr(self, "%s_port" % name)
@@ -127,8 +137,10 @@ class SwiftDriver(drivers.Driver):
         testfile = os.path.join(self.tempdir, "pifpaf_test_file")
         self._touch(testfile)
         self._exec(["swift", "-A", "http://localhost:8080/auth/v1.0",
+                    "-V", "1.0",
                     "-U", "test:tester", "-K", "testing", "stat", "-v"])
         self._exec(["swift", "-A", "http://localhost:8080/auth/v1.0",
+                    "-V", "1.0",
                     "-U", "test:tester", "-K", "testing", "upload", "-v",
                     "pifpaf", testfile])
 
