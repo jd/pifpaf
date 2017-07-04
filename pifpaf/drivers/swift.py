@@ -137,8 +137,10 @@ class SwiftDriver(drivers.Driver):
         testfile = os.path.join(self.tempdir, "pifpaf_test_file")
         self._touch(testfile)
         self._exec(["swift", "-A", "http://localhost:8080/auth/v1.0",
+                    "-V", "1.0",
                     "-U", "test:tester", "-K", "testing", "stat", "-v"])
         self._exec(["swift", "-A", "http://localhost:8080/auth/v1.0",
+                    "-V", "1.0",
                     "-U", "test:tester", "-K", "testing", "upload", "-v",
                     "pifpaf", testfile])
 
