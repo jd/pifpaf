@@ -112,7 +112,7 @@ class GnocchiDriver(drivers.Driver):
             }
         elif storage_driver == "swift":
             storage_config = {
-                "swift_auth_url": "http://%s:%s/%s" % (
+                "swift_authurl": "http://%s:%s%s" % (
                     storage_parsed.hostname,
                     storage_parsed.port,
                     storage_parsed.path,

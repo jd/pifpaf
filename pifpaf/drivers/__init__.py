@@ -11,16 +11,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import contextlib
 from distutils import spawn
 import logging
 import os
 import re
 import select
 import signal
+import socket
 import subprocess
 import sys
 import tenacity
 import threading
+import time
 
 import fixtures
 import jinja2
@@ -143,7 +146,8 @@ class Driver(fixtures.Fixture):
         LOG.debug("%s[%d] output: %s", appname, pid, data.rstrip())
 
     def _exec(self, command, stdout=False, ignore_failure=False,
-              stdin=None, wait_for_line=None, path=[], env=None,
+              stdin=None, wait_for_line=None, wait_for_port=None,
+              path=[], env=None,
               forbidden_line_after_start=None,
               allow_debug=True):
         LOG.debug("executing: %s" % command)
@@ -240,7 +244,19 @@ class Driver(fixtures.Fixture):
             t.setDaemon(True)
             t.start()
 
-        if not wait_for_line:
+        if wait_for_port:
+            for i in range(0, 10):
+                with contextlib.closing(
+                        socket.socket(socket.AF_INET,
+                                      socket.SOCK_STREAM)) as sock:
+                    if sock.connect_ex(('127.0.0.1', wait_for_port)) == 0:
+                        break
+                time.sleep(1)
+            else:
+                raise RuntimeError("Program did not open port %s" %
+                                   wait_for_port)
+
+        if not wait_for_line and not wait_for_port:
             status = c.wait()
             if not ignore_failure and status != 0:
                 raise RuntimeError("Error while running command: %s" % command)
