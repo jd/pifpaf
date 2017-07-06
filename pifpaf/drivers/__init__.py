@@ -97,8 +97,8 @@ class Driver(fixtures.Fixture):
 
             self._wait(process)
         except tenacity.RetryError:
-            LOG.warning("%d doesn't terminate cleanly after 10 seconds, "
-                        "sending SIGKILL to its process group")
+            LOG.warning("PID %d didn't terminate cleanly after 10 seconds, "
+                        "sending SIGKILL to its process group", process.pid)
             # Cleanup remaining processes
             os.killpg(pgrp, signal.SIGKILL)
         process.wait()
