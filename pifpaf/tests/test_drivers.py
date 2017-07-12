@@ -44,6 +44,7 @@ from pifpaf.drivers import rabbitmq
 from pifpaf.drivers import redis
 from pifpaf.drivers import s3rver
 from pifpaf.drivers import swift
+from pifpaf.drivers import vault
 from pifpaf.drivers import zookeeper
 
 
@@ -154,6 +155,17 @@ class TestDrivers(testtools.TestCase):
         self.assertEqual("memcached://localhost:%d" % port,
                          os.getenv("PIFPAF_URL"))
         self.assertEqual(str(port), os.getenv("PIFPAF_MEMCACHED_PORT"))
+
+    @testtools.skipUnless(spawn.find_executable("vault"),
+                          "vault not found")
+    def test_vault(self):
+        listen_address = "localhost:5049"
+        self.useFixture(vault.VaultDriver(listen_address=listen_address))
+        self.assertEqual("http://%s" % listen_address,
+                         os.getenv("PIFPAF_URL"))
+        self.assertEqual("http://%s" % listen_address,
+                         os.getenv("PIFPAF_VAULT_ADDR"))
+        self.assertTrue(len(os.getenv("PIFPAF_ROOT_TOKEN")) > 0)
 
     @testtools.skipUnless(spawn.find_executable("fakes3"),
                           "fakes3 not found")

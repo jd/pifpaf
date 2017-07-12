@@ -41,6 +41,7 @@ Pifpaf currently supports:
 * `S3rver`_
 * `MongoDB`_
 * `OpenStack Swift`_
+* `Vault`_
 
 .. _Consul: https://www.consul.io/
 .. _PostgreSQL: http://postgresql.org
@@ -61,6 +62,7 @@ Pifpaf currently supports:
 .. _S3rver: https://www.npmjs.com/package/s3rver
 .. _MongoDB: https://www.mongodb.com
 .. _OpenStack Swift: https://docs.openstack.org/developer/swift/
+.. _Vault: https://www.vaultproject.io/
 
 Usage
 =====
