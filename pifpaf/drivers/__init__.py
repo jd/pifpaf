@@ -193,73 +193,79 @@ class Driver(fixtures.Fixture):
             raise RuntimeError(
                 "Unable to run command `%s': %s" % (b" ".join(command), e))
 
-        if stdin:
-            LOG.debug("%s input: %s" % (app, stdin))
-            c.stdin.write(stdin)
-            c.stdin.close()
+        try:
+            if stdin:
+                LOG.debug("%s input: %s" % (app, stdin))
+                c.stdin.write(stdin)
+                c.stdin.close()
 
-        if stdout or wait_for_line:
-            lines = []
-            while True:
-                line = c.stdout.readline()
-                self._log_output(app, c.pid, line)
-                lines.append(line)
-                if not line:
-                    if wait_for_line:
-                        raise RuntimeError(
-                            "Program did not print: `%s'\nOutput: %s"
-                            % (wait_for_line, b"".join(lines)))
-                    break
-                decoded_line = fsdecode(line)
-
-                if wait_for_line and re.search(wait_for_line,
-                                               decoded_line):
-                    break
-            stdout_str = b"".join(lines)
-        else:
-            stdout_str = None
-
-        if (stdout or wait_for_line) and forbidden_line_after_start:
-            timeout, forbidden_output = forbidden_line_after_start
-            r, w, x = select.select([c.stdout.fileno()], [], [], timeout)
-            if r:
-                line = c.stdout.readline()
-                self._log_output(app, c.pid, line)
-                lines.append(line)
-                if c.poll() is not None:
-                    # Read the rest if the process is dead, this help debugging
-                    while line:
-                        line = c.stdout.readline()
-                        self._log_output(app, c.pid, line)
-                        lines.append(line)
-                if line and re.search(forbidden_output, fsdecode(line)):
-                    raise RuntimeError(
-                        "Program print a forbidden line: `%s'\nOutput: %s"
-                        % (forbidden_output, b"".join(lines)))
-
-        if stdout or wait_for_line or debug:
-            # Continue to read
-            t = threading.Thread(target=self._read_in_bg,
-                                 args=(app, c.pid, c.stdout,))
-            t.setDaemon(True)
-            t.start()
-
-        if wait_for_port:
-            for i in range(0, 10):
-                with contextlib.closing(
-                        socket.socket(socket.AF_INET,
-                                      socket.SOCK_STREAM)) as sock:
-                    if sock.connect_ex(('127.0.0.1', wait_for_port)) == 0:
+            if stdout or wait_for_line:
+                lines = []
+                while True:
+                    line = c.stdout.readline()
+                    lines.append(line)
+                    if not line:
+                        if wait_for_line:
+                            raise RuntimeError(
+                                "Program did not print: `%s'\nOutput: %s"
+                                % (wait_for_line, b"".join(lines)))
                         break
-                time.sleep(1)
-            else:
-                raise RuntimeError("Program did not open port %s" %
-                                   wait_for_port)
+                    decoded_line = fsdecode(line)
 
-        if not wait_for_line and not wait_for_port:
-            status = c.wait()
-            if not ignore_failure and status != 0:
-                raise RuntimeError("Error while running command: %s" % command)
+                    if wait_for_line and re.search(wait_for_line,
+                                                   decoded_line):
+                        break
+                stdout_str = b"".join(lines)
+            else:
+                stdout_str = None
+
+            if (stdout or wait_for_line) and forbidden_line_after_start:
+                timeout, forbidden_output = forbidden_line_after_start
+                r, w, x = select.select([c.stdout.fileno()], [], [], timeout)
+                if r:
+                    line = c.stdout.readline()
+                    self._log_output(app, c.pid, line)
+                    lines.append(line)
+                    if c.poll() is not None:
+                        # Read the rest if the process is dead, this help
+                        # debugging
+                        while line:
+                            line = c.stdout.readline()
+                            self._log_output(app, c.pid, line)
+                            lines.append(line)
+                    if line and re.search(forbidden_output, fsdecode(line)):
+                        raise RuntimeError(
+                            "Program print a forbidden line: `%s'\nOutput: %s"
+                            % (forbidden_output, b"".join(lines)))
+
+            if stdout or wait_for_line or debug:
+                # Continue to read
+                t = threading.Thread(target=self._read_in_bg,
+                                     args=(app, c.pid, c.stdout,))
+                t.setDaemon(True)
+                t.start()
+
+            if wait_for_port:
+                for i in range(0, 10):
+                    with contextlib.closing(
+                            socket.socket(socket.AF_INET,
+                                          socket.SOCK_STREAM)) as sock:
+                        if sock.connect_ex(('127.0.0.1', wait_for_port)) == 0:
+                            break
+                    time.sleep(1)
+                else:
+                    raise RuntimeError("Program did not open port %s" %
+                                       wait_for_port)
+
+            if not wait_for_line and not wait_for_port:
+                status = c.wait()
+                if not ignore_failure and status != 0:
+                    raise RuntimeError("Error while running command: %s" %
+                                       command)
+        except KeyboardInterrupt:
+            if c.is_alive():
+                c.kill()
+            raise
 
         return c, stdout_str
 
