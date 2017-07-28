@@ -71,8 +71,6 @@ class InfluxDBDriver(drivers.Driver):
             ),
             path=["/opt/influxdb"])
 
-        self.addCleanup(self._kill, c)
-
         self._exec(["influx",
                     "-port", str(self.port),
                     "-execute", "CREATE DATABASE " + self.database])

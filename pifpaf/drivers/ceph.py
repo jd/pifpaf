@@ -121,8 +121,6 @@ mon addr = 127.0.0.1:%(port)d
             mon_opts,
             wait_for_line=r"mon.a@0\(leader\).mds e1 print_map")
 
-        self.addCleanup(self._kill, mon)
-
         # Create and start OSD
         self._exec(ceph_opts + ["osd", "create"])
         self._exec(ceph_opts + ["osd", "crush", "add", "osd.0", "1",
@@ -133,7 +131,6 @@ mon addr = 127.0.0.1:%(port)d
         else:
             wait_for_line = "done with init"
         osd, _ = self._exec(osd_opts, wait_for_line=wait_for_line)
-        self.addCleanup(self._kill, osd)
 
         # Wait it's ready
         out = b""

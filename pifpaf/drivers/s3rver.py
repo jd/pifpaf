@@ -41,8 +41,6 @@ class S3rverDriver(drivers.Driver):
              "--port", str(self.port)],
             wait_for_line="now listening on host")
 
-        self.addCleanup(self._kill, c)
-
         self.putenv("S3RVER_PORT", str(self.port))
         self.putenv("URL", "s3://localhost:%d" % self.port)
         self.putenv("HTTP_URL", "http://localhost:%d" % self.port)

@@ -176,12 +176,10 @@ url = %s""" % (self.debug,
 
         c, _ = self._exec(["gnocchi-metricd", "--config-file=%s" % conffile],
                           wait_for_line="metrics wait to be processed")
-        self.addCleanup(self._kill, c)
 
         c, _ = self._exec(["gnocchi-statsd", "--config-file=%s" % conffile],
                           wait_for_line=("(Resource .* already exists"
                                          "|Created resource )"))
-        self.addCleanup(self._kill, c)
 
         c, _ = self._exec([
             "uwsgi",

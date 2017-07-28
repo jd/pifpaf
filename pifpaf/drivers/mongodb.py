@@ -56,7 +56,5 @@ class MongoDBDriver(drivers.Driver):
              "--config", "/dev/null"] + storage_engine,
             wait_for_line="waiting for connections on port %d" % self.port)
 
-        self.addCleanup(self._kill, c)
-
         self.putenv("MONGODB_PORT", str(self.port))
         self.putenv("URL", "mongodb://localhost:%d/test" % self.port)

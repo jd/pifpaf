@@ -45,8 +45,6 @@ class VaultDriver(drivers.Driver):
                            "-dev-listen-address=" + self.listen_address],
                           wait_for_line="Vault server started!")
 
-        self.addCleanup(self._kill, c)
-
         self.putenv("ROOT_TOKEN", self.root_token_id)
         self.putenv("VAULT_ADDR", "http://%s" % self.listen_address)
         self.putenv("URL", "http://%s" % self.listen_address)

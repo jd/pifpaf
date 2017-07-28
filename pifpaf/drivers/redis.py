@@ -53,8 +53,6 @@ class RedisDriver(drivers.Driver):
                    % (self.tempdir, self.port)).encode('ascii'),
             wait_for_line="eady to accept connections")
 
-        self.addCleanup(self._kill, c)
-
         if self.sentinel:
             cfg = os.path.join(self.tempdir, "redis-sentinel.conf")
             with open(cfg, "w") as f:

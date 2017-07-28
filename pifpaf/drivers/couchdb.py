@@ -71,7 +71,5 @@ port = %d""" % (self.tempdir, self.tempdir, self.tempdir,
                           wait_for_line="Apache CouchDB has started."
                                         " Time to relax.")
 
-        self.addCleanup(self._kill, c)
-
         self.putenv("COUCHDB_PORT", str(self.port))
         self.putenv("URL", "couchdb://localhost:%d" % self.port)
