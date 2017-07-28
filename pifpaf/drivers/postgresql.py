@@ -35,24 +35,25 @@ class PostgreSQLDriver(drivers.Driver):
     def __init__(self, port=DEFAULT_PORT, host=DEFAULT_HOST,
                  **kwargs):
         super(PostgreSQLDriver, self).__init__(**kwargs)
-        _, pgbindir = self._exec(["pg_config", "--bindir"],
-                                 stdout=True)
-        self.pgctl = os.path.join(pgbindir.strip(), b"pg_ctl")
         self.port = port
         self.host = host
 
     def _setUp(self):
         super(PostgreSQLDriver, self)._setUp()
+        _, pgbindir = self._exec(["pg_config", "--bindir"],
+                                 stdout=True)
+        pgctl = os.path.join(pgbindir.strip(), b"pg_ctl")
+
         self.putenv("PGPORT", str(self.port), True)
         self.putenv("PGHOST", self.tempdir, True)
         self.putenv("PGDATA", self.tempdir, True)
         self.putenv("PGDATABASE", "postgres", True)
-        self._exec([self.pgctl, "-o", "'-A trust'", "initdb"])
-        self._exec([self.pgctl, "-w", "-o",
+        self._exec([pgctl, "-o", "'-A trust'", "initdb"])
+        self._exec([pgctl, "-w", "-o",
                     "-k %s -p %d -h \"%s\""
                     % (self.tempdir, self.port, self.host),
                     "start"], allow_debug=False)
-        self.addCleanup(self._exec, [self.pgctl, "-w", "stop"])
+        self.addCleanup(self._exec, [pgctl, "-w", "stop"])
         self.url = "postgresql://localhost/postgres?host=%s&port=%d" % (
             self.tempdir, self.port)
         self.putenv("URL", self.url)
