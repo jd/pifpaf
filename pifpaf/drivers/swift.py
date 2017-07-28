@@ -130,7 +130,6 @@ class SwiftDriver(drivers.Driver):
             c, _ = self._exec(["swift-%s-server" % name,
                                os.path.join(self.tempdir, "%s.conf" % name)],
                               env=env, wait_for_line="started")
-            self.addCleanup(self._kill, c)
 
         # NOTE(sileht): we have no log, so ensure it work before returning
         # swiftclient retries 3 times before give up

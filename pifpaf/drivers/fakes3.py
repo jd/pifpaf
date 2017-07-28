@@ -40,8 +40,6 @@ class FakeS3Driver(drivers.Driver):
              "--port", str(self.port)],
             wait_for_line="INFO  WEBrick::HTTPServer#start: pid=")
 
-        self.addCleanup(self._kill, c)
-
         self.putenv("FAKES3_PORT", str(self.port))
         self.putenv("URL", "s3://localhost:%d" % self.port)
         self.putenv("HTTP_URL", "http://localhost:%d" % self.port)

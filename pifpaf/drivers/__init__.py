@@ -91,6 +91,8 @@ class Driver(fixtures.Fixture):
                                self.__class__.__name__)
 
     def _kill(self, process):
+        if not process.is_alive():
+            return
         pgrp = os.getpgid(process.pid)
         process.terminate()
         try:
@@ -192,6 +194,8 @@ class Driver(fixtures.Fixture):
         except OSError as e:
             raise RuntimeError(
                 "Unable to run command `%s': %s" % (b" ".join(command), e))
+
+        self.addCleanup(self._kill, c)
 
         if stdin:
             LOG.debug("%s input: %s" % (app, stdin))

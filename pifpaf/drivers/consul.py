@@ -43,7 +43,5 @@ class ConsulDriver(drivers.Driver):
                            "-http-port=%s" % self.port],
                           wait_for_line="New leader elected")
 
-        self.addCleanup(self._kill, c)
-
         self.putenv("CONSUL_PORT", str(self.port))
         self.putenv("URL", "consul://%s:%d" % (self.DEFAULT_HOST, self.port))

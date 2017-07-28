@@ -45,7 +45,6 @@ class MySQLDriver(drivers.Driver):
                            "--skip-grant-tables"],
                           wait_for_line="mysqld: ready for connections.",
                           path=["/usr/libexec"])
-        self.addCleanup(self._kill, c)
         self._exec(["mysql",
                     "--no-defaults",
                     "-S", self.socket,

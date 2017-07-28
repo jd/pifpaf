@@ -68,7 +68,6 @@ class EtcdDriver(drivers.Driver):
                                                   in enumerate(http_urls)),
                     "--initial-cluster-state", "new",
                 ], wait_for_line="listening for client requests on")
-                self.addCleanup(self._kill, c)
 
             endpoints = ",".join(client_url
                                  for peer_url, client_url in http_urls)
@@ -81,7 +80,6 @@ class EtcdDriver(drivers.Driver):
                                "--listen-client-urls", client_url,
                                "--advertise-client-urls", client_url],
                               wait_for_line="listening for client requests on")
-            self.addCleanup(self._kill, c)
             endpoints = client_url
 
         self.putenv("ETCD_PORT", str(self.port))
