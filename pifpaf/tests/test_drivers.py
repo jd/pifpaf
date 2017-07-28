@@ -75,6 +75,7 @@ class TestDrivers(testtools.TestCase):
 
     def test_stuck_process(self):
         d = drivers.Driver(debug=True)
+        d.setUp()
         c, _ = d._exec(["bash", "-c",
                         "trap ':' TERM ; echo start; sleep 10000"],
                        wait_for_line="start")

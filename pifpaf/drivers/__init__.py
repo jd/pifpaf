@@ -91,18 +91,23 @@ class Driver(fixtures.Fixture):
                                self.__class__.__name__)
 
     def _kill(self, process):
-        if not process.is_alive():
-            return
-        pgrp = os.getpgid(process.pid)
-        process.terminate()
-        try:
-
-            self._wait(process)
-        except tenacity.RetryError:
-            LOG.warning("PID %d didn't terminate cleanly after 10 seconds, "
-                        "sending SIGKILL to its process group", process.pid)
+        ret = process.poll()
+        if ret is None:
+            process.terminate()
+            try:
+                ret = self._wait(process)
+            except tenacity.RetryError:
+                LOG.warning("PID %d didn't terminate cleanly after 10 "
+                            "seconds, sending SIGKILL to its process "
+                            "group", process.pid)
+                ret = -1
+        if ret != 0:
             # Cleanup remaining processes
-            os.killpg(pgrp, signal.SIGKILL)
+            try:
+                os.killpg(process.pid, signal.SIGKILL)
+            except OSError as e:
+                if e.errno != 3:  # No such process
+                    raise
         process.wait()
 
     @staticmethod
