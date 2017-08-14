@@ -45,6 +45,10 @@ else:
 
 LOG = logging.getLogger(__name__)
 
+if six.PY2:
+    # This is defined only on Python 3
+    ProcessLookupError = None
+
 
 class Driver(fixtures.Fixture):
     def __init__(self, env_prefix="PIFPAF", templatedir=".", debug=False,
