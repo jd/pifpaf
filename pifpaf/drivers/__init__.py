@@ -92,7 +92,15 @@ class Driver(fixtures.Fixture):
                                self.__class__.__name__)
 
     def _kill(self, process):
-        process.terminate()
+        try:
+            process.terminate()
+        except ProcessLookupError:
+            # Python 3
+            return
+        except OSError as e:
+            if e.errno != errno.ESRCH:
+                raise
+            return
         try:
 
             self._wait(process)
