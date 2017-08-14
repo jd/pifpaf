@@ -13,6 +13,7 @@
 
 import contextlib
 from distutils import spawn
+import errno
 import logging
 import os
 import re
@@ -91,9 +92,6 @@ class Driver(fixtures.Fixture):
                                self.__class__.__name__)
 
     def _kill(self, process):
-        if not process.is_alive():
-            return
-        pgrp = os.getpgid(process.pid)
         process.terminate()
         try:
 
@@ -102,7 +100,14 @@ class Driver(fixtures.Fixture):
             LOG.warning("PID %d didn't terminate cleanly after 10 seconds, "
                         "sending SIGKILL to its process group", process.pid)
             # Cleanup remaining processes
-            os.killpg(pgrp, signal.SIGKILL)
+            try:
+                pgrp = os.getpgid(process.pid)
+            except OSError as e:
+                # ESRCH is returned if process just died in the meantime
+                if e.errno != errno.ESRCH:
+                    raise
+            else:
+                os.killpg(pgrp, signal.SIGKILL)
         process.wait()
 
     @staticmethod
