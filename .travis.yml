@@ -28,6 +28,12 @@ install:
   - pip install tox-travis .[test,ceph]
   - mkdir tmpxattr
 script: TMPDIR_FOR_XATTR=$(pwd)/tmpxattr tox -v -- $PIFPAF_TESTS
-# notifications:
-#  email:
-#    - julien@danjou.info
+
+deploy:
+  provider: pypi
+  user: jd
+  password:
+    secure: OwLNIwY6Oa0/e297mako9MaPM9jwIYxkJnCNUTwsgPM4r33ojaGk8pusE3X0PqpJSp6Lzqybfm2nJsARskzagt80vmO6SRjv56t7q+rBDo4HrZRwWw/GOv9t1OrbfNayLWzVkCo9OwEHRT1RLssoPJn6M2+/mOaWGO7xVpD4q4y6KlZzOT7iPzcclWOEIRahHlZ18+Uca/xGjKNeojqOuL7B/KTThXwgu09bna8kPOIwMTIQYlJxRszV58xXVf/dfZSXHShAnbREY+fR/M+h3NxvEU5uyU617VtiqAnQeKr3vnnOaH4j4u2RbON3E/c3hPLsj5/6wISNENKAOHdvVwfFktbwoMq8SLg0Qi1Jk1GMtOaFPZZ2tW9G5Oc3oC+ZMbZ/7MioGY7xjtlfSr3Rmv5mnfBPxJ/6/u93pQf3RRb1C4hteodV12LG5uvo5gQ+OR3yZMHvnyXrbWcaPcnuyNAsBtsHpT/qC7Nu7/YX5StOFbdy4jl1C40GsUXD7gHhqj0XkL28WnQYXNxjBtmcG3pd8/3h9HxprPi9Akw/thiFi39JRns0MWeXDIINphGpI6+c1B1NMtU9f7fBSCgEJg25Zum8tUdLURa1ZJVHdpqa76FmERanrLCzI1arFgkq8Nfx2pQkr6+0jP3pvW/2s6BbU7zazxWUBSwIDcRrfQE=
+  on:
+    tags: true
+  distributions: "sdist bdist_wheel"
