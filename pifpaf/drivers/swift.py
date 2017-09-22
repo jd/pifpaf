@@ -113,6 +113,10 @@ class SwiftDriver(drivers.Driver):
                      "sitecustomize.py"]:
             self.template(name, template_env, os.path.join(self.tempdir, name))
 
+        # swift requires data directory to exist: swift/commit/30fd4e
+        os.mkdir(os.path.join(self.tempdir, 'data'))
+        os.mkdir(os.path.join(self.tempdir, 'data', 'fakedir'))
+
         self.useFixture(memcached.MemcachedDriver(self.memcached_port))
         for name in ["object", "container", "account"]:
             path = os.path.join(self.tempdir, "%s.builder" % name)
