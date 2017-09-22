@@ -114,8 +114,9 @@ class SwiftDriver(drivers.Driver):
             self.template(name, template_env, os.path.join(self.tempdir, name))
 
         # swift requires data directory to exist: swift/commit/30fd4e
+        disk = 'fakedisk'
         os.mkdir(os.path.join(self.tempdir, 'data'))
-        os.mkdir(os.path.join(self.tempdir, 'data', 'fakedir'))
+        os.mkdir(os.path.join(self.tempdir, 'data', disk))
 
         self.useFixture(memcached.MemcachedDriver(self.memcached_port))
         for name in ["object", "container", "account"]:
@@ -123,7 +124,7 @@ class SwiftDriver(drivers.Driver):
             port = getattr(self, "%s_port" % name)
             self._exec(["swift-ring-builder", path, "create", "10", "1", "1"])
             self._exec(["swift-ring-builder", path, "add",
-                        "r1z1-127.0.0.1:%s/fakedisk" % port, "1"])
+                        "r1z1-127.0.0.1:%s/%s" % (port, disk), "1"])
             self._exec(["swift-ring-builder", path, "rebalance"])
 
         # NOTE(sileht): to use sitecustomize.py that monkeypatch swift to be
