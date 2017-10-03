@@ -181,7 +181,7 @@ url = %s""" % (self.debug,
                           wait_for_line=("(Resource .* already exists"
                                          "|Created resource )"))
 
-        c, _ = self._exec([
+        args = [
             "uwsgi",
             "--http", "localhost:%d" % self.port,
             "--wsgi-file", spawn.find_executable("gnocchi-api"),
@@ -193,7 +193,14 @@ url = %s""" % (self.debug,
             "--chdir", self.tempdir,
             "--add-header", "Connection: close",
             "--pyargv", "--config-file=%s" % conffile,
-        ], wait_for_line="WSGI app 0 \(mountpoint=''\) ready")
+        ]
+
+        virtual_env = os.getenv("VIRTUAL_ENV")
+        if virtual_env is not None:
+            args.extend(["-H", virtual_env])
+
+        c, _ = self._exec(args,
+                          wait_for_line="WSGI app 0 \(mountpoint=''\) ready")
         self.addCleanup(self._kill, c)
 
         self.http_url = "http://localhost:%d" % self.port
