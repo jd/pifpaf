@@ -157,3 +157,5 @@ Pifpaf expected to find daemon binaries on your system (like `mysql`, `mysqld`,
 
 When the Python fixture is cleaned or when Pifpaf is terminated, the daemon is
 stopped and the temporary directory removed.
+
+.. image:: pifpaf.jpg
