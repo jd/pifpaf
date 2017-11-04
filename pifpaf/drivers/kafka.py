@@ -55,7 +55,7 @@ port=%d
 broker.id=0
 host.name=127.0.0.1
 advertised.host.name=127.0.0.1
-listeners=PLAINTEXT://localhost:%d
+advertised.listeners=PLAINTEXT://localhost:%d
 num.network.threads=3
 num.io.threads=8
 socket.send.buffer.bytes=102400
@@ -69,6 +69,10 @@ log.segment.bytes=1073741824
 log.retention.check.interval.ms=300000
 zookeeper.connect=localhost:%d
 zookeeper.connection.timeout.ms=6000
+offsets.topic.replication.factor=1
+transaction.state.log.replication.factor=1
+transaction.state.log.min.isr=1
+group.initial.rebalance.delay.ms=0
 """ % (self.port, self.port, logdir, self.zookeeper_port))
 
         # NOTE(sileht): The wait_for_line is the best we can do
