@@ -88,7 +88,7 @@ group.initial.rebalance.delay.ms=0
                         path=self.DEFAULT_PATH, env=env, ignore_failure=True)
 
         self._exec(['kafka-server-start%s' % suffix, kafka_conf],
-                   wait_for_line='Kafka Server 0.*started',
+                   wait_for_line='[Kafka Server id=0].*started',
                    path=self.DEFAULT_PATH, env=env,
                    forbidden_line_after_start=(2,
                                                "kafka.common.KafkaException"))
