@@ -12,6 +12,7 @@
 # limitations under the License.
 
 import os
+
 from pifpaf import drivers
 
 
@@ -24,6 +25,7 @@ class KafkaDriver(drivers.Driver):
     def __init__(self, port=DEFAULT_KAFKA_PORT,
                  zookeeper_port=DEFAULT_ZOOKEEPER_PORT,
                  **kwargs):
+        """Create a new Kafka instance."""
         super(KafkaDriver, self).__init__(**kwargs)
         self.port = port
         self.zookeeper_port = zookeeper_port

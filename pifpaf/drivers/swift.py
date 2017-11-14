@@ -14,12 +14,12 @@
 import getpass
 import logging
 import os
-
-from six.moves import socketserver
 import threading
 
 from pifpaf import drivers
 from pifpaf.drivers import memcached
+
+from six.moves import socketserver
 
 LOG = logging.getLogger(__name__)
 
@@ -34,9 +34,9 @@ class SyslogServer(socketserver.ThreadingMixIn,
     pass
 
 
-class FakeSyslog(threading.Thread):
+class _FakeSyslog(threading.Thread):
     def __init__(self, server_address):
-        super(FakeSyslog, self).__init__()
+        super(_FakeSyslog, self).__init__()
         self.daemon = True
         self.server = SyslogServer(server_address, SyslogServerHandler)
         self.run = self.server.serve_forever
@@ -55,6 +55,7 @@ class SwiftDriver(drivers.Driver):
                  container_port=DEFAULT_PORT_CONTAINER,
                  object_port=DEFAULT_PORT_OBJECT,
                  memcached_port=DEFAULT_PORT_MEMCACHED, **kwargs):
+        """Create a new Swift instance."""
         super(SwiftDriver, self).__init__(templatedir="swift",
                                           **kwargs)
         self.port = port
@@ -93,7 +94,7 @@ class SwiftDriver(drivers.Driver):
         self._ensure_xattr_support()
 
         if LOG.isEnabledFor(logging.DEBUG):
-            s = FakeSyslog(os.path.join(self.tempdir, "log"))
+            s = _FakeSyslog(os.path.join(self.tempdir, "log"))
             s.start()
             self.addCleanup(s.stop)
 

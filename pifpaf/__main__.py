@@ -25,10 +25,15 @@ from cliff import app
 from cliff import command
 from cliff import commandmanager
 from cliff import lister
+
 import daiquiri
+
 import fixtures
+
 import pbr.version
+
 import pkg_resources
+
 import six
 
 
@@ -69,7 +74,7 @@ DAEMONS = list(map(operator.attrgetter("name"),
 
 
 class ListDaemons(lister.Lister):
-    """list available daemons"""
+    """list available daemons."""
 
     def take_action(self, parsed_args):
         return ("Daemons",), ((n,) for n in DAEMONS)
@@ -157,8 +162,8 @@ def create_RunDaemon(daemon):
                         "PIFPAF_PID": pid,
                         self.app.options.env_prefix + "_PID": pid,
                         self.app.options.env_prefix + "_DAEMON": daemon,
-                        (self.app.options.env_prefix + "_"
-                         + daemon.upper() + "_URL"): url,
+                        (self.app.options.env_prefix + "_" +
+                         daemon.upper() + "_URL"): url,
                         self.app.options.global_urls_variable:
                         self.expand_urls_var(url),
                         "%s_OLD_PS1" % self.app.options.env_prefix:
@@ -203,6 +208,7 @@ class PifpafApp(app.App):
     CONSOLE_MESSAGE_FORMAT = "%(levelname)s: %(name)s: %(message)s"
 
     def __init__(self):
+        """Create a new pifpaf application."""
         super(PifpafApp, self).__init__(
             "Daemon management tool for testing",
             pbr.version.VersionInfo('pifpaf').version_string(),

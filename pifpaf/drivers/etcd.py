@@ -25,6 +25,7 @@ class EtcdDriver(drivers.Driver):
                  peer_port=DEFAULT_PEER_PORT,
                  cluster=DEFAULT_CLUSTER,
                  **kwargs):
+        """Create a new etcd server."""
         super(EtcdDriver, self).__init__(**kwargs)
         self.port = port
         self.peer_port = peer_port

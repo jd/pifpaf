@@ -20,8 +20,8 @@ class ConsulDriver(drivers.Driver):
     DEFAULT_NODE = 'agent-one'
     DEFAULT_PORT = 8500
 
-    def __init__(self, port=DEFAULT_PORT,
-                 **kwargs):
+    def __init__(self, port=DEFAULT_PORT, **kwargs):
+        """Create a new Consul server."""
         super(ConsulDriver, self).__init__(**kwargs)
         self.port = port
 

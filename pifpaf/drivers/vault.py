@@ -22,6 +22,7 @@ class VaultDriver(drivers.Driver):
 
     def __init__(self, root_token_id=DEFAULT_ROOT_TOKEN_ID,
                  listen_address=DEFAULT_LISTEN_ADDRESS, **kwargs):
+        """Create a new Vault instance."""
         super(VaultDriver, self).__init__(**kwargs)
         self.root_token_id = root_token_id
         self.listen_address = listen_address

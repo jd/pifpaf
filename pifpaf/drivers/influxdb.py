@@ -24,6 +24,7 @@ class InfluxDBDriver(drivers.Driver):
     def __init__(self, port=DEFAULT_PORT,
                  database=DEFAULT_DATABASE,
                  **kwargs):
+        """Create a new InfluxDB server."""
         super(InfluxDBDriver, self).__init__(**kwargs)
         self.port = port
         self.database = database

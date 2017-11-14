@@ -18,8 +18,8 @@ class S3rverDriver(drivers.Driver):
 
     DEFAULT_PORT = 4568
 
-    def __init__(self, port=DEFAULT_PORT,
-                 **kwargs):
+    def __init__(self, port=DEFAULT_PORT, **kwargs):
+        """Create a new s3rver instance."""
         super(S3rverDriver, self).__init__(**kwargs)
         self.port = port
 

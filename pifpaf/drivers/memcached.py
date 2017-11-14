@@ -19,6 +19,7 @@ class MemcachedDriver(drivers.Driver):
     DEFAULT_PORT = 11212
 
     def __init__(self, port=DEFAULT_PORT, **kwargs):
+        """Create a new memcached server."""
         super(MemcachedDriver, self).__init__(**kwargs)
         self.port = port
 

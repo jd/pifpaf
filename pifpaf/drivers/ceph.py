@@ -12,10 +12,11 @@
 # limitations under the License.
 
 import os
-import pkg_resources
 import uuid
 
 from pifpaf import drivers
+
+import pkg_resources
 
 
 class CephDriver(drivers.Driver):
@@ -23,6 +24,7 @@ class CephDriver(drivers.Driver):
 
     def __init__(self, port=DEFAULT_PORT,
                  **kwargs):
+        """Create a new Ceph cluster."""
         super(CephDriver, self).__init__(**kwargs)
         self.port = port
 

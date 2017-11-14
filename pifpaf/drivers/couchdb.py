@@ -12,6 +12,7 @@
 # limitations under the License.
 
 import os
+
 from pifpaf import drivers
 
 
@@ -20,6 +21,7 @@ class CouchDBDriver(drivers.Driver):
     DEFAULT_PORT = 5984
 
     def __init__(self, port=DEFAULT_PORT, **kwargs):
+        """Create a new CouchDB server."""
         super(CouchDBDriver, self).__init__(**kwargs)
         self.port = port
 

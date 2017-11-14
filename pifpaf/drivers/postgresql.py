@@ -34,6 +34,7 @@ class PostgreSQLDriver(drivers.Driver):
 
     def __init__(self, port=DEFAULT_PORT, host=DEFAULT_HOST,
                  **kwargs):
+        """Create a new PostgreSQL instance."""
         super(PostgreSQLDriver, self).__init__(**kwargs)
         self.port = port
         self.host = host

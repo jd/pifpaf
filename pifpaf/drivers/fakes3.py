@@ -18,8 +18,8 @@ class FakeS3Driver(drivers.Driver):
 
     DEFAULT_PORT = 8989
 
-    def __init__(self, port=DEFAULT_PORT,
-                 **kwargs):
+    def __init__(self, port=DEFAULT_PORT, **kwargs):
+        """Create a new FakeS3 server."""
         super(FakeS3Driver, self).__init__(**kwargs)
         self.port = port
 

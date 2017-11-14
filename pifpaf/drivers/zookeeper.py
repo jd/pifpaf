@@ -23,8 +23,8 @@ class ZooKeeperDriver(drivers.Driver):
     PATH = ["/usr/share/zookeeper/bin",
             "/usr/local/opt/zookeeper/libexec/bin"]
 
-    def __init__(self, port=DEFAULT_PORT,
-                 **kwargs):
+    def __init__(self, port=DEFAULT_PORT, **kwargs):
+        """Create a new ZooKeeper server."""
         super(ZooKeeperDriver, self).__init__(**kwargs)
         self.port = port
 

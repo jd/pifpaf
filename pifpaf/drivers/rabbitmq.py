@@ -29,6 +29,7 @@ class RabbitMQDriver(drivers.Driver):
                  username=DEFAULT_USERNAME, password=DEFAULT_PASSWORD,
                  cluster=False,
                  **kwargs):
+        """Create a new RabbitMQ server."""
         super(RabbitMQDriver, self).__init__(**kwargs)
         self.port = port
         self.nodename = nodename

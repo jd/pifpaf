@@ -19,8 +19,8 @@ from pifpaf import drivers
 class ElasticsearchDriver(drivers.Driver):
     DEFAULT_PORT = 9200
 
-    def __init__(self, port=DEFAULT_PORT,
-                 **kwargs):
+    def __init__(self, port=DEFAULT_PORT, **kwargs):
+        """Create a new ElasticSearch server."""
         super(ElasticsearchDriver, self).__init__(**kwargs)
         self.port = port
 

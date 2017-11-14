@@ -19,6 +19,7 @@ class MongoDBDriver(drivers.Driver):
     DEFAULT_PORT = 29000
 
     def __init__(self, port=DEFAULT_PORT, **kwargs):
+        """Create a new MongoDB server."""
         super(MongoDBDriver, self).__init__(**kwargs)
         self.port = port
 

@@ -10,16 +10,16 @@
 # implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from distutils import spawn
 import os
 import shutil
 import uuid
-
-import six.moves.urllib.parse as urlparse
+from distutils import spawn
 
 from pifpaf import drivers
 from pifpaf.drivers import postgresql
 from pifpaf.drivers import redis
+
+import six.moves.urllib.parse as urlparse
 
 
 class GnocchiDriver(drivers.Driver):
@@ -35,6 +35,7 @@ class GnocchiDriver(drivers.Driver):
                  coordination_driver="default",
                  coordination_port=DEFAULT_PORT_COORDINATOR,
                  **kwargs):
+        """Create a new Gnocchi instance."""
         super(GnocchiDriver, self).__init__(**kwargs)
         self.port = port
         self.indexer_port = indexer_port
@@ -99,11 +100,11 @@ class GnocchiDriver(drivers.Driver):
 
         if storage_driver == "s3":
             storage_config = {
-                "s3_access_key_id": (urlparse.unquote(storage_parsed.username
-                                     or "gnocchi")),
+                "s3_access_key_id": (urlparse.unquote(
+                    storage_parsed.username or "gnocchi")),
                 "s3_secret_access_key": (
-                    urlparse.unquote(storage_parsed.password
-                                     or "whatever")),
+                    urlparse.unquote(
+                        storage_parsed.password or "whatever")),
                 "s3_endpoint_url": "http://%s:%s/%s" % (
                     storage_parsed.hostname,
                     storage_parsed.port,
@@ -117,10 +118,10 @@ class GnocchiDriver(drivers.Driver):
                     storage_parsed.port,
                     storage_parsed.path,
                 ),
-                "swift_user": (urlparse.unquote(storage_parsed.username
-                               or "admin:admin")),
-                "swift_key": (urlparse.unquote(storage_parsed.password
-                              or "admin")),
+                "swift_user": (urlparse.unquote(
+                    storage_parsed.username or "admin:admin")),
+                "swift_key": (urlparse.unquote(
+                    storage_parsed.password or "admin")),
             }
         elif storage_driver == "ceph":
             storage_config = {
@@ -132,8 +133,9 @@ class GnocchiDriver(drivers.Driver):
             }
         elif storage_driver == "file":
             storage_config = {
-                "file_basepath": (storage_parsed.path
-                                  or self.tempdir),
+                "file_basepath": (
+                    storage_parsed.path or self.tempdir
+                ),
             }
         else:
             raise RuntimeError("Storage driver %s is not supported" %

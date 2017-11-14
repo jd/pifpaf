@@ -12,7 +12,6 @@
 # limitations under the License.
 
 import contextlib
-from distutils import spawn
 import errno
 import logging
 import os
@@ -22,13 +21,18 @@ import signal
 import socket
 import subprocess
 import sys
-import tenacity
 import threading
 import time
+from distutils import spawn
 
 import fixtures
+
 import jinja2
+
 import six
+
+import tenacity
+
 try:
     import xattr
 except ImportError:
@@ -53,6 +57,7 @@ if six.PY2:
 class Driver(fixtures.Fixture):
     def __init__(self, env_prefix="PIFPAF", templatedir=".", debug=False,
                  tmp_rootdir=None):
+        """Create a new driver."""
         super(Driver, self).__init__()
         self.env_prefix = env_prefix
         self.env = {}

@@ -24,6 +24,7 @@ class RedisDriver(drivers.Driver):
     def __init__(self, port=DEFAULT_PORT,
                  sentinel=False, sentinel_port=DEFAULT_PORT_SENTINEL,
                  **kwargs):
+        """Create a new Redis server."""
         super(RedisDriver, self).__init__(**kwargs)
         self.port = port
         self.sentinel = sentinel

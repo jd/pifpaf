@@ -25,6 +25,7 @@ class KeystoneDriver(drivers.Driver):
 
     def __init__(self, port=DEFAULT_PORT, admin_port=DEFAULT_ADMIN_PORT,
                  **kwargs):
+        """Create a new Keystone server."""
         super(KeystoneDriver, self).__init__(**kwargs)
         self.port = port
         self.admin_port = admin_port

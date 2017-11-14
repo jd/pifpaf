@@ -13,16 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from distutils import spawn
 import logging
-import mock
 import os
-import six
 import socket
+from distutils import spawn
 
 import fixtures
-import requests
-import testtools
+
+import mock
 
 from pifpaf import drivers
 from pifpaf.drivers import aodh
@@ -46,6 +44,12 @@ from pifpaf.drivers import s3rver
 from pifpaf.drivers import swift
 from pifpaf.drivers import vault
 from pifpaf.drivers import zookeeper
+
+import requests
+
+import six
+
+import testtools
 
 
 # FIXME(jd) These are path grabbed from the various modules imported above, do

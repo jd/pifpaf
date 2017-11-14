@@ -32,6 +32,7 @@ class AodhDriver(drivers.Driver):
                  gnocchi_port=DEFAULT_PORT_GNOCCHI,
                  gnocchi_indexer_port=DEFAULT_PORT_GNOCCHI_INDEXER,
                  **kwargs):
+        """Create a new Aodh instance."""
         super(AodhDriver, self).__init__(**kwargs)
         self.port = port
         self.database_url = database_url
