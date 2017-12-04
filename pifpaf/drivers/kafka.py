@@ -53,10 +53,7 @@ maxClientCnxns=0
 
         with open(kafka_conf, "w") as f:
             f.write("""
-port=%d
 broker.id=0
-host.name=127.0.0.1
-advertised.host.name=127.0.0.1
 advertised.listeners=PLAINTEXT://localhost:%d
 num.network.threads=3
 num.io.threads=8
@@ -75,7 +72,7 @@ offsets.topic.replication.factor=1
 transaction.state.log.replication.factor=1
 transaction.state.log.min.isr=1
 group.initial.rebalance.delay.ms=0
-""" % (self.port, self.port, logdir, self.zookeeper_port))
+""" % (self.port, logdir, self.zookeeper_port))
 
         # NOTE(sileht): The wait_for_line is the best we can do
         # but we error can occur after the last line we see when it works...
