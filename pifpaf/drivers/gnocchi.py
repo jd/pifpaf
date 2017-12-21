@@ -15,11 +15,11 @@ import shutil
 import uuid
 from distutils import spawn
 
+import six.moves.urllib.parse as urlparse
+
 from pifpaf import drivers
 from pifpaf.drivers import postgresql
 from pifpaf.drivers import redis
-
-import six.moves.urllib.parse as urlparse
 
 
 class GnocchiDriver(drivers.Driver):

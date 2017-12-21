@@ -42,7 +42,7 @@ if six.PY3:
     fsdecode = os.fsdecode
 else:
     def fsdecode(s):
-        if isinstance(s, unicode):
+        if isinstance(s, unicode):  # noqa
             return s
         return s.decode(sys.getfilesystemencoding())
 
@@ -51,7 +51,7 @@ LOG = logging.getLogger(__name__)
 
 if six.PY2:
     # This is defined only on Python 3
-    ProcessLookupError = None
+    ProcessLookupError = None  # noqa
 
 
 class Driver(fixtures.Fixture):

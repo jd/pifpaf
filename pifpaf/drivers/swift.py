@@ -16,10 +16,10 @@ import logging
 import os
 import threading
 
+from six.moves import socketserver
+
 from pifpaf import drivers
 from pifpaf.drivers import memcached
-
-from six.moves import socketserver
 
 LOG = logging.getLogger(__name__)
 

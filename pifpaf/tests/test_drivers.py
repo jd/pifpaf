@@ -22,6 +22,12 @@ import fixtures
 
 import mock
 
+import requests
+
+import six
+
+import testtools
+
 from pifpaf import drivers
 from pifpaf.drivers import aodh
 from pifpaf.drivers import ceph
@@ -44,13 +50,6 @@ from pifpaf.drivers import s3rver
 from pifpaf.drivers import swift
 from pifpaf.drivers import vault
 from pifpaf.drivers import zookeeper
-
-import requests
-
-import six
-
-import testtools
-
 
 # FIXME(jd) These are path grabbed from the various modules imported above, do
 # that in a better way
