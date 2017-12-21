@@ -116,6 +116,7 @@ class Driver(fixtures.Fixture):
 
     def _kill(self, parent):
         do_sigkill = False
+        log_thread = getattr(parent, "_log_thread", None)
         # NOTE(sileht): Add processes from process tree and process group
         # Relying on process tree only will not work in case of
         # parent dying prematuraly and double fork
@@ -148,6 +149,12 @@ class Driver(fixtures.Fixture):
             if alive:
                 LOG.warning("`%s` survive SIGKILL", alive)
 
+        if log_thread:
+            # Parent process have been killed
+            log_thread.join(timeout=3)
+            if log_thread.is_alive():
+                LOG.warning("logging thread for `%s` is still alive", parent)
+
     @staticmethod
     def find_executable(filename, extra_paths):
         paths = extra_paths + os.getenv('PATH', os.defpath).split(os.pathsep)
@@ -177,6 +184,7 @@ class Driver(fixtures.Fixture):
             if not data:
                 break
             self._log_output(app, pid, data)
+        fd.close()
 
     @staticmethod
     def _log_output(appname, pid, data):
@@ -283,6 +291,9 @@ class Driver(fixtures.Fixture):
                                  args=(app, c.pid, c.stdout,))
             t.setDaemon(True)
             t.start()
+            # Store the thread ref into the Process() to be able
+            # to clean it
+            c._log_thread = t
 
         if wait_for_port:
             for i in range(0, 10):
