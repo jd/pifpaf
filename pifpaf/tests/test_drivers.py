@@ -20,7 +20,7 @@ from distutils import spawn
 
 import fixtures
 
-import mock
+import psutil
 
 import requests
 
@@ -61,6 +61,10 @@ os.environ["PATH"] = ":".join((
     "/opt/kafka/bin",
 ))
 
+unkillable = os.path.join(
+    os.path.dirname(os.path.realpath(__file__)),
+    "unkillable.py")
+
 
 class TestDrivers(testtools.TestCase):
     def setUp(self):
@@ -76,16 +80,29 @@ class TestDrivers(testtools.TestCase):
     def _run(self, cmd):
         self.assertEqual(0, os.system(cmd + " >/dev/null 2>&1"))
 
-    def test_stuck_process(self):
+    def _do_test_stuck(self, cmd):
         d = drivers.Driver(debug=True)
         d.setUp()
-        c, _ = d._exec(["bash", "-c",
-                        "trap ':' TERM ; echo start; sleep 10000"],
-                       wait_for_line="start")
-        with mock.patch.object(drivers.LOG, "warning") as w:
-            d._kill(c)
-            w.assert_called_once()
-        self.assertNotEqual(None, c.poll())
+        c, _ = d._exec(cmd, wait_for_line="started")
+        parent = psutil.Process(c.pid)
+        procs = parent.children(recursive=True)
+        procs.append(parent)
+        d._kill(c)
+        gone, alive = psutil.wait_procs(procs, timeout=0)
+        self.assertEqual([], alive)
+
+    def test_stuck_no_sigterm_with_children(self):
+        self._do_test_stuck(["python", "-u", unkillable])
+
+    def test_stuck_no_sigterm_in_children_only(self):
+        self._do_test_stuck(["python", "-u", unkillable, "--child-only"])
+
+    def test_stuck_no_sigterm_and_parent_exited(self):
+        self._do_test_stuck(["python", "-u", unkillable, "--exited-parent"])
+
+    def test_stuck_simple(self):
+        self._do_test_stuck(["bash", "-c",
+                             "trap ':' TERM ; echo started; sleep 10000"])
 
     @testtools.skip("Driver need rework, it won't work with travis or "
                     "Ubuntu xenial or Debian strech package")

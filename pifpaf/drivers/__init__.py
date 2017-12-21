@@ -17,7 +17,6 @@ import logging
 import os
 import re
 import select
-import signal
 import socket
 import subprocess
 import sys
@@ -29,9 +28,9 @@ import fixtures
 
 import jinja2
 
-import six
+import psutil
 
-import tenacity
+import six
 
 try:
     import xattr
@@ -100,39 +99,54 @@ class Driver(fixtures.Fixture):
             raise RuntimeError("TMPDIR must support xattr for %s" %
                                self.__class__.__name__)
 
-    def _kill(self, process):
-        try:
-            process.terminate()
-        except ProcessLookupError:
-            # Python 3
-            return
-        except OSError as e:
-            if e.errno != errno.ESRCH:
-                raise
-            return
-        try:
-
-            self._wait(process)
-        except tenacity.RetryError:
-            LOG.warning("PID %d didn't terminate cleanly after 10 seconds, "
-                        "sending SIGKILL to its process group", process.pid)
-            # Cleanup remaining processes
+    @staticmethod
+    def _get_procs_of_pgid(wanted_pgid):
+        procs = []
+        for p in psutil.process_iter():
             try:
-                pgrp = os.getpgid(process.pid)
+                pgid = os.getpgid(p.pid)
             except OSError as e:
                 # ESRCH is returned if process just died in the meantime
                 if e.errno != errno.ESRCH:
                     raise
-            else:
-                os.killpg(pgrp, signal.SIGKILL)
-        process.wait()
+                continue
+            if pgid == wanted_pgid:
+                procs.append(p)
+        return procs
 
-    @staticmethod
-    @tenacity.retry(wait=tenacity.wait_fixed(1),
-                    stop=tenacity.stop_after_attempt(10),
-                    retry=tenacity.retry_if_result(lambda ret: ret is None))
-    def _wait(process):
-        return process.poll()
+    def _kill(self, parent):
+        do_sigkill = False
+        # NOTE(sileht): Add processes from process tree and process group
+        # Relying on process tree only will not work in case of
+        # parent dying prematuraly and double fork
+        # Relying on process group only will not work in case of
+        # subprocess calling again setsid()
+        procs = set(self._get_procs_of_pgid(parent.pid))
+        try:
+            procs |= set(parent.children(recursive=True))
+            procs.add(parent)
+            parent.terminate()
+        except psutil.NoSuchProcess:
+            LOG.warning("`%s` is already gone, sending SIGKILL to its process "
+                        "group", parent)
+            do_sigkill = True
+        else:
+            # Waiting for all processes to stop
+            gone, alive = psutil.wait_procs(procs, timeout=10)
+            if alive:
+                do_sigkill = True
+                LOG.warning("`%s` didn't terminate cleanly after 10 seconds, "
+                            "sending SIGKILL to its process group", parent)
+
+        if do_sigkill and procs:
+            for p in procs:
+                try:
+                    p.kill()
+                except psutil.NoSuchProcess:
+                    pass
+            gone, alive = psutil.wait_procs(procs, timeout=10)
+            if alive:
+                LOG.warning("`%s` survive SIGKILL", alive)
 
     @staticmethod
     def find_executable(filename, extra_paths):
@@ -204,7 +218,7 @@ class Driver(fixtures.Fixture):
             complete_env = None
 
         try:
-            c = subprocess.Popen(
+            c = psutil.Popen(
                 command,
                 close_fds=True,
                 stdin=stdin_fd,
