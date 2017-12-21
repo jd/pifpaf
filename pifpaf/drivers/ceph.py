@@ -14,9 +14,9 @@
 import os
 import uuid
 
-from pifpaf import drivers
-
 import pkg_resources
+
+from pifpaf import drivers
 
 
 class CephDriver(drivers.Driver):

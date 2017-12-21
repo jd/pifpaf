@@ -11,18 +11,19 @@ before_install:
   # Always redownload tarball
   - find ~/.cache/pip -name '*.dev*' -delete
   - sudo apt-get -qq update
-  - sudo apt-get purge -y mysql-server-5.6 mysql-server-core-5.6 mysql-client-core-5.6 mysql-client-5.6
+  - sudo apt-get purge -y mysql-server-5.6 mysql-server-core-5.6 mysql-client-core-5.6 mysql-client-5.6 postgresql* libpq*
   - sudo rm -rf /var/lib/mysql
-  - sudo apt-get install -y mongodb-server mysql-server-5.5 rabbitmq-server redis-server zookeeper mongodb couchdb couchdb-bin nodejs npm ceph librados-dev python-dev gcc liberasurecode-dev liberasurecode1
+  # FIXME(sileht): readd rabbitmq-server when https://github.com/travis-ci/travis-cookbooks/issues/964 and https://github.com/travis-ci/travis-ci/issues/8906 are fixed
+  - sudo apt-get install -y mongodb-server mysql-server-5.5 redis-server zookeeper mongodb couchdb couchdb-bin nodejs npm ceph librados-dev python-dev gcc liberasurecode-dev liberasurecode1 postgresql libpq-dev
   # - sudo gem install fakes3  # NOTE(sileht): fakes3 looks not installed correctly
   - sudo npm install s3rver -g
   - wget https://dl.influxdata.com/influxdb/releases/influxdb_0.13.0_amd64.deb
   - sudo dpkg -i influxdb_0.13.0_amd64.deb
   # zkEnv.sh can't be overriden with the deb version of zookeeper, this workaround that
   - sudo chmod 777 /var/log/zookeeper
-  - wget http://apache.crihan.fr/dist/kafka/0.10.1.0/kafka_2.11-0.10.1.0.tgz -O /opt/kafka.tar.gz
+  - wget http://www.apache.org/dist/kafka/1.0.0/kafka_2.12-1.0.0.tgz -O /opt/kafka.tar.gz
   - tar -xzf /opt/kafka.tar.gz -C /opt
-  - ln -s /opt/kafka_2.11-0.10.1.0 /opt/kafka
+  - ln -s /opt/kafka_2.12-1.0.0 /opt/kafka
 install:
     # The install requirements in travis virtualenv that will be cached
   - pip install tox-travis .[test,ceph]
