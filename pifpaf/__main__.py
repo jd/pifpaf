@@ -212,7 +212,7 @@ class PifpafApp(app.App):
         super(PifpafApp, self).__init__(
             "Daemon management tool for testing",
             pbr.version.VersionInfo('pifpaf').version_string(),
-            command_manager=PifpafCommandManager(None))
+            command_manager=PifpafCommandManager("pifpaf"))
 
     def build_option_parser(self, description, version):
         parser = super(PifpafApp, self).build_option_parser(
