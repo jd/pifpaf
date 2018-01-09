@@ -31,20 +31,20 @@ class RedisDriver(drivers.Driver):
         self.sentinel_port = sentinel_port
 
     @classmethod
-    def get_parser(cls, parser):
-        parser.add_argument("--port",
-                            type=int,
-                            default=cls.DEFAULT_PORT,
-                            help="port to use for Redis")
-        parser.add_argument("--sentinel",
-                            action='store_true',
-                            default=False,
-                            help="activate Redis sentinel")
-        parser.add_argument("--sentinel-port",
-                            type=int,
-                            default=cls.DEFAULT_PORT_SENTINEL,
-                            help="port to use for Redis sentinel")
-        return parser
+    def get_options(cls):
+        return [
+            {"param_decls": ["--port"],
+             "type": int,
+             "default": cls.DEFAULT_PORT,
+             "help": "port to use for Redis"},
+            {"param_decls": ["--sentinel"],
+             "is_flag": True,
+             "help": "activate Redis sentinel"},
+            {"param_decls": ["--sentinel-port"],
+             "type": int,
+             "default": cls.DEFAULT_PORT_SENTINEL,
+             "help": "port to use for Redis sentinel"},
+        ]
 
     def _setUp(self):
         super(RedisDriver, self)._setUp()

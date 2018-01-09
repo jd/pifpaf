@@ -22,15 +22,16 @@ class PostgreSQLDriver(drivers.Driver):
     DEFAULT_HOST = ""
 
     @classmethod
-    def get_parser(cls, parser):
-        parser.add_argument("--port",
-                            type=int,
-                            default=cls.DEFAULT_PORT,
-                            help="port to use for PostgreSQL")
-        parser.add_argument("--host",
-                            default=cls.DEFAULT_HOST,
-                            help="host to listen on")
-        return parser
+    def get_options(cls):
+        return [
+            {"param_decls": ["--port"],
+             "type": int,
+             "default": cls.DEFAULT_PORT,
+             "help": "port to use for PostgreSQL"},
+            {"param_decls": ["--host"],
+             "default": cls.DEFAULT_HOST,
+             "help": "host to listen on"},
+        ]
 
     def __init__(self, port=DEFAULT_PORT, host=DEFAULT_HOST,
                  **kwargs):

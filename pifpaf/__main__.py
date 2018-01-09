@@ -21,10 +21,7 @@ import subprocess
 import sys
 import traceback
 
-from cliff import app
-from cliff import command
-from cliff import commandmanager
-from cliff import lister
+import click
 
 import daiquiri
 
@@ -73,187 +70,194 @@ DAEMONS = list(map(operator.attrgetter("name"),
                    pkg_resources.iter_entry_points("pifpaf.daemons")))
 
 
-class ListDaemons(lister.Lister):
-    """list available daemons."""
+@click.group()
+@click.option('--verbose/--quiet', help="Print mode details.")
+@click.option('--debug', help="Show tracebacks on errors.", is_flag=True)
+@click.option('--log-file', help="Specify a file to log output.",
+              type=click.Path(dir_okay=False))
+@click.option("--env-prefix", "-e",
+              help="Prefix to use for environment variables (default: PIFPAF)")
+@click.option("--global-urls-variable", "-g",
+              help="global variable name to use to append connection URL  "
+              "when chaining multiple pifpaf instances (default: PIFPAF_URLS)")
+@click.version_option(pbr.version.VersionInfo('pifpaf').version_string())
+@click.pass_context
+def main(ctx, verbose=False, debug=False, log_file=None,
+         env_prefix=None, global_urls_variable=None):
+    formatter = daiquiri.formatter.ColorFormatter(
+        fmt="%(color)s%(levelname)s "
+        "[%(name)s] %(message)s%(color_stop)s")
 
-    def take_action(self, parsed_args):
-        return ("Daemons",), ((n,) for n in DAEMONS)
+    outputs = [
+        daiquiri.output.Stream(sys.stderr, formatter=formatter)
+    ]
+
+    if log_file:
+        outputs.append(daiquiri.output.File(log_file,
+                                            formatter=formatter))
+
+    ctx.obj = {
+        "debug": debug,
+    }
+    if env_prefix is not None:
+        ctx.obj['env_prefix'] = env_prefix
+    if global_urls_variable is not None:
+        ctx.obj['global_urls_variable'] = global_urls_variable
+
+    if debug:
+        level = logging.DEBUG
+    elif verbose:
+        level = logging.INFO
+    else:
+        level = logging.WARNING
+
+    daiquiri.setup(outputs=outputs, level=level)
 
 
-def create_RunDaemon(daemon):
+@main.command(name="list")
+def list():
+    for n in DAEMONS:
+        click.echo(n)
 
-    class RunDaemon(command.Command):
-        def __init__(self, app, app_args, cmd_name=None):
-            super(RunDaemon, self).__init__(app, app_args, cmd_name)
-            self.plugin = pkg_resources.load_entry_point(
-                "pifpaf", "pifpaf.daemons", daemon)
 
-        def get_parser(self, prog_name):
-            parser = super(RunDaemon, self).get_parser(prog_name)
-            parser = self.plugin.get_parser(parser)
-            parser.add_argument("command",
-                                nargs='*',
-                                help="command to run")
-            return parser
+class RunGroup(click.MultiCommand):
+    @staticmethod
+    def list_commands(ctx):
+        return DAEMONS
 
-        def putenv(self, key, value):
-            return os.putenv(self.app.options.env_prefix + "_" + key, value)
+    def get_command(self, ctx, name):
+        params = [click.Argument(["command"], nargs=-1)]
+        plugin = pkg_resources.load_entry_point(
+            "pifpaf", "pifpaf.daemons", name)
+        params.extend(map(lambda kw: click.Option(**kw), plugin.get_options()))
 
-        def expand_urls_var(self, url):
-            current_urls = os.getenv(self.app.options.global_urls_variable)
+        def _run_cb(*args, **kwargs):
+            return self._run(name, plugin, ctx, *args, **kwargs)
+
+        return click.Command(name=name, callback=_run_cb, params=params)
+
+    def format_commands(self, ctx, formatter):
+        # Same as click.MultiCommand.format_commands except it does not use
+        # get_command so we don't have to load commands on listing.
+        rows = []
+        for subcommand in self.list_commands(ctx):
+            rows.append((subcommand, 'Run ' + subcommand))
+
+        if rows:
+            with formatter.section('Commands'):
+                formatter.write_dl(rows)
+
+    def _run(self, daemon, plugin, ctx, command, **kwargs):
+        debug = ctx.obj['debug']
+        env_prefix = ctx.obj['env_prefix']
+        global_urls_variable = ctx.obj['global_urls_variable']
+        driver = plugin(env_prefix=env_prefix,
+                        debug=debug,
+                        **kwargs)
+
+        daemon = daemon
+
+        def putenv(key, value):
+            return os.putenv(env_prefix + "_" + key, value)
+
+        def expand_urls_var(url):
+            current_urls = os.getenv(global_urls_variable)
             if current_urls:
                 return current_urls + ";" + url
             return url
 
-        def take_action(self, parsed_args):
-            command = parsed_args.__dict__.pop("command", None)
-            driver = self.plugin(env_prefix=self.app.options.env_prefix,
-                                 debug=self.app.options.debug,
-                                 **parsed_args.__dict__)
-            if command:
-                try:
-                    with driver:
-                        self.putenv("PID", str(os.getpid()))
-                        self.putenv("DAEMON", daemon)
-                        url = os.getenv(driver.env_prefix + "_URL")
-                        self.putenv("%s_URL" % daemon.upper(), url)
-                        os.putenv(self.app.options.global_urls_variable,
-                                  self.expand_urls_var(url))
-                        try:
-                            c = subprocess.Popen(command)
-                        except Exception:
-                            raise RuntimeError("Unable to start command: %s"
-                                               % " ".join(command))
-                        return c.wait()
-                except fixtures.MultipleExceptions as e:
-                    _format_multiple_exceptions(e, self.app.options.debug)
-                    sys.exit(1)
-            else:
-                try:
-                    driver.setUp()
-                except fixtures.MultipleExceptions as e:
-                    _format_multiple_exceptions(e, self.app.options.debug)
-                    sys.exit(1)
-                except Exception:
-                    LOG.error("Unable to start %s, "
-                              "use --debug for more information"
-                              % daemon, exc_info=True)
-                    sys.exit(1)
-                pid = os.fork()
-                if pid == 0:
-                    os.setsid()
-                    devnull = os.open(os.devnull, os.O_RDWR)
-                    os.dup2(devnull, 0)
-                    os.dup2(devnull, 1)
-                    os.dup2(devnull, 2)
-
-                    def _cleanup(signum, frame):
-                        driver.cleanUp()
-                        sys.exit(0)
-
-                    signal.signal(signal.SIGTERM, _cleanup)
-                    signal.signal(signal.SIGHUP, _cleanup)
-                    signal.signal(signal.SIGINT, _cleanup)
-                    signal.signal(signal.SIGPIPE, signal.SIG_IGN)
-                    signal.pause()
-                else:
-                    url = driver.env['%s_URL' % driver.env_prefix]
-                    driver.env.update({
-                        "PIFPAF_PID": pid,
-                        self.app.options.env_prefix + "_PID": pid,
-                        self.app.options.env_prefix + "_DAEMON": daemon,
-                        (self.app.options.env_prefix + "_" +
-                         daemon.upper() + "_URL"): url,
-                        self.app.options.global_urls_variable:
-                        self.expand_urls_var(url),
-                        "%s_OLD_PS1" % self.app.options.env_prefix:
-                        os.getenv("PS1", ""),
-                        "PS1":
-                        "(pifpaf/" + daemon + ") " + os.getenv("PS1", ""),
-                    })
-                    for k, v in six.iteritems(driver.env):
-                        print("export %s=\"%s\";" % (k, v))
-                    print("%(prefix_lower)s_stop () { "
-                          "if test -z \"$%(prefix)s_PID\"; then "
-                          "echo 'No PID found in $%(prefix)s_PID'; return -1; "
-                          "fi; "
-                          "if kill $%(prefix)s_PID; then "
-                          "_PS1=$%(prefix)s_OLD_PS1; "
-                          "unset %(vars)s; "
-                          "PS1=$_PS1; unset _PS1; "
-                          "unset -f %(prefix_lower)s_stop; "
-                          "unalias pifpaf_stop 2>/dev/null || true; "
-                          "fi; } ; "
-                          "alias pifpaf_stop=%(prefix_lower)s_stop ; "
-                          % {"prefix": self.app.options.env_prefix,
-                             "prefix_lower":
-                             self.app.options.env_prefix.lower(),
-                             "vars": " ".join(driver.env)})
-        run = take_action
-
-    RunDaemon.__doc__ = "run %s" % daemon
-    return RunDaemon
-
-
-class PifpafCommandManager(commandmanager.CommandManager):
-    COMMANDS = dict(("run " + k, create_RunDaemon(k)) for k in DAEMONS)
-    COMMANDS.update({"list": ListDaemons})
-
-    def load_commands(self, namespace):
-        for name, command_class in six.iteritems(self.COMMANDS):
-            self.add_command(name, command_class)
-
-
-class PifpafApp(app.App):
-    CONSOLE_MESSAGE_FORMAT = "%(levelname)s: %(name)s: %(message)s"
-
-    def __init__(self):
-        """Create a new pifpaf application."""
-        super(PifpafApp, self).__init__(
-            "Daemon management tool for testing",
-            pbr.version.VersionInfo('pifpaf').version_string(),
-            command_manager=PifpafCommandManager("pifpaf"))
-
-    def build_option_parser(self, description, version):
-        parser = super(PifpafApp, self).build_option_parser(
-            description, version)
-        parser.add_argument(
-            "--env-prefix", "-e",
-            default="PIFPAF",
-            help="prefix to use for environment variables (default: PIFPAF)")
-        parser.add_argument(
-            "--global-urls-variable", "-g",
-            default="PIFPAF_URLS",
-            help="global variable name to use to append connection URL when  "
-            "chaining multiple pifpaf instances (default: PIFPAF_URLS)")
-
-        return parser
-
-    def configure_logging(self):
-        formatter = daiquiri.formatter.ColorFormatter(
-            fmt="%(color)s%(levelname)s "
-            "[%(name)s] %(message)s%(color_stop)s")
-
-        outputs = [
-            daiquiri.output.Stream(sys.stderr, formatter=formatter)
-        ]
-
-        if self.options.log_file:
-            outputs.append(daiquiri.output.File(self.options.log_file,
-                                                formatter=formatter))
-
-        if self.options.debug:
-            level = logging.DEBUG
-        elif self.options.verbose_level == 1:
-            level = logging.INFO
+        if command:
+            try:
+                with driver:
+                    putenv("PID", str(os.getpid()))
+                    putenv("DAEMON", daemon)
+                    url = os.getenv(driver.env_prefix + "_URL")
+                    putenv("%s_URL" % daemon.upper(), url)
+                    os.putenv(global_urls_variable,
+                              expand_urls_var(url))
+                    try:
+                        c = subprocess.Popen(command)
+                    except Exception:
+                        raise RuntimeError("Unable to start command: %s"
+                                           % " ".join(command))
+                    return c.wait()
+            except fixtures.MultipleExceptions as e:
+                _format_multiple_exceptions(e, debug)
+                sys.exit(1)
         else:
-            level = logging.WARNING
+            try:
+                driver.setUp()
+            except fixtures.MultipleExceptions as e:
+                _format_multiple_exceptions(e, debug)
+                sys.exit(1)
+            except Exception:
+                LOG.error("Unable to start %s, "
+                          "use --debug for more information"
+                          % daemon, exc_info=True)
+                sys.exit(1)
+            pid = os.fork()
+            if pid == 0:
+                os.setsid()
+                devnull = os.open(os.devnull, os.O_RDWR)
+                os.dup2(devnull, 0)
+                os.dup2(devnull, 1)
+                os.dup2(devnull, 2)
 
-        daiquiri.setup(outputs=outputs, level=level)
+                def _cleanup(signum, frame):
+                    driver.cleanUp()
+                    sys.exit(0)
+
+                signal.signal(signal.SIGTERM, _cleanup)
+                signal.signal(signal.SIGHUP, _cleanup)
+                signal.signal(signal.SIGINT, _cleanup)
+                signal.signal(signal.SIGPIPE, signal.SIG_IGN)
+                signal.pause()
+            else:
+                url = driver.env['%s_URL' % driver.env_prefix]
+                driver.env.update({
+                    "PIFPAF_PID": pid,
+                    env_prefix + "_PID": pid,
+                    env_prefix + "_DAEMON": daemon,
+                    (env_prefix + "_" +
+                     daemon.upper() + "_URL"): url,
+                    global_urls_variable:
+                    expand_urls_var(url),
+                    "%s_OLD_PS1" % env_prefix:
+                    os.getenv("PS1", ""),
+                    "PS1":
+                    "(pifpaf/" + daemon + ") " + os.getenv("PS1", ""),
+                })
+                for k, v in six.iteritems(driver.env):
+                    print("export %s=\"%s\";" % (k, v))
+                print("%(prefix_lower)s_stop () { "
+                      "if test -z \"$%(prefix)s_PID\"; then "
+                      "echo 'No PID found in $%(prefix)s_PID'; return -1; "
+                      "fi; "
+                      "if kill $%(prefix)s_PID; then "
+                      "_PS1=$%(prefix)s_OLD_PS1; "
+                      "unset %(vars)s; "
+                      "PS1=$_PS1; unset _PS1; "
+                      "unset -f %(prefix_lower)s_stop; "
+                      "unalias pifpaf_stop 2>/dev/null || true; "
+                      "fi; } ; "
+                      "alias pifpaf_stop=%(prefix_lower)s_stop ; "
+                      % {"prefix": env_prefix,
+                         "prefix_lower":
+                         env_prefix.lower(),
+                         "vars": " ".join(driver.env)})
 
 
-def main():
-    return PifpafApp().run(sys.argv[1:])
+@main.command(name="run", help="Run a daemon", cls=RunGroup)
+@click.option("--env-prefix", "-e", default="PIFPAF",
+              help="Prefix to use for environment variables (default: PIFPAF)")
+@click.option("--global-urls-variable", "-g", default="PIFPAF_URLS",
+              help="global variable name to use to append connection URL  "
+              "when chaining multiple pifpaf instances (default: PIFPAF_URLS)")
+@click.pass_context
+def run(ctx, env_prefix, global_urls_variable):
+    ctx.obj['env_prefix'] = ctx.obj.get('env_prefix', env_prefix)
+    ctx.obj['global_urls_variable'] = ctx.obj.get('global_urls_variable',
+                                                  global_urls_variable)
 
 
 if __name__ == '__main__':

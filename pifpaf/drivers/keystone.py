@@ -31,16 +31,17 @@ class KeystoneDriver(drivers.Driver):
         self.admin_port = admin_port
 
     @classmethod
-    def get_parser(cls, parser):
-        parser.add_argument("--port",
-                            type=int,
-                            default=cls.DEFAULT_PORT,
-                            help="port to use for Keystone public API")
-        parser.add_argument("--admin-port",
-                            type=int,
-                            default=cls.DEFAULT_ADMIN_PORT,
-                            help="port to use for Keystone admin API")
-        return parser
+    def get_options(cls):
+        return [
+            {"param_decls": ["--port"],
+             "type": int,
+             "default": cls.DEFAULT_PORT,
+             "help": "port to use for Keystone public API"},
+            {"param_decls": ["--admin-port"],
+             "type": int,
+             "default": cls.DEFAULT_ADMIN_PORT,
+             "help": "port to use for Keystone admin API"},
+        ]
 
     def _setUp(self):
         super(KeystoneDriver, self)._setUp()

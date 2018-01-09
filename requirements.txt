@@ -1,5 +1,5 @@
 daiquiri
-cliff
+click
 pbr
 jinja2
 six

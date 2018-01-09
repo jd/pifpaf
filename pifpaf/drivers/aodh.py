@@ -41,25 +41,27 @@ class AodhDriver(drivers.Driver):
         self.gnocchi_indexer_port = gnocchi_indexer_port
 
     @classmethod
-    def get_parser(cls, parser):
-        parser.add_argument("--port",
-                            type=int,
-                            default=cls.DEFAULT_PORT,
-                            help="port to use for Aodh")
-        parser.add_argument("--database-url", help="database URL to use")
-        parser.add_argument("--database-port",
-                            type=int,
-                            default=cls.DEFAULT_PORT_DB,
-                            help="port to use for database")
-        parser.add_argument("--gnocchi-port",
-                            type=int,
-                            default=cls.DEFAULT_PORT_GNOCCHI,
-                            help="port to use for Gnocchi")
-        parser.add_argument("--gnocchi-indexer-port",
-                            type=int,
-                            default=cls.DEFAULT_PORT_GNOCCHI_INDEXER,
-                            help="port to use for Gnocchi indexer")
-        return parser
+    def get_options(cls):
+        return [
+            {"param_decls": ["--port"],
+             "type": int,
+             "default": cls.DEFAULT_PORT,
+             "help": "port to use for Aodh"},
+            {"param_decls": ["--database-url"],
+             "help": "database URL to use"},
+            {"param_decls": ["--database-port"],
+             "type": int,
+             "default": cls.DEFAULT_PORT_DB,
+             "help": "port to use for database"},
+            {"param_decls": ["--gnocchi-port"],
+             "type": int,
+             "default": cls.DEFAULT_PORT_GNOCCHI,
+             "help": "port to use for Gnocchi"},
+            {"param_decls": ["--gnocchi-indexer-port"],
+             "type": int,
+             "default": cls.DEFAULT_PORT_GNOCCHI_INDEXER,
+             "help": "port to use for Gnocchi indexer"},
+        ]
 
     def _setUp(self):
         super(AodhDriver, self)._setUp()

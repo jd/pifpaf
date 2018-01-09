@@ -29,12 +29,13 @@ class CephDriver(drivers.Driver):
         self.port = port
 
     @classmethod
-    def get_parser(cls, parser):
-        parser.add_argument("--port",
-                            type=int,
-                            default=cls.DEFAULT_PORT,
-                            help="port to use for Ceph Monitor")
-        return parser
+    def get_options(cls):
+        return [
+            {"param_decls": ["--port"],
+             "type": int,
+             "default": cls.DEFAULT_PORT,
+             "help": "port to use for Ceph Monitor"},
+        ]
 
     def _setUp(self):
         super(CephDriver, self)._setUp()

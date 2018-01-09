@@ -28,14 +28,15 @@ class VaultDriver(drivers.Driver):
         self.listen_address = listen_address
 
     @classmethod
-    def get_parser(cls, parser):
-        parser.add_argument("--root-token-id",
-                            default=cls.DEFAULT_ROOT_TOKEN_ID,
-                            help="root token for vault")
-        parser.add_argument("--listen-address",
-                            default=cls.DEFAULT_LISTEN_ADDRESS,
-                            help="listen address for vault")
-        return parser
+    def get_options(cls):
+        return [
+            {"param_decls": ["--root-token-id"],
+             "default": cls.DEFAULT_ROOT_TOKEN_ID,
+             "help": "root token for vault"},
+            {"param_decls": ["--listen-address"],
+             "default": cls.DEFAULT_LISTEN_ADDRESS,
+             "help": "listen address for vault"},
+        ]
 
     def _setUp(self):
         super(VaultDriver, self)._setUp()

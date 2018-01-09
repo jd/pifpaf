@@ -30,15 +30,16 @@ class InfluxDBDriver(drivers.Driver):
         self.database = database
 
     @classmethod
-    def get_parser(cls, parser):
-        parser.add_argument("--port",
-                            type=int,
-                            default=cls.DEFAULT_PORT,
-                            help="port to use for InfluxDB")
-        parser.add_argument("--database",
-                            default=cls.DEFAULT_DATABASE,
-                            help="database to create for InfluxDB")
-        return parser
+    def get_options(cls):
+        return [
+            {"param_decls": ["--port"],
+             "type": int,
+             "default": cls.DEFAULT_PORT,
+             "help": "port to use for InfluxDB"},
+            {"param_decls": ["--database"],
+             "default": cls.DEFAULT_DATABASE,
+             "help": "database to create for InfluxDB"},
+        ]
 
     def _setUp(self):
         super(InfluxDBDriver, self)._setUp()
