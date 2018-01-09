@@ -29,12 +29,13 @@ class ZooKeeperDriver(drivers.Driver):
         self.port = port
 
     @classmethod
-    def get_parser(cls, parser):
-        parser.add_argument("--port",
-                            type=int,
-                            default=cls.DEFAULT_PORT,
-                            help="port to use for ZooKeeper")
-        return parser
+    def get_options(cls):
+        return [
+            {"param_decls": ["--port"],
+             "type": int,
+             "default": cls.DEFAULT_PORT,
+             "help": "port to use for ZooKeeper"},
+        ]
 
     def _setUp(self):
         super(ZooKeeperDriver, self)._setUp()

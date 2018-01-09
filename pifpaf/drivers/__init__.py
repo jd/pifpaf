@@ -72,8 +72,8 @@ class Driver(fixtures.Fixture):
         self.putenv("DATA", self.tempdir)
 
     @staticmethod
-    def get_parser(parser):
-        return parser
+    def get_options():
+        return []
 
     def putenv(self, key, value, raw=False):
         if not raw:

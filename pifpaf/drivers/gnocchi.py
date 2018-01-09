@@ -15,6 +15,8 @@ import shutil
 import uuid
 from distutils import spawn
 
+import click
+
 import six.moves.urllib.parse as urlparse
 
 from pifpaf import drivers
@@ -46,30 +48,32 @@ class GnocchiDriver(drivers.Driver):
         self.coordination_port = coordination_port
 
     @classmethod
-    def get_parser(cls, parser):
-        parser.add_argument("--port",
-                            type=int,
-                            default=cls.DEFAULT_PORT,
-                            help="port to use for Gnocchi HTTP API")
-        parser.add_argument("--statsd-port",
-                            type=int,
-                            help="port to use for gnocchi-statsd")
-        parser.add_argument("--indexer-port",
-                            type=int,
-                            default=cls.DEFAULT_PORT_INDEXER,
-                            help="port to use for Gnocchi indexer")
-        parser.add_argument("--coordination-port",
-                            type=int,
-                            default=cls.DEFAULT_PORT_COORDINATOR,
-                            help="port to use for Gnocchi coordination")
-        parser.add_argument("--coordination-driver",
-                            default="default",
-                            choices=["default", "redis"],
-                            nargs="?",
-                            help="Select a coordination driver")
-        parser.add_argument("--indexer-url", help="indexer URL to use")
-        parser.add_argument("--storage-url", help="storage URL to use")
-        return parser
+    def get_options(cls):
+        return [
+            {"param_decls": ["--port"],
+             "type": int,
+             "default": cls.DEFAULT_PORT,
+             "help": "port to use for Gnocchi HTTP API"},
+            {"param_decls": ["--statsd-port"],
+             "type": int,
+             "help": "port to use for gnocchi-statsd"},
+            {"param_decls": ["--indexer-port"],
+             "type": int,
+             "default": cls.DEFAULT_PORT_INDEXER,
+             "help": "port to use for Gnocchi indexer"},
+            {"param_decls": ["--coordination-port"],
+             "type": int,
+             "default": cls.DEFAULT_PORT_COORDINATOR,
+             "help": "port to use for Gnocchi coordination"},
+            {"param_decls": ["--coordination-driver"],
+             "type": click.Choice(["default", "redis"]),
+             "default": "default",
+             "help": "Select a coordination driver"},
+            {"param_decls": ["--indexer-url"],
+             "help": "indexer URL to use"},
+            {"param_decls": ["--storage-url"],
+             "help": "storage URL to use"},
+        ]
 
     def _setUp(self):
         super(GnocchiDriver, self)._setUp()

@@ -65,28 +65,29 @@ class SwiftDriver(drivers.Driver):
         self.memcached_port = memcached_port
 
     @classmethod
-    def get_parser(cls, parser):
-        parser.add_argument("--port",
-                            type=int,
-                            default=cls.DEFAULT_PORT,
-                            help="port to use for Swift Proxy Server")
-        parser.add_argument("--object-port",
-                            type=int,
-                            default=cls.DEFAULT_PORT_OBJECT,
-                            help="port to use for Swift Object Server")
-        parser.add_argument("--container-port",
-                            type=int,
-                            default=cls.DEFAULT_PORT_CONTAINER,
-                            help="port to use for Swift Container Server")
-        parser.add_argument("--account-port",
-                            type=int,
-                            default=cls.DEFAULT_PORT_ACCOUNT,
-                            help="port to use for Swift Account Server")
-        parser.add_argument("--memcached-port",
-                            type=int,
-                            default=cls.DEFAULT_PORT_MEMCACHED,
-                            help="port to use for memcached Server")
-        return parser
+    def get_options(cls):
+        return [
+            {"param_decls": ["--port"],
+             "type": int,
+             "default": cls.DEFAULT_PORT,
+             "help": "port to use for Swift Proxy Server"},
+            {"param_decls": ["--object-port"],
+             "type": int,
+             "default": cls.DEFAULT_PORT_OBJECT,
+             "help": "port to use for Swift Object Server"},
+            {"param_decls": ["--container-port"],
+             "type": int,
+             "default": cls.DEFAULT_PORT_CONTAINER,
+             "help": "port to use for Swift Container Server"},
+            {"param_decls": ["--account-port"],
+             "type": int,
+             "default": cls.DEFAULT_PORT_ACCOUNT,
+             "help": "port to use for Swift Account Server"},
+            {"param_decls": ["--memcached-port"],
+             "type": int,
+             "default": cls.DEFAULT_PORT_MEMCACHED,
+             "help": "port to use for memcached server"},
+        ]
 
     def _setUp(self):
         super(SwiftDriver, self)._setUp()

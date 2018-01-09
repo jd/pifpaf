@@ -24,12 +24,13 @@ class S3rverDriver(drivers.Driver):
         self.port = port
 
     @classmethod
-    def get_parser(cls, parser):
-        parser.add_argument("--port",
-                            type=int,
-                            default=cls.DEFAULT_PORT,
-                            help="port to use for s3rver")
-        return parser
+    def get_options(cls):
+        return [
+            {"param_decls": ["--port"],
+             "type": int,
+             "default": cls.DEFAULT_PORT,
+             "help": "port to use for s3rver"},
+        ]
 
     def _setUp(self):
         super(S3rverDriver, self)._setUp()

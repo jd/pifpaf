@@ -43,20 +43,25 @@ class RabbitMQDriver(drivers.Driver):
         self._next_port = itertools.count(self.port)
 
     @classmethod
-    def get_parser(cls, parser):
-        parser.add_argument("--port",
-                            type=int,
-                            default=cls.DEFAULT_PORT,
-                            help="port to use for RabbitMQ")
-        parser.add_argument("--nodename", default=cls.DEFAULT_NODENAME,
-                            help="RabbitMQ node name")
-        parser.add_argument("--cluster", action="store_true",
-                            help="Create a 3 HA node clusters")
-        parser.add_argument("--username", default=cls.DEFAULT_USERNAME,
-                            help="RabbitMQ username")
-        parser.add_argument("--password", default=cls.DEFAULT_PASSWORD,
-                            help="RabbitMQ password")
-        return parser
+    def get_options(cls):
+        return [
+            {"param_decls": ["--port"],
+             "type": int,
+             "default": cls.DEFAULT_PORT,
+             "help": "port to use for RabbitMQ"},
+            {"param_decls": ["--nodename"],
+             "default": cls.DEFAULT_NODENAME,
+             "help": "RabbitMQ node name"},
+            {"param_decls": ["--cluster"],
+             "is_flag": True,
+             "help": "Create a 3 HA node clusters"},
+            {"param_decls": ["--username"],
+             "default": cls.DEFAULT_USERNAME,
+             "help": "RabbitMQ username"},
+            {"param_decls": ["--password"],
+             "default": cls.DEFAULT_PASSWORD,
+             "help": "RabbitMQ password"},
+        ]
 
     def get_port(self, nodename):
         if nodename not in self._ports:

@@ -26,12 +26,13 @@ class CouchDBDriver(drivers.Driver):
         self.port = port
 
     @classmethod
-    def get_parser(cls, parser):
-        parser.add_argument("--port",
-                            type=int,
-                            default=cls.DEFAULT_PORT,
-                            help="port to use for couchdb")
-        return parser
+    def get_options(cls):
+        return [
+            {"param_decls": ["--port"],
+             "type": int,
+             "default": cls.DEFAULT_PORT,
+             "help": "port to use for couchdb"}
+        ]
 
     def _setUp(self):
         super(CouchDBDriver, self)._setUp()

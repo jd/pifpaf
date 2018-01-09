@@ -32,20 +32,21 @@ class EtcdDriver(drivers.Driver):
         self.cluster = cluster
 
     @classmethod
-    def get_parser(cls, parser):
-        parser.add_argument("--port",
-                            type=int,
-                            default=cls.DEFAULT_PORT,
-                            help="port to use for etcd")
-        parser.add_argument("--peer-port",
-                            type=int,
-                            default=cls.DEFAULT_PEER_PORT,
-                            help="port to use for etcd peers")
-        parser.add_argument("--cluster",
-                            action='store_true',
-                            default=cls.DEFAULT_CLUSTER,
-                            help="activate etcd cluster")
-        return parser
+    def get_options(cls):
+        return [
+            {"param_decls": ["--port"],
+             "type": int,
+             "default": cls.DEFAULT_PORT,
+             "help": "port to use for etcd"},
+            {"param_decls": ["--peer-port"],
+             "type": int,
+             "default": cls.DEFAULT_PEER_PORT,
+             "help": "port to use for etcd peeres"},
+            {"param_decls": ["--cluster"],
+             "is_flag": True,
+             "default": cls.DEFAULT_CLUSTER,
+             "help": "activate etcd cluster"},
+        ]
 
     def _setUp(self):
         super(EtcdDriver, self)._setUp()
