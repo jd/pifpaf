@@ -260,5 +260,9 @@ def run(ctx, env_prefix, global_urls_variable):
                                                   global_urls_variable)
 
 
+def run_main():
+    return main.main(standalone_mode=False)
+
+
 if __name__ == '__main__':
-    main()
+    sys.exit(run_main())

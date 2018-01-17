@@ -53,6 +53,15 @@ class TestCli(testtools.TestCase):
 
     @testtools.skipUnless(spawn.find_executable("memcached"),
                           "memcached not found")
+    def test_exit_code(self):
+        c = subprocess.Popen(["pifpaf", "run", "memcached", "--port", "11234",
+                              "--", "bash", "-c", "exit 31"],
+                             stdout=subprocess.PIPE)
+        (stdout, stderr) = c.communicate()
+        self.assertEqual(31, c.wait())
+
+    @testtools.skipUnless(spawn.find_executable("memcached"),
+                          "memcached not found")
     def test_env_prefix(self):
         c = subprocess.Popen(["pifpaf", "run",
                               "--env-prefix", "FOOBAR",
