@@ -1,6 +1,5 @@
 mount_check = false
 disable_fallocate = true
-workers = 1
 bind_ip = 127.0.0.1
 user = {{ USER }}
 swift_dir = {{ TMP_DIR }}
