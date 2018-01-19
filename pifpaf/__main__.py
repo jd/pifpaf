@@ -39,7 +39,12 @@ LOG = daiquiri.getLogger("pifpaf")
 
 def _format_multiple_exceptions(e, debug=False):
     valid_excs = []
-    excs = list(e.args)
+    # NOTE(sileht): Why do I not use this ? :
+    #   excs = list(e.args)
+    # Because it raises SystemExit(2) on python3 !!?!?
+    excs = []
+    for i in range(len(e.args)):
+        excs.append(e.args[i])
     while excs:
         (etype, value, tb) = excs.pop(0)
         if (etype == fixtures.MultipleExceptions):
@@ -54,7 +59,7 @@ def _format_multiple_exceptions(e, debug=False):
         if debug:
             LOG.error("".join(traceback.format_exception(etype, value, tb)))
         else:
-            raise value
+            LOG.error(value)
     else:
         LOG.error("MultipleExceptions raised:")
         for n, (etype, value, tb) in enumerate(valid_excs):
