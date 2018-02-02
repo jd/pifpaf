@@ -188,7 +188,7 @@ url = %s""" % (self.debug,
 
         args = [
             "uwsgi",
-            "--http", "localhost:%d" % self.port,
+            "--http-socket", "localhost:%d" % self.port,
             "--wsgi-file", spawn.find_executable("gnocchi-api"),
             "--master",
             "--die-on-term",
