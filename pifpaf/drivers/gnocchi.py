@@ -10,10 +10,12 @@
 # implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import logging
 import os
 import shutil
 import uuid
 from distutils import spawn
+from distutils import version
 
 import click
 
@@ -22,6 +24,8 @@ import six.moves.urllib.parse as urlparse
 from pifpaf import drivers
 from pifpaf.drivers import postgresql
 from pifpaf.drivers import redis
+
+LOG = logging.getLogger(__name__)
 
 
 class GnocchiDriver(drivers.Driver):
@@ -186,24 +190,31 @@ url = %s""" % (self.debug,
                           wait_for_line=("(Resource .* already exists"
                                          "|Created resource )"))
 
-        args = [
-            "uwsgi",
-            "--http", "localhost:%d" % self.port,
-            "--wsgi-file", spawn.find_executable("gnocchi-api"),
-            "--master",
-            "--die-on-term",
-            "--lazy-apps",
-            "--processes", "4",
-            "--no-orphans",
-            "--enable-threads",
-            "--chdir", self.tempdir,
-            "--add-header", "Connection: close",
-            "--pyargv", "--config-file=%s" % conffile,
-        ]
+        _, v = self._exec(["gnocchi-api", "--", "--version"], stdout=True)
+        v = version.LooseVersion(drivers.fsdecode(v).strip())
+        if v < version.LooseVersion("4.1.0"):
+            LOG.debug("gnocchi version: %s, running uwsgi manually for api", v)
+            args = [
+                "uwsgi",
+                "--http", "localhost:%d" % self.port,
+                "--wsgi-file", spawn.find_executable("gnocchi-api"),
+                "--master",
+                "--die-on-term",
+                "--lazy-apps",
+                "--processes", "4",
+                "--no-orphans",
+                "--enable-threads",
+                "--chdir", self.tempdir,
+                "--add-header", "Connection: close",
+                "--pyargv", "--config-file=%s" % conffile,
+            ]
 
-        virtual_env = os.getenv("VIRTUAL_ENV")
-        if virtual_env is not None:
-            args.extend(["-H", virtual_env])
+            virtual_env = os.getenv("VIRTUAL_ENV")
+            if virtual_env is not None:
+                args.extend(["-H", virtual_env])
+        else:
+            LOG.debug("gnocchi version: %s, running gnocchi-api", v)
+            args = ["gnocchi-api", "--config-file=%s" % conffile]
 
         c, _ = self._exec(args,
                           wait_for_line="WSGI app 0 \(mountpoint=''\) ready")
