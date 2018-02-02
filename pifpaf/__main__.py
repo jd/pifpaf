@@ -238,13 +238,16 @@ class RunGroup(click.MultiCommand):
                       "if test -z \"$%(prefix)s_PID\"; then "
                       "echo 'No PID found in $%(prefix)s_PID'; return -1; "
                       "fi; "
-                      "if kill $%(prefix)s_PID; then "
+                      "kill $%(prefix)s_PID; "
+                      "while kill -0 $%(prefix)s_PID 2>/dev/null; do"
+                      "  sleep 1 ; "
+                      "done ; "
                       "_PS1=$%(prefix)s_OLD_PS1; "
                       "unset %(vars)s; "
                       "PS1=$_PS1; unset _PS1; "
                       "unset -f %(prefix_lower)s_stop; "
                       "unalias pifpaf_stop 2>/dev/null || true; "
-                      "fi; } ; "
+                      "} ; "
                       "alias pifpaf_stop=%(prefix_lower)s_stop ; "
                       % {"prefix": env_prefix,
                          "prefix_lower":
