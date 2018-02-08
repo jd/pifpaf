@@ -145,6 +145,15 @@ class GnocchiDriver(drivers.Driver):
                     storage_parsed.path or self.tempdir
                 ),
             }
+        elif storage_driver == "rocksdb":
+            storage_config = {
+                "rocksdb_basepath": (
+                    storage_parsed.path or os.path.join(
+                        self.tempdir, "storage.db")
+                ),
+                "file_basepath": self.tempdir,
+            }
+
         else:
             raise RuntimeError("Storage driver %s is not supported" %
                                storage_driver)
