@@ -16,6 +16,7 @@ import signal
 import subprocess
 from distutils import spawn
 
+import fixtures
 import testtools
 
 
@@ -144,3 +145,18 @@ class TestCli(testtools.TestCase):
         self.assertEqual(
             b"\"memcached://localhost:11217;memcached://localhost:11218\";",
             env[b"export PIFPAF_URLS"])
+
+    def test_non_existing_command(self):
+        # Keep PATH to just the one set by tox to run pifpaf
+        self.useFixture(fixtures.EnvironmentVariable(
+            "PATH", os.getenv("PATH").split(":")[0]))
+        c = subprocess.Popen(["pifpaf", "run", "memcached"],
+                             bufsize=0,
+                             stderr=subprocess.PIPE,
+                             stdout=subprocess.PIPE)
+        (stdout, stderr) = c.communicate()
+        self.assertEqual(1, c.wait())
+        self.assertIn(
+            b"ERROR [pifpaf] Unable to run command "
+            b"`memcached -p 11212': [Errno 2] No such file or directory",
+            stderr)
