@@ -17,6 +17,7 @@ import subprocess
 from distutils import spawn
 
 import fixtures
+
 import testtools
 
 
