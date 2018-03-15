@@ -69,7 +69,6 @@ osd_failsafe_full_ratio = 1
         # else:
         journal_path = "%s/osd/$cluster-$id/journal" % self.tempdir
 
-        print(ratio)
         with open(conffile, "w") as f:
             f.write("""[global]
 fsid = %(fsid)s
