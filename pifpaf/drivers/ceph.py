@@ -49,12 +49,27 @@ class CephDriver(drivers.Driver):
         os.makedirs(mondir)
         os.makedirs(osddir)
 
+        _, version = self._exec(["ceph", "--version"], stdout=True)
+        version = version.decode("ascii").split()[2]
+        version = pkg_resources.parse_version(version)
+
+        if version < pkg_resources.parse_version("12.0.0"):
+            ratio = """
+mon_osd_nearfull_ratio = 1
+mon_osd_full_ratio = 1
+osd_failsafe_nearfull_ratio = 1
+osd_failsafe_full_ratio = 1
+"""
+        else:
+            ratio = ""
+
         # FIXME(sileht): check availible space on /dev/shm
         # if os.path.exists("/dev/shm") and os.access('/dev/shm', os.W_OK):
         #     journal_path = "/dev/shm/$cluster-$id-journal"
         # else:
         journal_path = "%s/osd/$cluster-$id/journal" % self.tempdir
 
+        print(ratio)
         with open(conffile, "w") as f:
             f.write("""[global]
 fsid = %(fsid)s
@@ -89,11 +104,7 @@ osd op threads = 10
 filestore max sync interval = 10001
 filestore min sync interval = 10000
 
-# Don't fail until it's really full
-mon_osd_nearfull_ratio = 1
-mon_osd_full_ratio = 1
-osd_failsafe_nearfull_ratio = 1
-osd_failsafe_full_ratio = 1
+%(ratio)s
 
 journal_aio = false
 journal_dio = false
@@ -106,16 +117,13 @@ setuser match path = %(tempdir)s/$type/$cluster-$id
 [mon.a]
 host = localhost
 mon addr = 127.0.0.1:%(port)d
-""" % dict(fsid=fsid, tempdir=self.tempdir, port=self.port, journal_path=journal_path))  # noqa
+""" % dict(fsid=fsid, tempdir=self.tempdir, port=self.port,
+           journal_path=journal_path, ratio=ratio))  # noqa
 
         ceph_opts = ["ceph", "-c", conffile]
         mon_opts = ["ceph-mon", "-c", conffile, "--id", "a", "-d"]
         osd_opts = ["ceph-osd", "-c", conffile, "--id", "0", "-d",
                     "-m", "127.0.0.1:%d" % self.port]
-
-        _, version = self._exec(ceph_opts + ["--version"], stdout=True)
-        version = version.decode("ascii").split()[2]
-        version = pkg_resources.parse_version(version)
 
         # Create and start monitor
         self._exec(mon_opts + ["--mkfs"])
@@ -134,6 +142,11 @@ mon addr = 127.0.0.1:%(port)d
         else:
             wait_for_line = "done with init"
         osd, _ = self._exec(osd_opts, wait_for_line=wait_for_line)
+
+        if version >= pkg_resources.parse_version("12.0.0"):
+            self._exec(ceph_opts + ["osd", "set-full-ratio", "0.95"])
+            self._exec(ceph_opts + ["osd", "set-backfillfull-ratio", "0.95"])
+            self._exec(ceph_opts + ["osd", "set-nearfull-ratio", "0.95"])
 
         # Wait it's ready
         out = b""
