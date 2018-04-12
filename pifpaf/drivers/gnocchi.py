@@ -172,6 +172,9 @@ class GnocchiDriver(drivers.Driver):
             f.write("""[DEFAULT]
 debug = %s
 verbose = True
+[api]
+host = localhost
+port = %s
 [storage]
 driver = %s
 %s
@@ -185,6 +188,7 @@ user_id = admin
 project_id = admin
 [indexer]
 url = %s""" % (self.debug,
+               self.port,
                storage_driver,
                storage_config_string,
                statsd_resource_id,

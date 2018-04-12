@@ -37,7 +37,6 @@ class S3rverDriver(drivers.Driver):
 
         c, _ = self._exec(
             ["s3rver",
-             "--cors",
              "--directory", self.tempdir,
              "--port", str(self.port)],
             wait_for_line="now listening on host")
