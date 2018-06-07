@@ -54,14 +54,17 @@ class CephDriver(drivers.Driver):
         version = pkg_resources.parse_version(version)
 
         if version < pkg_resources.parse_version("12.0.0"):
-            ratio = """
+            extra = """
 mon_osd_nearfull_ratio = 1
 mon_osd_full_ratio = 1
 osd_failsafe_nearfull_ratio = 1
 osd_failsafe_full_ratio = 1
 """
         else:
-            ratio = ""
+            extra = """
+mon_allow_pool_delete = true
+"""
+
 
         # FIXME(sileht): check availible space on /dev/shm
         # if os.path.exists("/dev/shm") and os.access('/dev/shm', os.W_OK):
@@ -103,7 +106,7 @@ osd op threads = 10
 filestore max sync interval = 10001
 filestore min sync interval = 10000
 
-%(ratio)s
+%(extra)s
 
 journal_aio = false
 journal_dio = false
@@ -117,7 +120,7 @@ setuser match path = %(tempdir)s/$type/$cluster-$id
 host = localhost
 mon addr = 127.0.0.1:%(port)d
 """ % dict(fsid=fsid, tempdir=self.tempdir, port=self.port,
-           journal_path=journal_path, ratio=ratio))  # noqa
+           journal_path=journal_path, extra=extra))  # noqa
 
         ceph_opts = ["ceph", "-c", conffile]
         mon_opts = ["ceph-mon", "-c", conffile, "--id", "a", "-d"]
