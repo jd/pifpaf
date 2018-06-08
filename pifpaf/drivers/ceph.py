@@ -65,7 +65,6 @@ osd_failsafe_full_ratio = 1
 mon_allow_pool_delete = true
 """
 
-
         # FIXME(sileht): check availible space on /dev/shm
         # if os.path.exists("/dev/shm") and os.access('/dev/shm', os.W_OK):
         #     journal_path = "/dev/shm/$cluster-$id-journal"

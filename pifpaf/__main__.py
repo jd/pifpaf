@@ -120,7 +120,7 @@ def main(ctx, verbose=False, debug=False, log_file=None,
 
 
 @main.command(name="list")
-def list():
+def drivers_list():
     for n in DAEMONS:
         click.echo(n)
 
