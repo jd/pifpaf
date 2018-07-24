@@ -191,7 +191,8 @@ class Driver(fixtures.Fixture):
         data = fsdecode(data)
         LOG.debug("%s[%d] output: %s", appname, pid, data.rstrip())
 
-    def _exec(self, command, stdout=False, ignore_failure=False,
+    def _exec(self, command, stdout=False, ignore_stderr=False,
+              ignore_failure=False,
               stdin=None, wait_for_line=None, wait_for_port=None,
               path=[], env=None,
               forbidden_line_after_start=None,
@@ -207,6 +208,12 @@ class Driver(fixtures.Fixture):
         else:
             # TODO(jd) Need to close at some point
             stdout_fd = open(os.devnull, 'w')
+
+        if ignore_stderr:
+            # TODO(jd) Need to close at some point
+            stderr_fd = open(os.devnull, 'w')
+        else:
+            stderr_fd = subprocess.STDOUT
 
         if stdin:
             stdin_fd = subprocess.PIPE
@@ -231,7 +238,7 @@ class Driver(fixtures.Fixture):
                 close_fds=True,
                 stdin=stdin_fd,
                 stdout=stdout_fd,
-                stderr=subprocess.STDOUT,
+                stderr=stderr_fd,
                 env=complete_env,
                 preexec_fn=os.setsid,
             )

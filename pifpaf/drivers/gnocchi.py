@@ -194,7 +194,9 @@ url = %s""" % (self.debug,
                           wait_for_line=("(Resource .* already exists"
                                          "|Created resource )"))
 
-        _, v = self._exec(["gnocchi-api", "--", "--version"], stdout=True)
+        _, v = self._exec(["gnocchi-api", "--", "--version"],
+                          stdout=True,
+                          ignore_stderr=True)
         v = version.LooseVersion(drivers.fsdecode(v).strip())
         if v < version.LooseVersion("4.1.0"):
             LOG.debug("gnocchi version: %s, running uwsgi manually for api", v)
