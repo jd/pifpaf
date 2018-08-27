@@ -64,7 +64,7 @@ def _format_multiple_exceptions(e, debug=False):
         LOG.error("MultipleExceptions raised:")
         for n, (etype, value, tb) in enumerate(valid_excs):
             if debug:
-                LOG.error("- exception %d:" % n)
+                LOG.error("- exception %d:", n)
                 LOG.error("".join(
                     traceback.format_exception(etype, value, tb)))
             else:
@@ -197,8 +197,8 @@ class RunGroup(click.MultiCommand):
                 sys.exit(1)
             except Exception:
                 LOG.error("Unable to start %s, "
-                          "use --debug for more information"
-                          % daemon, exc_info=True)
+                          "use --debug for more information",
+                          daemon, exc_info=True)
                 sys.exit(1)
             pid = os.fork()
             if pid == 0:

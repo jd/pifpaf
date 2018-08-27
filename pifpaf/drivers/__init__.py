@@ -196,7 +196,7 @@ class Driver(fixtures.Fixture):
               path=[], env=None,
               forbidden_line_after_start=None,
               allow_debug=True):
-        LOG.debug("executing: %s" % command)
+        LOG.debug("executing: %s", command)
 
         app = command[0]
 
@@ -242,7 +242,7 @@ class Driver(fixtures.Fixture):
         self.addCleanup(self._kill, c)
 
         if stdin:
-            LOG.debug("%s input: %s" % (app, stdin))
+            LOG.debug("%s input: %s", app, stdin)
             c.stdin.write(stdin)
             c.stdin.close()
 
