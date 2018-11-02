@@ -30,6 +30,7 @@ import testtools
 
 from pifpaf import drivers
 from pifpaf.drivers import aodh
+from pifpaf.drivers import artemis
 from pifpaf.drivers import ceph
 from pifpaf.drivers import consul
 from pifpaf.drivers import couchdb
@@ -468,6 +469,16 @@ class TestDrivers(testtools.TestCase):
                          os.getenv("PIFPAF_URL"))
         r = requests.get("http://localhost:%d/" % port)
         self.assertEqual(r.json()["couchdb"], "Welcome")
+
+    @testtools.skipUnless(spawn.find_executable("artemis"),
+                          "Artemis not found")
+    def test_artemis(self):
+        self.useFixture(artemis.ArtemisDriver(port=54321))
+        self.assertEqual("amqp://localhost:54321",
+                         os.getenv("PIFPAF_URL"))
+        self.assertEqual("54321", os.getenv("PIFPAF_ARTEMIS_PORT"))
+        self.assertEqual("amqp://localhost:54321",
+                         os.getenv("PIFPAF_ARTEMIS_URL"))
 
     @testtools.skipUnless(spawn.find_executable("kafka-server-start.sh"),
                           "Kafka not found")
