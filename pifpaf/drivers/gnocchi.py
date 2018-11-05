@@ -221,7 +221,7 @@ url = %s""" % (self.debug,
             args = ["gnocchi-api", "--config-file=%s" % conffile]
 
         c, _ = self._exec(args,
-                          wait_for_line="WSGI app 0 \(mountpoint=''\) ready")
+                          wait_for_line=r"WSGI app 0 \(mountpoint=''\) ready")
         self.addCleanup(self._kill, c)
 
         self.http_url = "http://localhost:%d" % self.port
