@@ -45,6 +45,7 @@ from pifpaf.drivers import memcached
 from pifpaf.drivers import mongodb
 from pifpaf.drivers import mysql
 from pifpaf.drivers import postgresql
+from pifpaf.drivers import qdrouterd
 from pifpaf.drivers import rabbitmq
 from pifpaf.drivers import redis
 from pifpaf.drivers import s3rver
@@ -490,6 +491,17 @@ class TestDrivers(testtools.TestCase):
         self.assertEqual("54321", os.getenv("PIFPAF_ARTEMIS_PORT"))
         self.assertEqual("amqp://localhost:54321",
                          os.getenv("PIFPAF_ARTEMIS_URL"))
+
+    @testtools.skipUnless(spawn.find_executable("qdrouterd"),
+                          "Qdrouterd not found")
+    def test_qdrouterd(self):
+        a = self.useFixture(qdrouterd.QdrouterdDriver(port=54321))
+        self.assertEqual("amqp://%s:%s@localhost:54321" % (a.username,
+                                                           a.password),
+                         os.getenv("PIFPAF_URL"))
+        self.assertEqual("54321", os.getenv("PIFPAF_QDROUTERD_PORT"))
+        self.assertEqual("amqp://localhost:54321",
+                         os.getenv("PIFPAF_QDROUTERD_URL"))
 
     @testtools.skipUnless(spawn.find_executable("kafka-server-start.sh"),
                           "Kafka not found")
