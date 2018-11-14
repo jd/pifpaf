@@ -245,6 +245,17 @@ class TestDrivers(testtools.TestCase):
             os.getenv("PIFPAF_URL"))
         self._run("psql template1 -c 'CREATE TABLE FOOBAR();'")
 
+    @testtools.skipUnless(spawn.find_executable("pg_config"),
+                          "pg_config not found")
+    def test_postgresql_async(self):
+        port = 9825
+        f = self.useFixture(postgresql.PostgreSQLDriver(port=port, sync=False))
+        self.assertEqual(
+            "postgresql://localhost/postgres?host=%s&port=%d"
+            % (f.tempdir, port),
+            os.getenv("PIFPAF_URL"))
+        self._run("psql template1 -c 'CREATE TABLE FOOBAR();'")
+
     @testtools.skipUnless(spawn.find_executable("redis-server"),
                           "redis-server not found")
     def test_redis(self):

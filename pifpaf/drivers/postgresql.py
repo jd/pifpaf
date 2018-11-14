@@ -20,6 +20,7 @@ class PostgreSQLDriver(drivers.Driver):
 
     DEFAULT_PORT = 9824
     DEFAULT_HOST = ""
+    DEFAULT_SYNC = False
 
     @classmethod
     def get_options(cls):
@@ -31,14 +32,18 @@ class PostgreSQLDriver(drivers.Driver):
             {"param_decls": ["--host"],
              "default": cls.DEFAULT_HOST,
              "help": "host to listen on"},
+            {"param_decls": ["--sync/--no-sync"],
+             "default": cls.DEFAULT_SYNC,
+             "help": "Make pg as fast as possible"},
         ]
 
     def __init__(self, port=DEFAULT_PORT, host=DEFAULT_HOST,
-                 **kwargs):
+                 sync=DEFAULT_SYNC, **kwargs):
         """Create a new PostgreSQL instance."""
         super(PostgreSQLDriver, self).__init__(**kwargs)
         self.port = port
         self.host = host
+        self.sync = sync
 
     def _setUp(self):
         super(PostgreSQLDriver, self)._setUp()
@@ -49,6 +54,12 @@ class PostgreSQLDriver(drivers.Driver):
         _, pgbindir = self._exec(["pg_config", "--bindir"], stdout=True)
         pgctl = os.path.join(pgbindir.strip(), b"pg_ctl")
         self._exec([pgctl, "-o", "'-A trust'", "initdb"])
+        if not self.sync:
+            cfgfile = os.path.join(self.tempdir, 'postgresql.conf')
+            with open(cfgfile, 'a') as cfg:
+                for key in ('fsync', 'synchronous_commit', 'full_page_writes'):
+                    cfg.write('{} = off\n'.format(key))
+
         self._exec([pgctl, "-w", "-o",
                     "-k %s -p %d -h \"%s\""
                     % (self.tempdir, self.port, self.host),
