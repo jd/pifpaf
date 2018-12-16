@@ -72,7 +72,7 @@ class QdrouterdDriver(drivers.Driver):
 
     def saslpasswd2(self, username, password, sasl_db):
         self._exec(["saslpasswd2", "-c", "-p", "-f",
-                    sasl_db, username], stdin=password)
+                    sasl_db, username], stdin=password.encode())
 
     def _setUp(self):
         super(QdrouterdDriver, self)._setUp()
