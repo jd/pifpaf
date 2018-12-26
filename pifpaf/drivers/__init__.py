@@ -237,7 +237,7 @@ class Driver(fixtures.Fixture):
             )
         except OSError as e:
             raise RuntimeError(
-                "Unable to run command `%s': %s" % (" ".join(command), e))
+                "Unable to run command `%s': %s" % (command, e))
 
         self.addCleanup(self._kill, c)
 
