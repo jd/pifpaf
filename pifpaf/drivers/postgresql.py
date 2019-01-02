@@ -52,7 +52,7 @@ class PostgreSQLDriver(drivers.Driver):
         self.putenv("PGDATA", self.tempdir, True)
         self.putenv("PGDATABASE", "postgres", True)
         _, pgbindir = self._exec(["pg_config", "--bindir"], stdout=True)
-        pgctl = os.path.join(pgbindir.strip(), b"pg_ctl")
+        pgctl = os.path.join(pgbindir.strip().decode(), "pg_ctl")
         self._exec([pgctl, "-o", "'-A trust'", "initdb"])
         if not self.sync:
             cfgfile = os.path.join(self.tempdir, 'postgresql.conf')
