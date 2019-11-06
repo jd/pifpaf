@@ -79,7 +79,7 @@ class TestDrivers(testtools.TestCase):
         )
 
     def _run(self, cmd):
-        self.assertEqual(0, os.system(cmd + " >/dev/null 2>&1"))
+        self.assertEqual(0, os.system(cmd))
 
     def _do_test_stuck(self, cmd):
         d = drivers.Driver(debug=True)
