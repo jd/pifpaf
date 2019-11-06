@@ -22,7 +22,7 @@ before_install:
   - sudo dpkg -i influxdb_0.13.0_amd64.deb
   # zkEnv.sh can't be overriden with the deb version of zookeeper, this workaround that
   - sudo chmod 777 /var/log/zookeeper
-  - wget http://www.apache.org/dist/kafka/1.0.2/kafka_2.12-1.0.2.tgz -O /opt/kafka.tar.gz
+  - wget https://archive.apache.org/dist/kafka/1.0.2/kafka_2.12-1.0.2.tgz -O /opt/kafka.tar.gz
   - tar -xzf /opt/kafka.tar.gz -C /opt
   - ln -s /opt/kafka_2.12-1.0.2 /opt/kafka
 install:
