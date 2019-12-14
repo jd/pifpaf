@@ -1,7 +1,7 @@
 connector {
     name: broker
     role: route-container
-    host: 0.0.0.0
+    host: 127.0.0.1
     port: {{ ARTEMIS_PORT }}
     sasl-mechanisms: ANONYMOUS
     linkCapacity: 1000
