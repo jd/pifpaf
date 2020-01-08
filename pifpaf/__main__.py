@@ -17,7 +17,6 @@ import logging
 import operator
 import os
 import signal
-import subprocess
 import sys
 import traceback
 
@@ -31,8 +30,11 @@ import pbr.version
 
 import pkg_resources
 
+import psutil
+
 import six
 
+from pifpaf import util
 
 LOG = daiquiri.getLogger("pifpaf")
 
@@ -173,22 +175,55 @@ class RunGroup(click.MultiCommand):
 
         if command:
             try:
-                with driver:
-                    putenv("PID", str(os.getpid()))
-                    putenv("DAEMON", daemon)
-                    url = os.getenv(driver.env_prefix + "_URL")
-                    putenv("%s_URL" % daemon.upper(), url)
-                    os.putenv(global_urls_variable,
-                              expand_urls_var(url))
-                    try:
-                        c = subprocess.Popen(command)
-                    except Exception:
-                        raise RuntimeError("Unable to start command: %s"
-                                           % " ".join(command))
-                    return c.wait()
+                driver.setUp()
             except fixtures.MultipleExceptions as e:
                 _format_multiple_exceptions(e, debug)
                 sys.exit(1)
+            except Exception:
+                LOG.error("Unable to start %s, "
+                          "use --debug for more information",
+                          daemon, exc_info=True)
+                sys.exit(1)
+
+            putenv("PID", str(os.getpid()))
+            putenv("DAEMON", daemon)
+            url = os.getenv(driver.env_prefix + "_URL")
+            putenv("%s_URL" % daemon.upper(), url)
+            os.putenv(global_urls_variable,
+                      expand_urls_var(url))
+
+            try:
+                c = psutil.Popen(command, preexec_fn=os.setsid)
+            except Exception:
+                driver.cleanUp()
+                raise RuntimeError("Unable to start command: %s"
+                                   % " ".join(command))
+            LOG.error(
+                "Command `%s` (pid %s) is ready:",
+                " ".join(command), c.pid
+            )
+
+            def _cleanup(signum=None, frame=None, ret=0):
+                signal.signal(signal.SIGTERM, signal.SIG_IGN)
+                signal.signal(signal.SIGHUP, signal.SIG_IGN)
+                signal.signal(signal.SIGINT, signal.SIG_IGN)
+                try:
+                    driver.cleanUp()
+                except Exception:
+                    LOG.error("Unexpected cleanUp error", exc_info=True)
+                util.process_cleaner(c)
+                sys.exit(1 if signum == signal.SIGINT else ret)
+
+            signal.signal(signal.SIGTERM, _cleanup)
+            signal.signal(signal.SIGHUP, _cleanup)
+            signal.signal(signal.SIGINT, _cleanup)
+            signal.signal(signal.SIGPIPE, signal.SIG_IGN)
+
+            try:
+                ret = c.wait()
+            except KeyboardInterrupt:
+                ret = 1
+            _cleanup(ret=ret)
         else:
             try:
                 driver.setUp()
