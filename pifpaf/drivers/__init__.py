@@ -12,7 +12,6 @@
 # limitations under the License.
 
 import contextlib
-import errno
 import logging
 import os
 import re
@@ -31,6 +30,9 @@ import jinja2
 import psutil
 
 import six
+
+from pifpaf import util
+
 
 try:
     import xattr
@@ -99,55 +101,10 @@ class Driver(fixtures.Fixture):
             raise RuntimeError("TMPDIR must support xattr for %s" %
                                self.__class__.__name__)
 
-    @staticmethod
-    def _get_procs_of_pgid(wanted_pgid):
-        procs = []
-        for p in psutil.process_iter():
-            try:
-                pgid = os.getpgid(p.pid)
-            except OSError as e:
-                # ESRCH is returned if process just died in the meantime
-                if e.errno != errno.ESRCH:
-                    raise
-                continue
-            if pgid == wanted_pgid:
-                procs.append(p)
-        return procs
-
     def _kill(self, parent):
-        do_sigkill = False
         log_thread = getattr(parent, "_log_thread", None)
-        # NOTE(sileht): Add processes from process tree and process group
-        # Relying on process tree only will not work in case of
-        # parent dying prematuraly and double fork
-        # Relying on process group only will not work in case of
-        # subprocess calling again setsid()
-        procs = set(self._get_procs_of_pgid(parent.pid))
-        try:
-            procs |= set(parent.children(recursive=True))
-            procs.add(parent)
-            parent.terminate()
-        except psutil.NoSuchProcess:
-            LOG.warning("`%s` is already gone, sending SIGKILL to its process "
-                        "group", parent)
-            do_sigkill = True
-        else:
-            # Waiting for all processes to stop
-            gone, alive = psutil.wait_procs(procs, timeout=10)
-            if alive:
-                do_sigkill = True
-                LOG.warning("`%s` didn't terminate cleanly after 10 seconds, "
-                            "sending SIGKILL to its process group", parent)
 
-        if do_sigkill and procs:
-            for p in procs:
-                try:
-                    p.kill()
-                except psutil.NoSuchProcess:
-                    pass
-            gone, alive = psutil.wait_procs(procs, timeout=10)
-            if alive:
-                LOG.warning("`%s` survive SIGKILL", alive)
+        util.process_cleaner(parent)
 
         if log_thread:
             # Parent process have been killed
