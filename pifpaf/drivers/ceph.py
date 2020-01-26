@@ -123,6 +123,7 @@ mon addr = 127.0.0.1:%(port)d
 
         ceph_opts = ["ceph", "-c", conffile]
         mon_opts = ["ceph-mon", "-c", conffile, "--id", "a", "-d"]
+        mgr_opts = ["ceph-mgr", "-c", conffile, "-d"]
         osd_opts = ["ceph-osd", "-c", conffile, "--id", "0", "-d",
                     "-m", "127.0.0.1:%d" % self.port]
 
@@ -132,6 +133,10 @@ mon addr = 127.0.0.1:%(port)d
         mon, _ = self._exec(
             mon_opts,
             wait_for_line=r"mon.a@0\(leader\).mds e1 print_map")
+
+        # Start manager
+        if version >= pkg_resources.parse_version("12.0.0"):
+            self._exec(mgr_opts, wait_for_line="mgr send_beacon active")
 
         # Create and start OSD
         self._exec(ceph_opts + ["osd", "create"])
