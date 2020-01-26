@@ -115,6 +115,11 @@ journal block align = false
 # run as file owner
 setuser match path = %(tempdir)s/$type/$cluster-$id
 
+[mon]
+mon pg warn min per osd = 0
+mon data avail warn = 2
+mon data avail crit = 1
+
 [mon.a]
 host = localhost
 mon addr = 127.0.0.1:%(port)d
