@@ -1,5 +1,6 @@
 build
 *.egg-info
+*.eggs
 dist
 AUTHORS
 ChangeLog
