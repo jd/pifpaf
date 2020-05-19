@@ -48,7 +48,8 @@ class MemcachedDriver(drivers.Driver):
         command = ["memcached", "-p " + str(self.port)]
 
         if self.ssl_chain_cert:
-            command.extend(["-Z", "-o" "ssl_verify_mode=1", "-o", "ssl_chain_cert=" + self.ssl_chain_cert])
+            command.extend(["-Z", "-o", "ssl_verify_mode=1",
+                            "-o", "ssl_chain_cert=" + self.ssl_chain_cert])
 
             if self.ssl_key:
                 command.extend(["-o", "ssl_key=" + self.ssl_key])
