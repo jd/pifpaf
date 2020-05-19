@@ -48,21 +48,13 @@ class MemcachedDriver(drivers.Driver):
         command = ["memcached", "-p " + str(self.port)]
 
         if self.ssl_chain_cert:
-            command.append("-Z")
-            command.append("-o")
-            command.append("ssl_verify_mode=1")
-            command.append("-o")
-            command.append("ssl_chain_cert=" + self.ssl_chain_cert)
+            command.extend(["-Z", "-o" "ssl_verify_mode=1", "-o", "ssl_chain_cert=" + self.ssl_chain_cert])
 
             if self.ssl_key:
-                command.append("-o")
-                command.append("ssl_key=" + self.ssl_key)
+                command.extend(["-o", "ssl_key=" + self.ssl_key])
 
             if self.ssl_ca_cert:
-                command.append("-o")
-                command.append("ssl_ca_cert=" + self.ssl_ca_cert)
-
-        print(command)
+                command.extend(["-o", "ssl_ca_cert=" + self.ssl_ca_cert])
 
         c, _ = self._exec(command, wait_for_port=self.port)
 
