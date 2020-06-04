@@ -198,8 +198,8 @@ class RunGroup(click.MultiCommand):
                 driver.cleanUp()
                 raise RuntimeError("Unable to start command: %s"
                                    % " ".join(command))
-            LOG.error(
-                "Command `%s` (pid %s) is ready:",
+            LOG.info(
+                "Command `%s` (pid %s) is ready",
                 " ".join(command), c.pid
             )
 
