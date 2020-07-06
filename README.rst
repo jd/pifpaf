@@ -68,7 +68,7 @@ Usage
 =====
 To use Pifpaf, simply call the `pifpaf run $daemon <command>` program that you
 need. It will setup the temporary environment and export a few environment
-variable for you to accesss it::
+variable for you to access it::
 
   $ pifpaf run postgresql psql template1
   Expanded display is used automatically.
