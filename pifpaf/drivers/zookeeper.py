@@ -43,7 +43,8 @@ class ZooKeeperDriver(drivers.Driver):
         cfgfile = os.path.join(self.tempdir, "zoo.cfg")
         with open(cfgfile, "w") as f:
             f.write("""dataDir=%s
-clientPort=%s""" % (self.tempdir, self.port))
+clientPort=%s
+4lw.commands.whitelist=*""" % (self.tempdir, self.port))
 
         logdir = os.path.join(self.tempdir, "log")
         os.mkdir(logdir)
@@ -54,7 +55,7 @@ clientPort=%s""" % (self.tempdir, self.port))
 
         c, _ = self._exec(
             ["zkServer.sh", "start", cfgfile],
-            wait_for_line="STARTED",
+            wait_for_port=self.port,
             path=self.PATH)
 
         self.addCleanup(self._exec,
