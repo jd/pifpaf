@@ -42,6 +42,7 @@ Pifpaf currently supports:
 * `MongoDB`_
 * `OpenStack Swift`_
 * `Vault`_
+* `HttpBin`_
 
 .. _Consul: https://www.consul.io/
 .. _PostgreSQL: http://postgresql.org
@@ -63,6 +64,7 @@ Pifpaf currently supports:
 .. _MongoDB: https://www.mongodb.com
 .. _OpenStack Swift: https://docs.openstack.org/developer/swift/
 .. _Vault: https://www.vaultproject.io/
+.. _HttpBin: https://httpbin.org/
 
 Usage
 =====
