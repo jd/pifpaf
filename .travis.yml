@@ -1,21 +1,21 @@
 language: python
-dist: trusty
+dist: bionic
 sudo: required
 cache:
   - pip
 python:
     - 2.7
     - 3.6
+    - 3.7
+    - 3.8
 before_install:
   # Always redownload tarball
   - find ~/.cache/pip -name '*.dev*' -delete
-  - wget -q -O- 'https://download.ceph.com/keys/release.asc' | sudo apt-key add -
-  - echo deb https://download.ceph.com/debian-luminous/ trusty main | sudo tee /etc/apt/sources.list.d/ceph.list
   - sudo apt-get -qq update
-  - sudo apt-get purge -y mysql-server-5.6 mysql-server-core-5.6 mysql-client-core-5.6 mysql-client-5.6 postgresql* libpq*
+  - sudo apt-get purge -y postgresql* libpq*
   - sudo rm -rf /var/lib/mysql
   # FIXME(sileht): readd rabbitmq-server when https://github.com/travis-ci/travis-cookbooks/issues/964 and https://github.com/travis-ci/travis-ci/issues/8906 are fixed
-  - sudo apt-get install -y mongodb-server mysql-server-5.5 redis-server zookeeper mongodb couchdb couchdb-bin nodejs npm ceph librados-dev python-dev gcc liberasurecode-dev liberasurecode1 postgresql libpq-dev
+  - sudo apt-get install -y mongodb-server mysql-server-5.7 redis-server zookeeper mongodb couchdb nodejs npm ceph librados-dev python-dev gcc liberasurecode-dev liberasurecode1 postgresql libpq-dev
   # - sudo gem install fakes3  # NOTE(sileht): fakes3 looks not installed correctly
   # - sudo npm install s3rver -g
   - wget https://dl.influxdata.com/influxdb/releases/influxdb_0.13.0_amd64.deb
