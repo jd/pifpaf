@@ -19,8 +19,7 @@ class HttpBinDriver(drivers.Driver):
 
     DEFAULT_PORT = 5000
 
-    def __init__(self, port=DEFAULT_PORT, ssl_chain_cert=None, ssl_key=None,
-                 ssl_ca_cert=None, **kwargs):
+    def __init__(self, port=DEFAULT_PORT, **kwargs):
         """Create a new httpbin server."""
         super(HttpBinDriver, self).__init__(**kwargs)
         self.port = port
@@ -37,7 +36,8 @@ class HttpBinDriver(drivers.Driver):
     def _setUp(self):
         super(HttpBinDriver, self)._setUp()
 
-        command = [sys.executable, "-m", "httpbin.core", "--port", str(self.port)]
+        command = [sys.executable, "-m", "httpbin.core", "--port",
+                   str(self.port)]
 
         c, _ = self._exec(command, wait_for_port=self.port)
 
