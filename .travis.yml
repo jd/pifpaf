@@ -22,9 +22,9 @@ before_install:
   - sudo dpkg -i influxdb_0.13.0_amd64.deb
   # zkEnv.sh can't be overriden with the deb version of zookeeper, this workaround that
   - sudo chmod 777 /var/log/zookeeper
-  - wget https://archive.apache.org/dist/kafka/1.0.2/kafka_2.12-1.0.2.tgz -O /opt/kafka.tar.gz
+  - wget https://archive.apache.org/dist/kafka/2.6.0/kafka_2.12-2.6.0.tgz -O /opt/kafka.tar.gz
   - tar -xzf /opt/kafka.tar.gz -C /opt
-  - ln -s /opt/kafka_2.12-1.0.2 /opt/kafka
+  - ln -s /opt/kafka_2.12-2.6.0 /opt/kafka
 install:
     # The install requirements in travis virtualenv that will be cached
   - pip install tox-travis .[test,ceph]
