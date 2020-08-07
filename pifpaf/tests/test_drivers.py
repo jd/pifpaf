@@ -38,6 +38,7 @@ from pifpaf.drivers import elasticsearch
 from pifpaf.drivers import etcd
 from pifpaf.drivers import fakes3
 from pifpaf.drivers import gnocchi
+from pifpaf.drivers import httpbin
 from pifpaf.drivers import influxdb
 from pifpaf.drivers import kafka
 from pifpaf.drivers import keystone
@@ -534,6 +535,16 @@ class TestDrivers(testtools.TestCase):
         self.assertEqual(
             "swift://test%3Atester:testing@localhost:8080/auth/v1.0",
             os.getenv("PIFPAF_URL"))
+
+    @testtools.skipUnless(testtools.try_import('httpbin'),
+                          "httpbin not found")
+    def test_httpbin(self):
+        port = 6666
+        a = self.useFixture(httpbin.HttpBinDriver(port=port))
+        self.assertEqual(port, a.port)
+        r = requests.get("http://127.0.0.1:%d/ip" % port)
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.json()["origin"], "127.0.0.1")
 
     def _get_tmpdir_for_xattr(self):
         tmp_rootdir = os.getenv("TMPDIR_FOR_XATTR")
