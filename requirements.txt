@@ -2,7 +2,6 @@ daiquiri
 click
 pbr
 jinja2
-six
 fixtures
 psutil
 xattr ; sys_platform != 'win32'

@@ -32,8 +32,6 @@ import pkg_resources
 
 import psutil
 
-import six
-
 from pifpaf import util
 
 LOG = daiquiri.getLogger("pifpaf")
@@ -267,7 +265,7 @@ class RunGroup(click.MultiCommand):
                     "PS1":
                     "(pifpaf/" + daemon + ") " + os.getenv("PS1", ""),
                 })
-                for k, v in six.iteritems(driver.env):
+                for k, v in driver.env.items():
                     print("export %s=\"%s\";" % (k, v))
                 print("%(prefix_lower)s_stop () { "
                       "if test -z \"$%(prefix)s_PID\"; then "

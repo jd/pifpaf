@@ -16,7 +16,7 @@ import logging
 import os
 import threading
 
-from six.moves import socketserver
+import socketserver
 
 from pifpaf import drivers
 from pifpaf.drivers import memcached

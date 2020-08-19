@@ -19,7 +19,7 @@ from distutils import version
 
 import click
 
-import six.moves.urllib.parse as urlparse
+import urllib.parse
 
 from pifpaf import drivers
 from pifpaf.drivers import postgresql
@@ -103,15 +103,15 @@ class GnocchiDriver(drivers.Driver):
 
         conffile = os.path.join(self.tempdir, "gnocchi.conf")
 
-        storage_parsed = urlparse.urlparse(self.storage_url)
+        storage_parsed = urllib.parse.urlparse(self.storage_url)
         storage_driver = storage_parsed.scheme
 
         if storage_driver == "s3":
             storage_config = {
-                "s3_access_key_id": (urlparse.unquote(
+                "s3_access_key_id": (urllib.parse.unquote(
                     storage_parsed.username or "gnocchi")),
                 "s3_secret_access_key": (
-                    urlparse.unquote(
+                    urllib.parse.unquote(
                         storage_parsed.password or "whatever")),
                 "s3_endpoint_url": "http://%s:%s/%s" % (
                     storage_parsed.hostname,
@@ -126,9 +126,9 @@ class GnocchiDriver(drivers.Driver):
                     storage_parsed.port,
                     storage_parsed.path,
                 ),
-                "swift_user": (urlparse.unquote(
+                "swift_user": (urllib.parse.unquote(
                     storage_parsed.username or "admin:admin")),
-                "swift_key": (urlparse.unquote(
+                "swift_key": (urllib.parse.unquote(
                     storage_parsed.password or "admin")),
             }
         elif storage_driver == "ceph":
@@ -195,7 +195,7 @@ url = %s""" % (self.debug,
                                          "|Created resource )"))
 
         _, v = self._exec(["gnocchi-api", "--", "--version"], stdout=True)
-        v = version.LooseVersion(drivers.fsdecode(v).strip())
+        v = version.LooseVersion(os.fsdecode(v).strip())
         if v < version.LooseVersion("4.1.0"):
             LOG.debug("gnocchi version: %s, running uwsgi manually for api", v)
             args = [

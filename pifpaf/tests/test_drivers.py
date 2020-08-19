@@ -24,8 +24,6 @@ import psutil
 
 import requests
 
-import six
-
 import testtools
 
 from pifpaf import drivers
@@ -329,7 +327,6 @@ class TestDrivers(testtools.TestCase):
 
     @testtools.skipUnless(spawn.find_executable("gnocchi-api"),
                           "Gnocchi not found")
-    @testtools.skipUnless(six.PY2, "Swift does not support PY3")
     @testtools.skipUnless(spawn.find_executable("swift-proxy-server"),
                           "Swift not found")
     def test_gnocchi_with_existing_swift(self):
@@ -517,7 +514,6 @@ class TestDrivers(testtools.TestCase):
         self.assertEqual("PLAINTEXT://localhost:54321",
                          os.getenv("PIFPAF_KAFKA_URL"))
 
-    @testtools.skipUnless(six.PY2, "Swift does not support PY3")
     @testtools.skipUnless(spawn.find_executable("swift-proxy-server"),
                           "Swift not found")
     def test_swift(self):
