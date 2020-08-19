@@ -29,8 +29,6 @@ import jinja2
 
 import psutil
 
-import six
-
 from pifpaf import util
 
 
@@ -39,20 +37,8 @@ try:
 except ImportError:
     xattr = None
 
-if six.PY3:
-    fsdecode = os.fsdecode
-else:
-    def fsdecode(s):
-        if isinstance(s, unicode):  # noqa
-            return s
-        return s.decode(sys.getfilesystemencoding())
-
 
 LOG = logging.getLogger(__name__)
-
-if six.PY2:
-    # This is defined only on Python 3
-    ProcessLookupError = None  # noqa
 
 
 class Driver(fixtures.Fixture):
@@ -145,7 +131,7 @@ class Driver(fixtures.Fixture):
 
     @staticmethod
     def _log_output(appname, pid, data):
-        data = fsdecode(data)
+        data = os.fsdecode(data)
         LOG.debug("%s[%d] output: %s", appname, pid, data.rstrip())
 
     def _exec(self, command, stdout=False, ignore_failure=False,
@@ -215,7 +201,7 @@ class Driver(fixtures.Fixture):
                             "Program did not print: `%s'\nOutput: %s"
                             % (wait_for_line, b"".join(lines)))
                     break
-                decoded_line = fsdecode(line)
+                decoded_line = os.fsdecode(line)
 
                 if wait_for_line and re.search(wait_for_line,
                                                decoded_line):
@@ -237,7 +223,7 @@ class Driver(fixtures.Fixture):
                         line = c.stdout.readline()
                         self._log_output(app, c.pid, line)
                         lines.append(line)
-                if line and re.search(forbidden_output, fsdecode(line)):
+                if line and re.search(forbidden_output, os.fsdecode(line)):
                     raise RuntimeError(
                         "Program print a forbidden line: `%s'\nOutput: %s"
                         % (forbidden_output, b"".join(lines)))
