@@ -14,9 +14,8 @@
 import getpass
 import logging
 import os
-import threading
-
 import socketserver
+import threading
 
 from pifpaf import drivers
 from pifpaf.drivers import memcached

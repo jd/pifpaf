@@ -13,13 +13,12 @@
 import logging
 import os
 import shutil
+import urllib.parse
 import uuid
 from distutils import spawn
 from distutils import version
 
 import click
-
-import urllib.parse
 
 from pifpaf import drivers
 from pifpaf.drivers import postgresql
