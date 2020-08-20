@@ -57,6 +57,8 @@ class MemcachedDriver(drivers.Driver):
             if self.ssl_ca_cert:
                 command.extend(["-o", "ssl_ca_cert=" + self.ssl_ca_cert])
 
+            self.putenv("MEMCACHED_TLS_ENABLED", "1")
+
         c, _ = self._exec(command, wait_for_port=self.port)
 
         self.putenv("MEMCACHED_PORT", str(self.port))
