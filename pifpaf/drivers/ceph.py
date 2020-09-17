@@ -88,6 +88,7 @@ osd crush chooseleaf type = 0
 ## some default path change
 run dir = %(tempdir)s
 pid file = %(tempdir)s/$type.$id.pid
+max open files = 1024
 admin socket = %(tempdir)s/$cluster-$name.asok
 mon data = %(tempdir)s/mon/$cluster-$id
 osd data = %(tempdir)s/osd/$cluster-$id
