@@ -4,4 +4,5 @@ pbr
 jinja2
 fixtures
 psutil
+trustme
 xattr ; sys_platform != 'win32'
