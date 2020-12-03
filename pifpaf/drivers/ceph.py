@@ -65,6 +65,14 @@ osd_failsafe_full_ratio = 1
 mon_allow_pool_delete = true
 """
 
+        # Enable msgrv2 protocol if Nautilus or later.
+        if version >= pkg_resources.parse_version("14.0.0"):
+            msgrv2_extra = """
+mon_host = v2:127.0.0.1:%(port)d/0
+"""
+        else:
+            msgrv2_extra = ""
+
         # FIXME(sileht): check availible space on /dev/shm
         # if os.path.exists("/dev/shm") and os.access('/dev/shm', os.W_OK):
         #     journal_path = "/dev/shm/$cluster-$id-journal"
@@ -74,6 +82,7 @@ mon_allow_pool_delete = true
         with open(conffile, "w") as f:
             f.write("""[global]
 fsid = %(fsid)s
+%(msgrv2_extra)s
 
 # no auth for now
 auth cluster required = none
@@ -124,8 +133,8 @@ mon data avail crit = 1
 [mon.a]
 host = localhost
 mon addr = 127.0.0.1:%(port)d
-""" % dict(fsid=fsid, tempdir=self.tempdir, port=self.port,
-           journal_path=journal_path, extra=extra))  # noqa
+""" % dict(fsid=fsid, msgrv2_extra=msgrv2_extra, tempdir=self.tempdir,
+           port=self.port, journal_path=journal_path, extra=extra))  # noqa
 
         ceph_opts = ["ceph", "-c", conffile]
         mon_opts = ["ceph-mon", "-c", conffile, "--id", "a", "-d"]
@@ -142,7 +151,7 @@ mon addr = 127.0.0.1:%(port)d
 
         # Start manager
         if version >= pkg_resources.parse_version("12.0.0"):
-            self._exec(mgr_opts, wait_for_line="mgr send_beacon active")
+            self._exec(mgr_opts, wait_for_line="(mgr send_beacon active|waiting for OSDs)")
 
         # Create and start OSD
         self._exec(ceph_opts + ["osd", "create"])
