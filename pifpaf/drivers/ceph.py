@@ -69,7 +69,7 @@ mon_allow_pool_delete = true
         if version >= pkg_resources.parse_version("14.0.0"):
             msgrv2_extra = """
 mon_host = v2:127.0.0.1:%(port)d/0
-"""
+""" % dict(port=self.port)
         else:
             msgrv2_extra = ""
 
