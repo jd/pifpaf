@@ -148,14 +148,12 @@ class Driver(fixtures.Fixture):
         if stdout or wait_for_line or debug:
             stdout_fd = subprocess.PIPE
         else:
-            # TODO(jd) Need to close at some point
-            stdout_fd = open(os.devnull, 'w')
+            stdout_fd = subprocess.DEVNULL
 
         if stdin:
             stdin_fd = subprocess.PIPE
         else:
-            # TODO(jd) Need to close at some point
-            stdin_fd = open(os.devnull, 'r')
+            stdout_fd = subprocess.DEVNULL
 
         if path or env:
             complete_env = dict(os.environ)
