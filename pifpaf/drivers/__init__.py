@@ -154,7 +154,7 @@ class Driver(fixtures.Fixture):
             stdout_fd = subprocess.DEVNULL
 
         if stdin:
-            stdin_fd = subprocess.PIPE
+            stdout_fd = subprocess.PIPE
         else:
             stdout_fd = subprocess.DEVNULL
 
