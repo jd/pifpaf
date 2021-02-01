@@ -98,9 +98,6 @@ class Driver(fixtures.Fixture):
             if log_thread.is_alive():
                 LOG.warning("logging thread for `%s` is still alive", parent)
 
-        # Make sure we don't leak the resource by waiting and reading the returncode
-        parent.communicate()
-
     @staticmethod
     def find_executable(filename, extra_paths):
         paths = extra_paths + os.getenv('PATH', os.defpath).split(os.pathsep)

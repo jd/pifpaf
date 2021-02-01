@@ -76,3 +76,6 @@ def process_cleaner(parent):
         gone, alive = psutil.wait_procs(procs, timeout=10)
         if alive:
             LOG.warning("`%s` survive SIGKILL", alive)
+
+    # Be sure to get returncode
+    parent.wait()
