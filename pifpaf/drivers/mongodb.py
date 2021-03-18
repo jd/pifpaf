@@ -48,8 +48,6 @@ class MongoDBDriver(drivers.Driver):
         c, _ = self._exec(
             ["mongod",
              "--nojournal",
-             "--noprealloc",
-             "--smallfiles",
              "--quiet",
              "--noauth",
              "--port", str(self.port),
