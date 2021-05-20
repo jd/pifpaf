@@ -39,7 +39,7 @@ class S3rverDriver(drivers.Driver):
             ["s3rver",
              "--directory", self.tempdir,
              "--port", str(self.port)],
-            wait_for_line="now listening on host")
+            wait_for_line="(now listening on host|S3rver listening on)")
 
         self.putenv("S3RVER_PORT", str(self.port))
         self.putenv("URL", "s3://localhost:%d" % self.port)
