@@ -79,7 +79,7 @@ class TestDrivers(testtools.TestCase):
         )
 
     def _run(self, cmd):
-        self.assertEqual(0, os.system(cmd + " >/dev/null 2>&1"))
+        self.assertEqual(0, os.system(cmd))
 
     def _do_test_stuck(self, cmd):
         d = drivers.Driver(debug=True)
@@ -129,7 +129,7 @@ class TestDrivers(testtools.TestCase):
         self.assertEqual(str(port), os.getenv("PIFPAF_ETCD_PORT"))
         r = requests.get("http://localhost:%d/version" % port)
         self.assertEqual(200, r.status_code)
-        self._run("etcdctl cluster-health")
+        self._run("etcdctl endpoint health")
 
     @testtools.skipUnless(spawn.find_executable("etcd"),
                           "etcd not found")
@@ -143,7 +143,7 @@ class TestDrivers(testtools.TestCase):
         self.assertEqual(str(port), os.getenv("PIFPAF_ETCD_PORT"))
         r = requests.get("http://localhost:%d/version" % port)
         self.assertEqual(200, r.status_code)
-        self._run("etcdctl cluster-health")
+        self._run("etcdctl endpoint health")
 
     @testtools.skipUnless(spawn.find_executable("consul"),
                           "consul not found")
