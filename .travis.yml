@@ -24,6 +24,10 @@ before_install:
   - wget https://archive.apache.org/dist/kafka/2.6.0/kafka_2.12-2.6.0.tgz -O /opt/kafka.tar.gz
   - tar -xzf /opt/kafka.tar.gz -C /opt
   - ln -s /opt/kafka_2.12-2.6.0 /opt/kafka
+  - wget https://github.com/etcd-io/etcd/releases/download/v3.4.13/etcd-v3.4.13-linux-amd64.tar.gz -O /opt/etcd.tar.gz
+  - tar -zxf /opt/etcd.tar.gz -C /opt
+  - ln -s /opt/etcd-v3.4.13-linux-amd64/etcd /opt/etcd
+  - ln -s /opt/etcd-v3.4.13-linux-amd64/etcdctl /opt/etcdctl
 install:
     # The install requirements in travis virtualenv that will be cached
   - pip install tox-travis .[test,ceph]

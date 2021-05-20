@@ -120,6 +120,8 @@ class TestDrivers(testtools.TestCase):
 
     @testtools.skipUnless(spawn.find_executable("etcd"),
                           "etcd not found")
+    @testtools.skipUnless(spawn.find_executable("etcdctl"),
+                          "etcdctl not found")
     def test_etcd(self):
         port = 4005
         peer_port = 4006
@@ -129,10 +131,12 @@ class TestDrivers(testtools.TestCase):
         self.assertEqual(str(port), os.getenv("PIFPAF_ETCD_PORT"))
         r = requests.get("http://localhost:%d/version" % port)
         self.assertEqual(200, r.status_code)
-        self._run("etcdctl cluster-health")
+        self._run("etcdctl endpoint health")
 
     @testtools.skipUnless(spawn.find_executable("etcd"),
                           "etcd not found")
+    @testtools.skipUnless(spawn.find_executable("etcdctl"),
+                          "etcdctl not found")
     def test_etcd_cluster(self):
         port = 4007
         peer_port = 4008
@@ -143,7 +147,7 @@ class TestDrivers(testtools.TestCase):
         self.assertEqual(str(port), os.getenv("PIFPAF_ETCD_PORT"))
         r = requests.get("http://localhost:%d/version" % port)
         self.assertEqual(200, r.status_code)
-        self._run("etcdctl cluster-health")
+        self._run("etcdctl endpoint health")
 
     @testtools.skipUnless(spawn.find_executable("consul"),
                           "consul not found")
