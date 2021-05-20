@@ -130,6 +130,9 @@ mon pg warn min per osd = 0
 mon data avail warn = 2
 mon data avail crit = 1
 
+# Ceph CVE CVE-2021-20288 to prevent HEALTH_WARN
+auth allow insecure global id reclaim = false
+
 [mon.a]
 host = localhost
 mon addr = 127.0.0.1:%(port)d
