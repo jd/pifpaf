@@ -108,10 +108,10 @@ class GnocchiDriver(drivers.Driver):
         if storage_driver == "s3":
             storage_config = {
                 "s3_access_key_id": (urllib.parse.unquote(
-                    storage_parsed.username or "gnocchi")),
+                    storage_parsed.username or "S3RVER")),
                 "s3_secret_access_key": (
                     urllib.parse.unquote(
-                        storage_parsed.password or "whatever")),
+                        storage_parsed.password or "S3RVER")),
                 "s3_endpoint_url": "http://%s:%s/%s" % (
                     storage_parsed.hostname,
                     storage_parsed.port,
