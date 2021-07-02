@@ -115,6 +115,9 @@ osd op threads = 10
 filestore max sync interval = 10001
 filestore min sync interval = 10000
 
+# disable POOL_NO_REDUNDANCY warning
+mon_warn_on_pool_no_redundancy = false
+
 %(extra)s
 
 journal_aio = false
