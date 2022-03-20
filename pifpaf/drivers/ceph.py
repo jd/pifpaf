@@ -115,6 +115,9 @@ osd op threads = 10
 filestore max sync interval = 10001
 filestore min sync interval = 10000
 
+# disable POOL_NO_REDUNDANCY warning
+mon_warn_on_pool_no_redundancy = false
+
 %(extra)s
 
 journal_aio = false
@@ -129,6 +132,9 @@ setuser match path = %(tempdir)s/$type/$cluster-$id
 mon pg warn min per osd = 0
 mon data avail warn = 2
 mon data avail crit = 1
+
+# Ceph CVE CVE-2021-20288 to prevent HEALTH_WARN
+auth allow insecure global id reclaim = false
 
 [mon.a]
 host = localhost
