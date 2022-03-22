@@ -1,14 +1,18 @@
+queue_rules:
+  - name: default
+    conditions:
+      - status-success=continuous-integration/travis-ci/pr
+
 pull_request_rules:
   - name: automatic merge
     conditions:
       - base=master
-      - status-success=continuous-integration/travis-ci/pr
       - "#approved-reviews-by>=1"
       - label!=work-in-progress
     actions:
-      merge:
-        strict: "smart"
-        method: rebase
+      queue:
+        method: merge
+        name: default
   - name: dismiss reviews
     conditions: []
     actions:
