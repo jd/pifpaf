@@ -1,7 +1,6 @@
 queue_rules:
   - name: default
-    conditions:
-      - check-success=continuous-integration/travis-ci/pr
+    conditions: []
 
 pull_request_rules:
   - name: automatic merge
