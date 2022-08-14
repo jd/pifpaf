@@ -11,6 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import os
+import threading
 
 from pifpaf import drivers
 
@@ -54,9 +55,11 @@ class EtcdDriver(drivers.Driver):
             http_urls = [("http://localhost:%d" % (p + 1),
                           "http://localhost:%d" % p)
                          for p in (self.port, self.port + 2, self.port + 4)]
+            execs = []
             for i, (peer_url, client_url) in enumerate(http_urls):
                 tempdir = os.path.join(self.tempdir, str(i))
-                c, _ = self._exec([
+
+                t = threading.Thread(target=self._exec, args=([
                     "etcd",
                     "--data-dir", tempdir,
                     "--name", "pifpaf%d" % i,
@@ -69,8 +72,11 @@ class EtcdDriver(drivers.Driver):
                                                   for i, (peer_url, client_url)
                                                   in enumerate(http_urls)),
                     "--initial-cluster-state", "new",
-                ], wait_for_line="listening for peers on")
-
+                ],), kwargs={"wait_for_line": "ready to serve client requests"})
+                t.start()
+                execs.append(t)
+            for t in execs:
+                t.join()
             endpoints = ",".join(client_url
                                  for peer_url, client_url in http_urls)
         else:
