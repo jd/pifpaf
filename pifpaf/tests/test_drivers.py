@@ -372,8 +372,8 @@ class TestDrivers(testtools.TestCase):
         ceph_driver = ceph.CephDriver(tmp_rootdir=tmp_rootdir)
         self.useFixture(ceph_driver)
 
-        ceph_driver._exec(["rados", "-c", os.getenv("CEPH_CONF"), "mkpool",
-                           "gnocchi"]),
+        ceph_driver._exec(["ceph", "-c", os.getenv("CEPH_CONF"), "osd",
+                           "pool", "create", "gnocchi"]),
 
         self.useFixture(gnocchi.GnocchiDriver(
             storage_url="ceph://%s" % os.getenv("CEPH_CONF"),
