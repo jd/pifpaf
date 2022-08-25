@@ -26,6 +26,7 @@ before_install:
   - tar -zxf /opt/etcd.tar.gz -C /opt
   - ln -s /opt/etcd-v3.4.13-linux-amd64/etcd /opt/etcd
   - ln -s /opt/etcd-v3.4.13-linux-amd64/etcdctl /opt/etcdctl
+  - export PATH=${PATH}:/opt/
 install:
     # The install requirements in travis virtualenv that will be cached
   - pip install tox-travis .[test,ceph]
