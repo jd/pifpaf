@@ -14,7 +14,7 @@ before_install:
   - sudo apt-get purge -y postgresql* libpq*
   - sudo rm -rf /var/lib/mysql
   # FIXME(sileht): readd rabbitmq-server when https://github.com/travis-ci/travis-cookbooks/issues/964 and https://github.com/travis-ci/travis-ci/issues/8906 are fixed
-  - sudo apt-get install -y mongodb-server mysql-server redis-server zookeeper mongodb couchdb nodejs npm ceph librados-dev python-dev gcc liberasurecode-dev liberasurecode1 postgresql libpq-dev
+  - sudo apt-get install -y mongodb-server mysql-server redis-server zookeeper mongodb couchdb nodejs npm ceph librados-dev python-dev gcc liberasurecode-dev liberasurecode1 postgresql libpq-dev python3-rados
   # - sudo gem install fakes3  # NOTE(sileht): fakes3 looks not installed correctly
   # - sudo npm install s3rver -g
   - wget https://dl.influxdata.com/influxdb/releases/influxdb_0.13.0_amd64.deb
