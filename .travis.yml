@@ -4,8 +4,6 @@ sudo: required
 cache:
   - pip
 python:
-    - 3.6
-    - 3.7
     - 3.8
 before_install:
   # Always redownload tarball
