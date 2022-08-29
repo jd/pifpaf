@@ -72,7 +72,9 @@ class EtcdDriver(drivers.Driver):
                                                   for i, (peer_url, client_url)
                                                   in enumerate(http_urls)),
                     "--initial-cluster-state", "new",
-                ],), kwargs={"wait_for_line": "ready to serve client requests"})
+                ],), kwargs={
+                    "wait_for_line": "ready to serve client requests"
+                })
                 t.start()
                 execs.append(t)
             for t in execs:
