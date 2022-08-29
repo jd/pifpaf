@@ -177,7 +177,7 @@ class RunGroup(click.MultiCommand):
             except fixtures.MultipleExceptions as e:
                 _format_multiple_exceptions(e, debug)
                 sys.exit(1)
-            except Exception:
+            except Exception:  # noqa: B902
                 LOG.error("Unable to start %s, "
                           "use --debug for more information",
                           daemon, exc_info=True)
@@ -192,7 +192,7 @@ class RunGroup(click.MultiCommand):
 
             try:
                 c = psutil.Popen(command, preexec_fn=os.setsid)
-            except Exception:
+            except Exception:  # noqa: B902
                 driver.cleanUp()
                 raise RuntimeError("Unable to start command: %s"
                                    % " ".join(command))
@@ -207,7 +207,7 @@ class RunGroup(click.MultiCommand):
                 signal.signal(signal.SIGINT, signal.SIG_IGN)
                 try:
                     driver.cleanUp()
-                except Exception:
+                except Exception:  # noqa: B902
                     LOG.error("Unexpected cleanUp error", exc_info=True)
                 util.process_cleaner(c)
                 sys.exit(1 if signum == signal.SIGINT else ret)
@@ -228,7 +228,7 @@ class RunGroup(click.MultiCommand):
             except fixtures.MultipleExceptions as e:
                 _format_multiple_exceptions(e, debug)
                 sys.exit(1)
-            except Exception:
+            except Exception:  # noqa: B902
                 LOG.error("Unable to start %s, "
                           "use --debug for more information",
                           daemon, exc_info=True)

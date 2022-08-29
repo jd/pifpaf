@@ -157,7 +157,9 @@ mon addr = 127.0.0.1:%(port)d
 
         # Start manager
         if version >= pkg_resources.parse_version("12.0.0"):
-            self._exec(mgr_opts, wait_for_line="(mgr send_beacon active|waiting for OSDs)")
+            self._exec(
+                mgr_opts,
+                wait_for_line="(mgr send_beacon active|waiting for OSDs)")
 
         # Create and start OSD
         self._exec(ceph_opts + ["osd", "create"])

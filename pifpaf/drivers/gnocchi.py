@@ -15,7 +15,6 @@ import os
 import shutil
 import urllib.parse
 import uuid
-from distutils import spawn
 
 import click
 
