@@ -334,14 +334,22 @@ class TestDrivers(testtools.TestCase):
     @testtools.skipUnless(spawn.find_executable("swift-proxy-server"),
                           "Swift not found")
     def test_gnocchi_with_existing_swift(self):
-        tmp_rootdir = self._get_tmpdir_for_xattr()
-        self.useFixture(swift.SwiftDriver(tmp_rootdir=tmp_rootdir))
-        self.useFixture(gnocchi.GnocchiDriver(
-            storage_url=os.getenv("PIFPAF_URL")))
-        self.assertEqual("gnocchi://localhost:8041",
-                         os.getenv("PIFPAF_URL"))
-        r = requests.get("http://localhost:8041/")
-        self.assertEqual(200, r.status_code)
+        # This test produces a lot of logs and causes an error:
+        #   `Length too long: 25727093`.
+        # To reduce log size, temporary disable debug log.
+        level = drivers.LOG.getEffectiveLevel()
+        drivers.LOG.setLevel(logging.INFO)
+        try:
+            tmp_rootdir = self._get_tmpdir_for_xattr()
+            self.useFixture(swift.SwiftDriver(tmp_rootdir=tmp_rootdir))
+            self.useFixture(gnocchi.GnocchiDriver(
+                storage_url=os.getenv("PIFPAF_URL")))
+            self.assertEqual("gnocchi://localhost:8041",
+                             os.getenv("PIFPAF_URL"))
+            r = requests.get("http://localhost:8041/")
+            self.assertEqual(200, r.status_code)
+        finally:
+            drivers.LOG.setLevel(level)
 
     @testtools.skipUnless(spawn.find_executable("gnocchi-api"),
                           "Gnocchi not found")
