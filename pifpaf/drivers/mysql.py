@@ -10,9 +10,12 @@
 # implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import logging
 import os
 
 from pifpaf import drivers
+
+LOG = logging.getLogger(__name__)
 
 
 class MySQLDriver(drivers.Driver):
@@ -23,11 +26,24 @@ class MySQLDriver(drivers.Driver):
         tempdir = os.path.join(self.tempdir, "tmp")
         os.mkdir(datadir)
         os.mkdir(tempdir)
+
+        c, out = self._exec(["whoami"], stdout=True, ignore_failure=True,
+                            path=["/usr/libexec"])
+
+        if isinstance(out, bytes):
+            out = out.decode('UTF-8')
+
+        if not isinstance(out, str):
+            out = str(out)
+
+        mysql_user_to_use = out.strip()
+
         c, _ = self._exec(["mysqld",
                            "--no-defaults",
                            "--tmpdir=" + tempdir,
                            "--initialize-insecure",
-                           "--datadir=" + datadir],
+                           "--datadir=" + datadir,
+                           "--user=%s" % mysql_user_to_use],
                           ignore_failure=True,
                           path=["/usr/libexec"])
         if c.returncode != 0:
@@ -42,7 +58,8 @@ class MySQLDriver(drivers.Driver):
                            "--datadir=" + datadir,
                            "--socket=" + self.socket,
                            "--skip-networking",
-                           "--skip-grant-tables"],
+                           "--skip-grant-tables",
+                           "--user=%s" % mysql_user_to_use],
                           wait_for_line="mysqld: ready for connections.",
                           path=["/usr/libexec"])
         self._exec(["mysql",
