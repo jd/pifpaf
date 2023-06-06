@@ -27,16 +27,7 @@ class MySQLDriver(drivers.Driver):
         os.mkdir(datadir)
         os.mkdir(tempdir)
 
-        c, out = self._exec(["whoami"], stdout=True, ignore_failure=True,
-                            path=["/usr/libexec"])
-
-        if isinstance(out, bytes):
-            out = out.decode('UTF-8')
-
-        if not isinstance(out, str):
-            out = str(out)
-
-        mysql_user_to_use = out.strip()
+        mysql_user_to_use = os.getlogin()
 
         c, _ = self._exec(["mysqld",
                            "--no-defaults",
