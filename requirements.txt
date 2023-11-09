@@ -1,7 +1,0 @@
-daiquiri
-click
-pbr
-jinja2
-fixtures
-psutil
-xattr ; sys_platform != 'win32'
