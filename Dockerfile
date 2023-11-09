@@ -1,18 +1,18 @@
-FROM ubuntu:focal
+FROM ubuntu:22.04
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=Etc/UTC
-ENV PBR_VERSION=1.2.3
-ENV TOX_TESTENV_PASSENV=PBR_VERSION
 
 ARG INFLUXDB_VERSION=0.13.0
 ARG SCALA_VERSION=2.12
 ARG KAFKA_VERSION=2.6.0
 ARG ETCD_VERSION=3.4.13
 
-RUN apt-get -qq update \
-    && apt-get install -y mongodb-server mysql-server redis-server zookeeper mongodb nodejs npm ceph librados-dev \
-          python3 python3-dev python3-pip gcc liberasurecode-dev liberasurecode1 postgresql libpq-dev python3-rados \
-          git wget memcached \
+RUN apt-get update -y && apt-get install -qy gnupg software-properties-common
+RUN add-apt-repository -y ppa:deadsnakes/ppa
+RUN apt-get -qq update -y \
+    && apt-get install -y mysql-server redis-server zookeeper nodejs npm ceph librados-dev \
+          python3 python3-dev python3-pip python3.9 python3.9-dev python3.9-distutils \
+          gcc liberasurecode-dev liberasurecode1 postgresql libpq-dev python3-rados git wget memcached \
     && rm -rf /var/lib/apt/lists/*
 
 RUN wget https://dl.influxdata.com/influxdb/releases/influxdb_${INFLUXDB_VERSION}_amd64.deb \
@@ -34,12 +34,6 @@ RUN pip install -U tox
 
 RUN useradd -ms /bin/bash pifpaf
 USER pifpaf
-RUN mkdir /home/pifpaf/pifpaf
+RUN mkdir /home/pifpaf/tmpxattr
+ENV TMP_FOR_XATTR=/home/pifpaf/tmpxattr
 WORKDIR /home/pifpaf/pifpaf
-RUN mkdir tmpxattr
-
-COPY tox.ini pyproject.toml setup.py setup.cfg requirements.txt README.rst ./
-RUN tox -epy38,pep8 --sitepackages --notest
-
-COPY . ./
-CMD ["tox", "-epy38,pep8", "--sitepackages"]

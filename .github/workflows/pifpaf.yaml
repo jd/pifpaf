@@ -1,0 +1,50 @@
+name: Pifpaf
+
+on:
+  pull_request:
+
+env:
+  INFLUXDB_VERSION: "0.13.0"
+  SCALA_VERSION: "2.12"
+  KAFKA_VERSION: "2.6.0"
+  ETCD_VERSION: "3.4.13"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        env:
+          - py310
+          - pep8
+          - build
+    steps:
+    - uses: actions/checkout@v4
+    - run: sudo chown -R 1000:1000 $GITHUB_WORKSPACE
+    - uses: dorny/paths-filter@v2
+      id: changes
+      with:
+        filters: |
+          ci_image:
+              - 'Dockerfile'
+      - uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+        if: steps.changes.outputs.ci_image == 'false'
+      - run: docker pull ghcr.io/pifpaf/ci:latest
+        if: steps.changes.outputs.ci_image == 'false'
+      - uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: false
+          build-args: |
+            INFLUXDB_VERSION=${{ env.INFLUXDB_VERSION }}
+            SCALA_VERSION=${{ env.SCALA_VERSION }}
+            KAFKA_VERSION=${{ env.KAFKA_VERSION }}
+            ETCD_VERSION=${{ env.ETCD_VERSION }}
+          tags: ghcr.io/pifpaf/ci:latest
+        if: steps.changes.outputs.ci_image == 'true'
+    - name: Run tox
+      run: docker run --rm -v ${{ github.workspace }}:/home/pifpaf/pifpaf ghcr.io/pifpaf/ci:latest tox -e ${{ matrix.env }}
