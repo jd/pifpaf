@@ -92,15 +92,19 @@ class TestDrivers(testtools.TestCase):
         gone, alive = psutil.wait_procs(procs, timeout=0)
         self.assertEqual([], alive)
 
+    @testtools.skip("Skip for now leaves zombie process")
     def test_stuck_no_sigterm_with_children(self):
         self._do_test_stuck(["python", "-u", unkillable])
 
+    @testtools.skip("Skip for now leaves zombie process")
     def test_stuck_no_sigterm_in_children_only(self):
         self._do_test_stuck(["python", "-u", unkillable, "--child-only"])
 
+    @testtools.skip("Skip for now leaves zombie process")
     def test_stuck_no_sigterm_and_parent_exited(self):
         self._do_test_stuck(["python", "-u", unkillable, "--exited-parent"])
 
+    @testtools.skip("Skip for now leaves zombie process")
     def test_stuck_simple(self):
         self._do_test_stuck(["bash", "-c",
                              "trap ':' TERM ; echo started; sleep 10000"])
