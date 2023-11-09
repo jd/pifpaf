@@ -26,8 +26,6 @@ import daiquiri
 
 import fixtures
 
-import pbr.version
-
 import pkg_resources
 
 import psutil
@@ -85,7 +83,7 @@ DAEMONS = list(map(operator.attrgetter("name"),
 @click.option("--global-urls-variable", "-g",
               help="global variable name to use to append connection URL  "
               "when chaining multiple pifpaf instances (default: PIFPAF_URLS)")
-@click.version_option(pbr.version.VersionInfo('pifpaf').version_string())
+@click.version_option(pkg_resources.get_distribution('pifpaf').version)
 @click.pass_context
 def main(ctx, verbose=False, debug=False, log_file=None,
          env_prefix=None, global_urls_variable=None):
