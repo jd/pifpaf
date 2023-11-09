@@ -1,19 +1,22 @@
 queue_rules:
   - name: default
-    conditions: []
+    conditions:
+    - check-success=test (py310)
+    - check-success=test (pep8)
 
 pull_request_rules:
   - name: automatic merge
-    conditions:
-      - base=master
-      - check-success=continuous-integration/travis-ci/pr
-      - "#approved-reviews-by>=1"
-      - label!=work-in-progress
     actions:
       queue:
         method: merge
         name: default
+    conditions:
+      - label!=work-in-progress
+      - "#approved-reviews-by>=1"
+      - check-success=test (py310)
+      - check-success=test (pep8)
+
   - name: dismiss reviews
-    conditions: []
     actions:
       dismiss_reviews: {}
+    conditions: []
