@@ -105,8 +105,7 @@ class TestDrivers(testtools.TestCase):
         self._do_test_stuck(["bash", "-c",
                              "trap ':' TERM ; echo started; sleep 10000"])
 
-    @testtools.skip("Driver need rework, it won't work with travis or "
-                    "Ubuntu xenial or Debian strech package")
+    @testtools.skip("Driver need rework")
     @testtools.skipUnless(spawn.find_executable("elasticsearch"),
                           "elasticsearch not found")
     def test_elasticsearch(self):

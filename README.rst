@@ -2,10 +2,6 @@
  Pifpaf
 ==========
 
-.. image:: https://travis-ci.org/jd/pifpaf.png?branch=master
-    :target: https://travis-ci.org/jd/pifpaf
-    :alt: Build Status
-
 .. image:: https://badge.fury.io/py/pifpaf.svg
     :target: https://badge.fury.io/py/pifpaf
 
