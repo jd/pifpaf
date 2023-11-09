@@ -6,3 +6,4 @@ ChangeLog
 .tox
 *.pyc
 .testrepository
+.stestr
