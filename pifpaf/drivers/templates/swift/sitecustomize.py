@@ -1,3 +1,3 @@
-from pifpaf.drivers.templates.swift.common import utils
+from swift.common import utils
 utils.SWIFT_CONF_FILE = '{{ TMP_DIR }}/swift.conf'
 print("started")
