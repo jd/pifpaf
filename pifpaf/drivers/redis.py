@@ -68,19 +68,26 @@ class RedisDriver(drivers.Driver):
 
     def spawn_redis_server(self, cluster=False):
         port = next(self._next_port)
+        configuration = "port %d\n" % (port)
+        tempdir = self.tempdir
+        if cluster:
+            configuration += "cluster-enabled yes\n"
+            configuration += "cluster-config-file nodes%d.conf\n" % port 
+            tempdir = os.path.join(self.tempdir, str(port))
+            os.mkdir(tempdir)
+        configuration += "dir %s\n" % tempdir
         c, _ = self._exec(
             ["redis-server", "-"],
-            stdin=(
-                "dir %s\nport %d\ncluster-enabled %s\ncluster-config-file nodes%d.conf"
-                % (self.tempdir, port, "yes" if cluster else "no", port)
-            ).encode("ascii"),
+            stdin=configuration.encode("ascii"),
             wait_for_line="eady to accept connections",
         )
+        
         self._process[port] = c
-        self.addCleanup(self.kill_node, port, ignore_not_exists=True)
+        self.addCleanup(self.kill_redis_server, port, ignore_not_exists=True)
         return port
 
     def kill_redis_server(self, port, signal=signal.SIGTERM, ignore_not_exists=False):
+        
         if port not in self._process:
             if not ignore_not_exists:
                 raise RuntimeError("no redis server with port %d not started" % port)
@@ -99,11 +106,9 @@ class RedisDriver(drivers.Driver):
             self.spawn_redis_server(cluster=True),
             self.spawn_redis_server(cluster=True),
         ]
-        nodes_list = " ".join(["localhost:%d" % port for port in ports])
-        self._exec(
-            ["redis-cli", "--cluster-yes", "--cluster", "create"].extend(nodes_list),
-            wait_for_line="[OK] All nodes agree about slots configuration.",
-        )
+        nodes_list = ["127.0.0.1:%d" % port for port in ports]
+        cmd = ["redis-cli", "--cluster-yes", "--cluster", "create"] + nodes_list
+        self._exec(cmd)
         return ports
 
     def _setUp(self):
@@ -127,9 +132,9 @@ sentinel monitor pifpaf localhost %d 1"""
                 )
 
                 self.addCleanup(self._kill, c)
-
                 self.putenv("REDIS_SENTINEL_PORT", str(self.sentinel_port))
 
         self.putenv("REDIS_PORT", str(p1))
         self.url = "redis://localhost:%d" % p1
         self.putenv("URL", self.url)
+        
