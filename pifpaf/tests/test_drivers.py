@@ -284,6 +284,14 @@ class TestDrivers(testtools.TestCase):
         self.assertEqual("6380", os.getenv("PIFPAF_REDIS_SENTINEL_PORT"))
         self._run("redis-cli -p %d sentinel master pifpaf" % f.sentinel_port)
 
+    def test_redis_cluster(self):
+        port = 6386
+        f = self.useFixture(redis.RedisDriver(port=port, cluster=True))
+        self.assertEqual("redis://localhost:%d" % port,
+                         os.getenv("PIFPAF_URL"))
+        self.assertEqual(str(port), os.getenv("PIFPAF_REDIS_PORT"))
+        self._run("redis-cli -p %d llen pifpaf" % f.port)
+
     @testtools.skipUnless(spawn.find_executable(
         "zkServer.sh", path=":".join(zookeeper.ZooKeeperDriver.PATH)),
         "ZooKeeper not found")
