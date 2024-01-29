@@ -14,7 +14,7 @@
 import os
 import uuid
 
-import pkg_resources
+import packaging
 
 from pifpaf import drivers
 
@@ -51,9 +51,9 @@ class CephDriver(drivers.Driver):
 
         _, version = self._exec(["ceph", "--version"], stdout=True)
         version = version.decode("ascii").split()[2]
-        version = pkg_resources.parse_version(version)
+        version = packaging.version.Version(version)
 
-        if version < pkg_resources.parse_version("12.0.0"):
+        if version < packaging.version.Version("12.0.0"):
             extra = """
 mon_osd_nearfull_ratio = 1
 mon_osd_full_ratio = 1
@@ -66,7 +66,7 @@ mon_allow_pool_delete = true
 """
 
         # Enable msgrv2 protocol if Nautilus or later.
-        if version >= pkg_resources.parse_version("14.0.0"):
+        if version >= packaging.version.Version("14.0.0"):
             msgrv2_extra = """
 mon_host = v2:127.0.0.1:%(port)d/0
 """ % dict(port=self.port)
@@ -156,7 +156,7 @@ mon addr = 127.0.0.1:%(port)d
             wait_for_line=r"mon.a@0\(leader\).mds e1 print_map")
 
         # Start manager
-        if version >= pkg_resources.parse_version("12.0.0"):
+        if version >= packaging.version.Version("12.0.0"):
             self._exec(
                 mgr_opts,
                 wait_for_line="(mgr send_beacon active|waiting for OSDs)")
@@ -166,13 +166,13 @@ mon addr = 127.0.0.1:%(port)d
         self._exec(ceph_opts + ["osd", "crush", "add", "osd.0", "1",
                                 "root=default"])
         self._exec(osd_opts + ["--mkfs", "--mkjournal"])
-        if version < pkg_resources.parse_version("0.94.0"):
+        if version < packaging.version.Version("0.94.0"):
             wait_for_line = "journal close"
         else:
             wait_for_line = "done with init"
         osd, _ = self._exec(osd_opts, wait_for_line=wait_for_line)
 
-        if version >= pkg_resources.parse_version("12.0.0"):
+        if version >= packaging.version.Version("12.0.0"):
             self._exec(ceph_opts + ["osd", "set-full-ratio", "0.95"])
             self._exec(ceph_opts + ["osd", "set-backfillfull-ratio", "0.95"])
             self._exec(ceph_opts + ["osd", "set-nearfull-ratio", "0.95"])
