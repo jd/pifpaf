@@ -15,7 +15,6 @@
 
 import importlib.metadata
 import logging
-import operator
 import os
 import signal
 import sys
