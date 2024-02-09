@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import importlib.metadata
 import logging
 import operator
 import os
@@ -25,8 +26,6 @@ import click
 import daiquiri
 
 import fixtures
-
-import pkg_resources
 
 import psutil
 
@@ -69,8 +68,10 @@ def _format_multiple_exceptions(e, debug=False):
                 LOG.error(value)
 
 
-DAEMONS = list(map(operator.attrgetter("name"),
-                   pkg_resources.iter_entry_points("pifpaf.daemons")))
+if sys.version_info >= (3, 10):
+    DAEMONS = importlib.metadata.entry_points(group='pifpaf.daemons')
+else:
+    DAEMONS = importlib.metadata.entry_points()['pifpaf.daemons']
 
 
 @click.group()
@@ -83,7 +84,7 @@ DAEMONS = list(map(operator.attrgetter("name"),
 @click.option("--global-urls-variable", "-g",
               help="global variable name to use to append connection URL  "
               "when chaining multiple pifpaf instances (default: PIFPAF_URLS)")
-@click.version_option(pkg_resources.get_distribution('pifpaf').version)
+@click.version_option(importlib.metadata.distribution('pifpaf').version)
 @click.pass_context
 def main(ctx, verbose=False, debug=False, log_file=None,
          env_prefix=None, global_urls_variable=None):
@@ -119,19 +120,18 @@ def main(ctx, verbose=False, debug=False, log_file=None,
 
 @main.command(name="list")
 def drivers_list():
-    for n in DAEMONS:
+    for n in DAEMONS.keys():
         click.echo(n)
 
 
 class RunGroup(click.MultiCommand):
     @staticmethod
     def list_commands(ctx):
-        return DAEMONS
+        return DAEMONS.keys()
 
     def get_command(self, ctx, name):
         params = [click.Argument(["command"], nargs=-1)]
-        plugin = pkg_resources.load_entry_point(
-            "pifpaf", "pifpaf.daemons", name)
+        plugin = [e for e in DAEMONS if e.name == name][0].load()
         params.extend(map(lambda kw: click.Option(**kw), plugin.get_options()))
 
         def _run_cb(*args, **kwargs):

@@ -19,14 +19,14 @@ jobs:
           - pep8
           - build
     steps:
-    - uses: actions/checkout@v4
-    - run: sudo chown -R 1000:1000 $GITHUB_WORKSPACE
-    - uses: dorny/paths-filter@v2
-      id: changes
-      with:
-        filters: |
-          ci_image:
-              - 'Dockerfile'
+      - uses: actions/checkout@v4
+      - run: sudo chown -R 1000:1000 $GITHUB_WORKSPACE
+      - uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            ci_image:
+                - 'Dockerfile'
       - uses: docker/login-action@v2
         with:
           registry: ghcr.io
@@ -46,5 +46,5 @@ jobs:
             ETCD_VERSION=${{ env.ETCD_VERSION }}
           tags: ghcr.io/pifpaf/ci:latest
         if: steps.changes.outputs.ci_image == 'true'
-    - name: Run tox
-      run: docker run --rm -v ${{ github.workspace }}:/home/pifpaf/pifpaf ghcr.io/pifpaf/ci:latest tox -e ${{ matrix.env }}
+      - name: Run tox
+        run: docker run --rm -v ${{ github.workspace }}:/home/pifpaf/pifpaf ghcr.io/pifpaf/ci:latest tox -e ${{ matrix.env }}
