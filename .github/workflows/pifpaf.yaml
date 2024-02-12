@@ -27,7 +27,7 @@ jobs:
           filters: |
             ci_image:
                 - 'Dockerfile'
-      - uses: docker/login-action@v2
+      - uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -35,7 +35,7 @@ jobs:
         if: steps.changes.outputs.ci_image == 'false'
       - run: docker pull ghcr.io/pifpaf/ci:latest
         if: steps.changes.outputs.ci_image == 'false'
-      - uses: docker/build-push-action@v2
+      - uses: docker/build-push-action@v5
         with:
           context: .
           push: false
