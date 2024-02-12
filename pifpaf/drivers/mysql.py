@@ -10,6 +10,7 @@
 # implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import getpass
 import logging
 import os
 
@@ -27,7 +28,7 @@ class MySQLDriver(drivers.Driver):
         os.mkdir(datadir)
         os.mkdir(tempdir)
 
-        mysql_user_to_use = os.getlogin()
+        mysql_user_to_use = getpass.getuser()
 
         c, _ = self._exec(["mysqld",
                            "--no-defaults",
