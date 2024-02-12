@@ -14,7 +14,7 @@
 import os
 import uuid
 
-import packaging
+import packaging.version
 
 from pifpaf import drivers
 
