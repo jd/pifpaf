@@ -21,20 +21,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: sudo chown -R 1000:1000 $GITHUB_WORKSPACE
-      - uses: dorny/paths-filter@v2
-        id: changes
-        with:
-          filters: |
-            ci_image:
-                - 'Dockerfile'
-      - uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-        if: steps.changes.outputs.ci_image == 'false'
-      - run: docker pull ghcr.io/pifpaf/ci:latest
-        if: steps.changes.outputs.ci_image == 'false'
       - uses: docker/build-push-action@v2
         with:
           context: .
@@ -45,6 +31,5 @@ jobs:
             KAFKA_VERSION=${{ env.KAFKA_VERSION }}
             ETCD_VERSION=${{ env.ETCD_VERSION }}
           tags: ghcr.io/pifpaf/ci:latest
-        if: steps.changes.outputs.ci_image == 'true'
       - name: Run tox
         run: docker run --rm -v ${{ github.workspace }}:/home/pifpaf/pifpaf ghcr.io/pifpaf/ci:latest tox -e ${{ matrix.env }}
