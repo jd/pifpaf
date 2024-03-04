@@ -20,15 +20,17 @@ class RedisDriver(drivers.Driver):
 
     DEFAULT_PORT = 6379
     DEFAULT_PORT_SENTINEL = 6380
+    DEFAULT_PASSWORD = ''
 
     def __init__(self, port=DEFAULT_PORT,
                  sentinel=False, sentinel_port=DEFAULT_PORT_SENTINEL,
-                 **kwargs):
+                 password=DEFAULT_PASSWORD, **kwargs):
         """Create a new Redis server."""
         super(RedisDriver, self).__init__(**kwargs)
         self.port = port
         self.sentinel = sentinel
         self.sentinel_port = sentinel_port
+        self.password = password
 
     @classmethod
     def get_options(cls):
@@ -44,23 +46,35 @@ class RedisDriver(drivers.Driver):
              "type": int,
              "default": cls.DEFAULT_PORT_SENTINEL,
              "help": "port to use for Redis sentinel"},
+            {"param_decls": ["--password"],
+             "default": cls.DEFAULT_PASSWORD,
+             "help": "Redis and Redis sentinel password"},
         ]
 
     def _setUp(self):
         super(RedisDriver, self)._setUp()
+        redis_conf = """dir %s
+port %d
+""" % (self.tempdir, self.port)
+        if self.password:
+            redis_conf += "requirepass %s\n" % self.password
         c, _ = self._exec(
             ["redis-server", "-"],
-            stdin=("dir %s\nport %d\n"
-                   % (self.tempdir, self.port)).encode('ascii'),
+            stdin=(redis_conf).encode('ascii'),
             wait_for_line="eady to accept connections")
 
         if self.sentinel:
             cfg = os.path.join(self.tempdir, "redis-sentinel.conf")
-            with open(cfg, "w") as f:
-                f.write("""dir %s
+            sentinel_conf = """dir %s
 port %d
-sentinel monitor pifpaf localhost %d 1"""
-                        % (self.tempdir, self.sentinel_port, self.port))
+sentinel monitor pifpaf localhost %d 1
+""" % (self.tempdir, self.sentinel_port, self.port)
+            if self.password:
+                sentinel_conf += (
+                    "sentinel auth-pass pifpaf %s\n" % self.password)
+                sentinel_conf += "requirepass %s\n" % self.password
+            with open(cfg, "w") as f:
+                f.write(sentinel_conf)
 
             c, _ = self._exec(
                 ["redis-sentinel", cfg],

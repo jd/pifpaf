@@ -273,6 +273,16 @@ class TestDrivers(testtools.TestCase):
         self.assertEqual(str(port), os.getenv("PIFPAF_REDIS_PORT"))
         self._run("redis-cli -p %d llen pifpaf" % f.port)
 
+    @testtools.skipUnless(spawn.find_executable("redis-server"),
+                          "redis-server not found")
+    def test_redis_with_password(self):
+        port = 6384
+        f = self.useFixture(redis.RedisDriver(port=port, password='secrete'))
+        self.assertEqual("redis://localhost:%d" % port,
+                         os.getenv("PIFPAF_URL"))
+        self.assertEqual(str(port), os.getenv("PIFPAF_REDIS_PORT"))
+        self._run("redis-cli -p %d -a secrete llen pifpaf" % f.port)
+
     @testtools.skipUnless(spawn.find_executable("redis-sentinel"),
                           "redis-sentinel not found")
     def test_redis_sentinel(self):
@@ -283,6 +293,21 @@ class TestDrivers(testtools.TestCase):
         self.assertEqual(str(port), os.getenv("PIFPAF_REDIS_PORT"))
         self.assertEqual("6380", os.getenv("PIFPAF_REDIS_SENTINEL_PORT"))
         self._run("redis-cli -p %d sentinel master pifpaf" % f.sentinel_port)
+        self._run("redis-cli -p %d llen pifpaf" % f.port)
+
+    @testtools.skipUnless(spawn.find_executable("redis-sentinel"),
+                          "redis-sentinel not found")
+    def test_redis_sentinel_with_password(self):
+        port = 6385
+        f = self.useFixture(redis.RedisDriver(sentinel=True, port=port,
+                                              password='secrete'))
+        self.assertEqual("redis://localhost:%d" % port,
+                         os.getenv("PIFPAF_URL"))
+        self.assertEqual(str(port), os.getenv("PIFPAF_REDIS_PORT"))
+        self.assertEqual("6380", os.getenv("PIFPAF_REDIS_SENTINEL_PORT"))
+        self._run("redis-cli -p %d -a secrete sentinel master pifpaf" %
+                  f.sentinel_port)
+        self._run("redis-cli -p %d -a secrete llen pifpaf" % f.port)
 
     @testtools.skipUnless(spawn.find_executable(
         "zkServer.sh", path=":".join(zookeeper.ZooKeeperDriver.PATH)),
