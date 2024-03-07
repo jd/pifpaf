@@ -254,6 +254,17 @@ class TestDrivers(testtools.TestCase):
 
     @testtools.skipUnless(spawn.find_executable("pg_config"),
                           "pg_config not found")
+    def test_postgresql_host(self):
+        host = "127.0.98.25"
+        port = 9825
+        self.useFixture(postgresql.PostgreSQLDriver(host=host, port=port))
+        self.assertEqual(
+            "postgresql://%s:%d/postgres" % (host, port),
+            os.getenv("PIFPAF_URL"))
+        self._run("psql template1 -c 'CREATE TABLE FOOBAR();'")
+
+    @testtools.skipUnless(spawn.find_executable("pg_config"),
+                          "pg_config not found")
     def test_postgresql_async(self):
         port = 9825
         f = self.useFixture(postgresql.PostgreSQLDriver(port=port, sync=False))
