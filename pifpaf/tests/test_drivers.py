@@ -278,7 +278,7 @@ class TestDrivers(testtools.TestCase):
     def test_redis_with_password(self):
         port = 6384
         f = self.useFixture(redis.RedisDriver(port=port, password='secrete'))
-        self.assertEqual("redis://localhost:%d" % port,
+        self.assertEqual("redis://:secrete@localhost:%d" % port,
                          os.getenv("PIFPAF_URL"))
         self.assertEqual(str(port), os.getenv("PIFPAF_REDIS_PORT"))
         self._run("redis-cli -p %d -a secrete llen pifpaf" % f.port)
@@ -301,7 +301,7 @@ class TestDrivers(testtools.TestCase):
         port = 6385
         f = self.useFixture(redis.RedisDriver(sentinel=True, port=port,
                                               password='secrete'))
-        self.assertEqual("redis://localhost:%d" % port,
+        self.assertEqual("redis://:secrete@localhost:%d" % port,
                          os.getenv("PIFPAF_URL"))
         self.assertEqual(str(port), os.getenv("PIFPAF_REDIS_PORT"))
         self.assertEqual("6380", os.getenv("PIFPAF_REDIS_SENTINEL_PORT"))
