@@ -16,12 +16,12 @@ import logging
 import os
 import re
 import select
+import shutil
 import socket
 import subprocess
 import sys
 import threading
 import time
-from distutils import spawn
 
 import fixtures
 
@@ -102,7 +102,7 @@ class Driver(fixtures.Fixture):
     def find_executable(filename, extra_paths):
         paths = extra_paths + os.getenv('PATH', os.defpath).split(os.pathsep)
         for path in paths:
-            loc = spawn.find_executable(filename, path)
+            loc = shutil.which(filename, path=path)
             if loc is not None:
                 return loc
 
