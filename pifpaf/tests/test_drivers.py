@@ -15,8 +15,8 @@
 
 import logging
 import os
+import shutil
 import socket
-from distutils import spawn
 
 import fixtures
 
@@ -110,7 +110,7 @@ class TestDrivers(testtools.TestCase):
                              "trap ':' TERM ; echo started; sleep 10000"])
 
     @testtools.skip("Driver need rework")
-    @testtools.skipUnless(spawn.find_executable("elasticsearch"),
+    @testtools.skipUnless(shutil.which("elasticsearch"),
                           "elasticsearch not found")
     def test_elasticsearch(self):
         port = 9201
@@ -121,9 +121,9 @@ class TestDrivers(testtools.TestCase):
         r = requests.get("http://localhost:%d/" % port)
         self.assertEqual(200, r.status_code)
 
-    @testtools.skipUnless(spawn.find_executable("etcd"),
+    @testtools.skipUnless(shutil.which("etcd"),
                           "etcd not found")
-    @testtools.skipUnless(spawn.find_executable("etcdctl"),
+    @testtools.skipUnless(shutil.which("etcdctl"),
                           "etcdctl not found")
     def test_etcd(self):
         port = 4005
@@ -136,9 +136,9 @@ class TestDrivers(testtools.TestCase):
         self.assertEqual(200, r.status_code)
         self._run("etcdctl endpoint health")
 
-    @testtools.skipUnless(spawn.find_executable("etcd"),
+    @testtools.skipUnless(shutil.which("etcd"),
                           "etcd not found")
-    @testtools.skipUnless(spawn.find_executable("etcdctl"),
+    @testtools.skipUnless(shutil.which("etcdctl"),
                           "etcdctl not found")
     def test_etcd_cluster(self):
         port = 4007
@@ -152,7 +152,7 @@ class TestDrivers(testtools.TestCase):
         self.assertEqual(200, r.status_code)
         self._run("etcdctl endpoint health")
 
-    @testtools.skipUnless(spawn.find_executable("consul"),
+    @testtools.skipUnless(shutil.which("consul"),
                           "consul not found")
     def test_consul(self):
         port = 8601
@@ -164,7 +164,7 @@ class TestDrivers(testtools.TestCase):
         r = requests.get("http://%s:%d/v1/status/leader" % (host, port))
         self.assertEqual(200, r.status_code)
 
-    @testtools.skipUnless(spawn.find_executable("influxd"),
+    @testtools.skipUnless(shutil.which("influxd"),
                           "influxd not found")
     def test_influxdb(self):
         port = 51236
@@ -176,7 +176,7 @@ class TestDrivers(testtools.TestCase):
         self.assertEqual(database, os.getenv("PIFPAF_INFLUXDB_DATABASE"))
         self._run("influx -port %d -execute 'SHOW DATABASES;'" % port)
 
-    @testtools.skipUnless(spawn.find_executable("memcached"),
+    @testtools.skipUnless(shutil.which("memcached"),
                           "memcached not found")
     def test_memcached(self):
         port = 11213
@@ -185,7 +185,7 @@ class TestDrivers(testtools.TestCase):
                          os.getenv("PIFPAF_URL"))
         self.assertEqual(str(port), os.getenv("PIFPAF_MEMCACHED_PORT"))
 
-    @testtools.skipUnless(spawn.find_executable("vault"),
+    @testtools.skipUnless(shutil.which("vault"),
                           "vault not found")
     def test_vault(self):
         listen_address = "localhost:5049"
@@ -196,7 +196,7 @@ class TestDrivers(testtools.TestCase):
                          os.getenv("PIFPAF_VAULT_ADDR"))
         self.assertTrue(len(os.getenv("PIFPAF_ROOT_TOKEN")) > 0)
 
-    @testtools.skipUnless(spawn.find_executable("fakes3"),
+    @testtools.skipUnless(shutil.which("fakes3"),
                           "fakes3 not found")
     def test_fakes3(self):
         port = 8990
@@ -205,7 +205,7 @@ class TestDrivers(testtools.TestCase):
                          os.getenv("PIFPAF_URL"))
         self.assertEqual(str(port), os.getenv("PIFPAF_FAKES3_PORT"))
 
-    @testtools.skipUnless(spawn.find_executable("s3rver"),
+    @testtools.skipUnless(shutil.which("s3rver"),
                           "s3rver not found")
     def test_s3rver(self):
         port = 4569
@@ -215,7 +215,7 @@ class TestDrivers(testtools.TestCase):
         self.assertEqual("http://localhost:%d" % port,
                          os.getenv("PIFPAF_HTTP_URL"))
 
-    @testtools.skipUnless(spawn.find_executable("mongod"),
+    @testtools.skipUnless(shutil.which("mongod"),
                           "mongod not found")
     def test_mongodb(self):
         port = 29002
@@ -226,7 +226,7 @@ class TestDrivers(testtools.TestCase):
         self._run(
             "mongo --norc --host localhost --port %d --eval 'quit()'" % port)
 
-    @testtools.skipUnless(spawn.find_executable("mysqld"),
+    @testtools.skipUnless(shutil.which("mysqld"),
                           "mysqld not found")
     def test_mysql(self):
         f = self.useFixture(mysql.MySQLDriver())
@@ -241,7 +241,7 @@ class TestDrivers(testtools.TestCase):
         self._run(
             "mysql --no-defaults -S %s -e 'SHOW TABLES;' pifpaf" % f.socket)
 
-    @testtools.skipUnless(spawn.find_executable("pg_config"),
+    @testtools.skipUnless(shutil.which("pg_config"),
                           "pg_config not found")
     def test_postgresql(self):
         port = 9825
@@ -252,7 +252,7 @@ class TestDrivers(testtools.TestCase):
             os.getenv("PIFPAF_URL"))
         self._run("psql template1 -c 'CREATE TABLE FOOBAR();'")
 
-    @testtools.skipUnless(spawn.find_executable("pg_config"),
+    @testtools.skipUnless(shutil.which("pg_config"),
                           "pg_config not found")
     def test_postgresql_async(self):
         port = 9825
@@ -263,7 +263,7 @@ class TestDrivers(testtools.TestCase):
             os.getenv("PIFPAF_URL"))
         self._run("psql template1 -c 'CREATE TABLE FOOBAR();'")
 
-    @testtools.skipUnless(spawn.find_executable("redis-server"),
+    @testtools.skipUnless(shutil.which("redis-server"),
                           "redis-server not found")
     def test_redis(self):
         port = 6384
@@ -273,7 +273,7 @@ class TestDrivers(testtools.TestCase):
         self.assertEqual(str(port), os.getenv("PIFPAF_REDIS_PORT"))
         self._run("redis-cli -p %d llen pifpaf" % f.port)
 
-    @testtools.skipUnless(spawn.find_executable("redis-server"),
+    @testtools.skipUnless(shutil.which("redis-server"),
                           "redis-server not found")
     def test_redis_with_password(self):
         port = 6384
@@ -283,7 +283,7 @@ class TestDrivers(testtools.TestCase):
         self.assertEqual(str(port), os.getenv("PIFPAF_REDIS_PORT"))
         self._run("redis-cli -p %d -a secrete llen pifpaf" % f.port)
 
-    @testtools.skipUnless(spawn.find_executable("redis-sentinel"),
+    @testtools.skipUnless(shutil.which("redis-sentinel"),
                           "redis-sentinel not found")
     def test_redis_sentinel(self):
         port = 6385
@@ -295,7 +295,7 @@ class TestDrivers(testtools.TestCase):
         self._run("redis-cli -p %d sentinel master pifpaf" % f.sentinel_port)
         self._run("redis-cli -p %d llen pifpaf" % f.port)
 
-    @testtools.skipUnless(spawn.find_executable("redis-sentinel"),
+    @testtools.skipUnless(shutil.which("redis-sentinel"),
                           "redis-sentinel not found")
     def test_redis_sentinel_with_password(self):
         port = 6385
@@ -309,7 +309,7 @@ class TestDrivers(testtools.TestCase):
                   f.sentinel_port)
         self._run("redis-cli -p %d -a secrete llen pifpaf" % f.port)
 
-    @testtools.skipUnless(spawn.find_executable(
+    @testtools.skipUnless(shutil.which(
         "zkServer.sh", path=":".join(zookeeper.ZooKeeperDriver.PATH)),
         "ZooKeeper not found")
     def test_zookeeper(self):
@@ -323,7 +323,7 @@ class TestDrivers(testtools.TestCase):
         reply = s.recv(1024)
         self.assertEqual(b"imok", reply)
 
-    @testtools.skipUnless(spawn.find_executable("gnocchi-api"),
+    @testtools.skipUnless(shutil.which("gnocchi-api"),
                           "Gnocchi not found")
     def test_gnocchi(self):
         port = gnocchi.GnocchiDriver.DEFAULT_PORT
@@ -333,9 +333,9 @@ class TestDrivers(testtools.TestCase):
         r = requests.get("http://localhost:%d/" % port)
         self.assertEqual(200, r.status_code)
 
-    @testtools.skipUnless(spawn.find_executable("redis-server"),
+    @testtools.skipUnless(shutil.which("redis-server"),
                           "redis-server not found")
-    @testtools.skipUnless(spawn.find_executable("gnocchi-api"),
+    @testtools.skipUnless(shutil.which("gnocchi-api"),
                           "Gnocchi not found")
     def test_gnocchi_with_redis_coordinator(self):
         self.useFixture(gnocchi.GnocchiDriver(coordination_driver="redis",
@@ -345,7 +345,7 @@ class TestDrivers(testtools.TestCase):
         r = requests.get("http://localhost:%d/" % 8043)
         self.assertEqual(200, r.status_code)
 
-    @testtools.skipUnless(spawn.find_executable("gnocchi-api"),
+    @testtools.skipUnless(shutil.which("gnocchi-api"),
                           "Gnocchi not found")
     def test_gnocchi_with_existing_indexer(self):
         port = gnocchi.GnocchiDriver.DEFAULT_PORT + 15
@@ -357,9 +357,9 @@ class TestDrivers(testtools.TestCase):
         r = requests.get("http://localhost:%d/" % port)
         self.assertEqual(200, r.status_code)
 
-    @testtools.skipUnless(spawn.find_executable("gnocchi-api"),
+    @testtools.skipUnless(shutil.which("gnocchi-api"),
                           "Gnocchi not found")
-    @testtools.skipUnless(spawn.find_executable("swift-proxy-server"),
+    @testtools.skipUnless(shutil.which("swift-proxy-server"),
                           "Swift not found")
     def test_gnocchi_with_existing_swift(self):
         # This test produces a lot of logs and causes an error:
@@ -379,9 +379,9 @@ class TestDrivers(testtools.TestCase):
         finally:
             drivers.LOG.setLevel(level)
 
-    @testtools.skipUnless(spawn.find_executable("gnocchi-api"),
+    @testtools.skipUnless(shutil.which("gnocchi-api"),
                           "Gnocchi not found")
-    @testtools.skipUnless(spawn.find_executable("s3rver"),
+    @testtools.skipUnless(shutil.which("s3rver"),
                           "s3rver not found")
     def test_gnocchi_with_existing_s3rver(self):
         s3 = self.useFixture(s3rver.S3rverDriver(port=4569))
@@ -394,13 +394,13 @@ class TestDrivers(testtools.TestCase):
         r = requests.get("http://localhost:%d/" % port)
         self.assertEqual(200, r.status_code)
 
-    @testtools.skipUnless(spawn.find_executable("gnocchi-api"),
+    @testtools.skipUnless(shutil.which("gnocchi-api"),
                           "Gnocchi not found")
-    @testtools.skipUnless(spawn.find_executable("ceph-mon"),
+    @testtools.skipUnless(shutil.which("ceph-mon"),
                           "Ceph Monitor not found")
-    @testtools.skipUnless(spawn.find_executable("ceph-osd"),
+    @testtools.skipUnless(shutil.which("ceph-osd"),
                           "Ceph OSD not found")
-    @testtools.skipUnless(spawn.find_executable("ceph"),
+    @testtools.skipUnless(shutil.which("ceph"),
                           "Ceph client not found")
     def test_gnocchi_with_existing_ceph(self):
         port = gnocchi.GnocchiDriver.DEFAULT_PORT + 10
@@ -419,11 +419,11 @@ class TestDrivers(testtools.TestCase):
         r = requests.get("http://localhost:%d/" % port)
         self.assertEqual(200, r.status_code)
 
-    @testtools.skipUnless(spawn.find_executable("pg_config"),
+    @testtools.skipUnless(shutil.which("pg_config"),
                           "pg_config not found")
-    @testtools.skipUnless(spawn.find_executable("gnocchi-api"),
+    @testtools.skipUnless(shutil.which("gnocchi-api"),
                           "Gnocchi not found")
-    @testtools.skipUnless(spawn.find_executable("aodh-api"),
+    @testtools.skipUnless(shutil.which("aodh-api"),
                           "Aodh not found")
     def test_aodh_with_existing_db(self):
         pg = self.useFixture(postgresql.PostgreSQLDriver(port=12345))
@@ -433,9 +433,9 @@ class TestDrivers(testtools.TestCase):
         r = requests.get(os.getenv("PIFPAF_AODH_HTTP_URL"))
         self.assertEqual(200, r.status_code)
 
-    @testtools.skipUnless(spawn.find_executable("gnocchi-api"),
+    @testtools.skipUnless(shutil.which("gnocchi-api"),
                           "Gnocchi not found")
-    @testtools.skipUnless(spawn.find_executable("aodh-api"),
+    @testtools.skipUnless(shutil.which("aodh-api"),
                           "Aodh not found")
     def test_aodh(self):
         a = self.useFixture(aodh.AodhDriver())
@@ -444,7 +444,7 @@ class TestDrivers(testtools.TestCase):
         r = requests.get(os.getenv("PIFPAF_AODH_HTTP_URL"))
         self.assertEqual(200, r.status_code)
 
-    @testtools.skipUnless(spawn.find_executable("keystone-manage"),
+    @testtools.skipUnless(shutil.which("keystone-manage"),
                           "Keystone not found")
     def test_keystone(self):
         self.skipTest(
@@ -455,11 +455,11 @@ class TestDrivers(testtools.TestCase):
         r = requests.get(os.getenv("PIFPAF_KEYSTONE_HTTP_URL"))
         self.assertEqual(300, r.status_code)
 
-    @testtools.skipUnless(spawn.find_executable("ceph-mon"),
+    @testtools.skipUnless(shutil.which("ceph-mon"),
                           "Ceph Monitor not found")
-    @testtools.skipUnless(spawn.find_executable("ceph-osd"),
+    @testtools.skipUnless(shutil.which("ceph-osd"),
                           "Ceph OSD not found")
-    @testtools.skipUnless(spawn.find_executable("ceph"),
+    @testtools.skipUnless(shutil.which("ceph"),
                           "Ceph client not found")
     def test_ceph(self):
         tmp_rootdir = self._get_tmpdir_for_xattr()
@@ -469,7 +469,7 @@ class TestDrivers(testtools.TestCase):
         self.assertIn("ceph.conf", os.getenv("CEPH_CONF"))
         self.assertIn("ceph.conf", os.getenv("PIFPAF_CEPH_CONF"))
 
-    @testtools.skipUnless(spawn.find_executable("rabbitmq-server"),
+    @testtools.skipUnless(shutil.which("rabbitmq-server"),
                           "RabbitMQ not found")
     def test_rabbitmq(self):
         a = self.useFixture(rabbitmq.RabbitMQDriver())
@@ -481,7 +481,7 @@ class TestDrivers(testtools.TestCase):
                          os.getenv("PIFPAF_RABBITMQ_NODENAME"))
         self.assertEqual(str(a.port), os.getenv("PIFPAF_RABBITMQ_PORT"))
 
-    @testtools.skipUnless(spawn.find_executable("rabbitmq-server"),
+    @testtools.skipUnless(shutil.which("rabbitmq-server"),
                           "RabbitMQ not found")
     def test_rabbitmq_cluster(self):
         a = self.useFixture(rabbitmq.RabbitMQDriver(cluster=True, port=12345))
@@ -510,7 +510,7 @@ class TestDrivers(testtools.TestCase):
         a.start_node(a.nodename + "-3@localhost")
         a.start_node(a.nodename + "-2@localhost")
 
-    @testtools.skipUnless(spawn.find_executable("couchdb"),
+    @testtools.skipUnless(shutil.which("couchdb"),
                           "CouchDB not found")
     def test_couchdb(self):
         port = 6984
@@ -520,7 +520,7 @@ class TestDrivers(testtools.TestCase):
         r = requests.get("http://localhost:%d/" % port)
         self.assertEqual(r.json()["couchdb"], "Welcome")
 
-    @testtools.skipUnless(spawn.find_executable("artemis"),
+    @testtools.skipUnless(shutil.which("artemis"),
                           "Artemis not found")
     def test_artemis(self):
         self.useFixture(artemis.ArtemisDriver(port=54321))
@@ -530,7 +530,7 @@ class TestDrivers(testtools.TestCase):
         self.assertEqual("amqp://localhost:54321",
                          os.getenv("PIFPAF_ARTEMIS_URL"))
 
-    @testtools.skipUnless(spawn.find_executable("qdrouterd"),
+    @testtools.skipUnless(shutil.which("qdrouterd"),
                           "Qdrouterd not found")
     def test_qdrouterd(self):
         a = self.useFixture(qdrouterd.QdrouterdDriver(port=54321))
@@ -541,7 +541,7 @@ class TestDrivers(testtools.TestCase):
         self.assertEqual("amqp://localhost:54321",
                          os.getenv("PIFPAF_QDROUTERD_URL"))
 
-    @testtools.skipUnless(spawn.find_executable("kafka-server-start.sh"),
+    @testtools.skipUnless(shutil.which("kafka-server-start.sh"),
                           "Kafka not found")
     def test_kafka(self):
         a = self.useFixture(kafka.KafkaDriver(port=54321,
@@ -554,7 +554,7 @@ class TestDrivers(testtools.TestCase):
         self.assertEqual("PLAINTEXT://localhost:54321",
                          os.getenv("PIFPAF_KAFKA_URL"))
 
-    @testtools.skipUnless(spawn.find_executable("swift-proxy-server"),
+    @testtools.skipUnless(shutil.which("swift-proxy-server"),
                           "Swift not found")
     def test_swift(self):
         tmp_rootdir = self._get_tmpdir_for_xattr()
