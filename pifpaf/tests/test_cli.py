@@ -12,9 +12,9 @@
 # limitations under the License.
 
 import os
+import shutil
 import signal
 import subprocess
-from distutils import spawn
 
 import fixtures
 
@@ -23,7 +23,7 @@ import testtools
 
 class TestCli(testtools.TestCase):
 
-    @testtools.skipUnless(spawn.find_executable("memcached"),
+    @testtools.skipUnless(shutil.which("memcached"),
                           "memcached not found")
     def test_cli(self):
         self.assertEqual(0, os.system(
@@ -39,7 +39,7 @@ class TestCli(testtools.TestCase):
                 signal.SIGTERM)
         return env
 
-    @testtools.skipUnless(spawn.find_executable("memcached"),
+    @testtools.skipUnless(shutil.which("memcached"),
                           "memcached not found")
     def test_eval(self):
         c = subprocess.Popen(["pifpaf", "run", "memcached", "--port", "11219"],
@@ -53,7 +53,7 @@ class TestCli(testtools.TestCase):
         self.assertEqual(b"\"memcached://localhost:11219\";",
                          env[b"export PIFPAF_MEMCACHED_URL"])
 
-    @testtools.skipUnless(spawn.find_executable("memcached"),
+    @testtools.skipUnless(shutil.which("memcached"),
                           "memcached not found")
     def test_exit_code(self):
         c = subprocess.Popen(["pifpaf", "run", "memcached", "--port", "11234",
@@ -62,7 +62,7 @@ class TestCli(testtools.TestCase):
         (stdout, stderr) = c.communicate()
         self.assertEqual(31, c.wait())
 
-    @testtools.skipUnless(spawn.find_executable("memcached"),
+    @testtools.skipUnless(shutil.which("memcached"),
                           "memcached not found")
     def test_env_prefix(self):
         c = subprocess.Popen(["pifpaf", "run",
@@ -81,7 +81,7 @@ class TestCli(testtools.TestCase):
         self.assertEqual(env[b"export PIFPAF_PID"],
                          env[b"export FOOBAR_PID"])
 
-    @testtools.skipUnless(spawn.find_executable("memcached"),
+    @testtools.skipUnless(shutil.which("memcached"),
                           "memcached not found")
     def test_env_prefix_old_format(self):
         # Old format
@@ -101,7 +101,7 @@ class TestCli(testtools.TestCase):
         self.assertEqual(env[b"export PIFPAF_PID"],
                          env[b"export FOOBAR_PID"])
 
-    @testtools.skipUnless(spawn.find_executable("memcached"),
+    @testtools.skipUnless(shutil.which("memcached"),
                           "memcached not found")
     def test_global_urls_variable(self):
         c = subprocess.Popen(["pifpaf", "run",
@@ -124,7 +124,7 @@ class TestCli(testtools.TestCase):
             b"\"memcached://localhost:11217;memcached://localhost:11218\";",
             env[b"export PIFPAF_URLS"])
 
-    @testtools.skipUnless(spawn.find_executable("memcached"),
+    @testtools.skipUnless(shutil.which("memcached"),
                           "memcached not found")
     def test_global_urls_variable_old_format(self):
         c = subprocess.Popen(["pifpaf",
