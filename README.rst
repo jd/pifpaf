@@ -24,6 +24,7 @@ Pifpaf currently supports:
 * `InfluxDB`_
 * `Etcd`_ (with clustering)
 * `Redis`_ (with sentinel mode)
+* `Valkey`_
 * `Elasticsearch`_
 * `ZooKeeper`_
 * `Gnocchi`_
@@ -47,6 +48,7 @@ Pifpaf currently supports:
 .. _InfluxDB: http://influxdb.org
 .. _Etcd: https://coreos.com/etcd/
 .. _Redis: http://redis.io/
+.. _Valkey: https://valkey.io/
 .. _Elasticsearch: https://www.elastic.co/
 .. _ZooKeeper: https://zookeeper.apache.org/
 .. _Gnocchi: http://gnocchi.xyz

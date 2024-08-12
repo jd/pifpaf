@@ -49,6 +49,7 @@ from pifpaf.drivers import rabbitmq
 from pifpaf.drivers import redis
 from pifpaf.drivers import s3rver
 from pifpaf.drivers import swift
+from pifpaf.drivers import valkey
 from pifpaf.drivers import vault
 from pifpaf.drivers import zookeeper
 
@@ -308,6 +309,52 @@ class TestDrivers(testtools.TestCase):
         self._run("redis-cli -p %d -a secrete sentinel master pifpaf" %
                   f.sentinel_port)
         self._run("redis-cli -p %d -a secrete llen pifpaf" % f.port)
+
+    @testtools.skipUnless(shutil.which("valkey-server"),
+                          "valkey-server not found")
+    def test_valkey(self):
+        port = 6384
+        f = self.useFixture(valkey.ValkeyDriver(port=port))
+        self.assertEqual("valkey://localhost:%d" % port,
+                         os.getenv("PIFPAF_URL"))
+        self.assertEqual(str(port), os.getenv("PIFPAF_VALKEY_PORT"))
+        self._run("valkey-cli -p %d llen pifpaf" % f.port)
+
+    @testtools.skipUnless(shutil.which("valkey-server"),
+                          "valkey-server not found")
+    def test_valkey_with_password(self):
+        port = 6384
+        f = self.useFixture(valkey.ValkeyDriver(port=port, password='secrete'))
+        self.assertEqual("valkey://localhost:%d" % port,
+                         os.getenv("PIFPAF_URL"))
+        self.assertEqual(str(port), os.getenv("PIFPAF_VALKEY_PORT"))
+        self._run("valkey-cli -p %d -a secrete llen pifpaf" % f.port)
+
+    @testtools.skipUnless(shutil.which("valkey-sentinel"),
+                          "valkey-sentinel not found")
+    def test_valkey_sentinel(self):
+        port = 6385
+        f = self.useFixture(valkey.ValkeyDriver(sentinel=True, port=port))
+        self.assertEqual("valkey://localhost:%d" % port,
+                         os.getenv("PIFPAF_URL"))
+        self.assertEqual(str(port), os.getenv("PIFPAF_VALKEY_PORT"))
+        self.assertEqual("6380", os.getenv("PIFPAF_VALKEY_SENTINEL_PORT"))
+        self._run("valkey-cli -p %d sentinel master pifpaf" % f.sentinel_port)
+        self._run("valkey-cli -p %d llen pifpaf" % f.port)
+
+    @testtools.skipUnless(shutil.which("valkey-sentinel"),
+                          "valkey-sentinel not found")
+    def test_valkey_sentinel_with_password(self):
+        port = 6385
+        f = self.useFixture(valkey.ValkeyDriver(sentinel=True, port=port,
+                                                password='secrete'))
+        self.assertEqual("valkey://localhost:%d" % port,
+                         os.getenv("PIFPAF_URL"))
+        self.assertEqual(str(port), os.getenv("PIFPAF_VALKEY_PORT"))
+        self.assertEqual("6380", os.getenv("PIFPAF_VALKEY_SENTINEL_PORT"))
+        self._run("valkey-cli -p %d -a secrete sentinel master pifpaf" %
+                  f.sentinel_port)
+        self._run("valkey-cli -p %d -a secrete llen pifpaf" % f.port)
 
     @testtools.skipUnless(shutil.which(
         "zkServer.sh", path=":".join(zookeeper.ZooKeeperDriver.PATH)),
