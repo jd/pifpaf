@@ -67,7 +67,7 @@ port %d
             cfg = os.path.join(self.tempdir, "redis-sentinel.conf")
             sentinel_conf = """dir %s
 port %d
-sentinel monitor pifpaf localhost %d 1
+sentinel monitor pifpaf 127.0.0.1 %d 1
 """ % (self.tempdir, self.sentinel_port, self.port)
             if self.password:
                 sentinel_conf += (
