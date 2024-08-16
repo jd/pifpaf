@@ -230,7 +230,7 @@ class Driver(fixtures.Fixture):
             # Continue to read
             t = threading.Thread(target=self._read_in_bg,
                                  args=(app, c.pid, c.stdout,))
-            t.setDaemon(True)
+            t.daemon = True
             t.start()
             # Store the thread ref into the Process() to be able
             # to clean it
