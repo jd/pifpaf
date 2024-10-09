@@ -15,12 +15,14 @@ jobs:
     strategy:
       matrix:
         env:
-          - py310
+          - py39
+          - py311
+          - py312
           - pep8
           - build
     steps:
       - uses: actions/checkout@v4
-      - run: sudo chown -R 1000:1000 $GITHUB_WORKSPACE
+      - run: sudo chown -R 1010:1010 $GITHUB_WORKSPACE
       - uses: docker/build-push-action@v5
         with:
           context: .
