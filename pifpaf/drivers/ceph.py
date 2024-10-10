@@ -51,8 +51,12 @@ class CephDriver(drivers.Driver):
 
         _, version = self._exec(["ceph", "--version"], stdout=True)
         version = version.decode("ascii").split()[2]
+        # NOTE(tobias-urdin): Ceph versions on Ubuntu can have a
+        # tilde sign in the version like 19.2.0~git20240301.4c76c50
+        # because they've built it before it was released with their
+        # own versioning, packaging cannot handle that.
+        version = str(version).split("~")[0]
         version = packaging.version.Version(version)
-
         if version < packaging.version.Version("12.0.0"):
             extra = """
 mon_osd_nearfull_ratio = 1

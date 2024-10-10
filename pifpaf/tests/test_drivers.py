@@ -68,6 +68,16 @@ unkillable = os.path.join(
     "unkillable.py")
 
 
+# NOTE(tobias-urdin): The rados python bindings is only installed
+# for the python version that the distro ships.
+def _has_rados():
+    try:
+        import rados  # noqa
+        return True
+    except ImportError:
+        return False
+
+
 class TestDrivers(testtools.TestCase):
     def setUp(self):
         super(TestDrivers, self).setUp()
@@ -441,6 +451,7 @@ class TestDrivers(testtools.TestCase):
         r = requests.get("http://localhost:%d/" % port)
         self.assertEqual(200, r.status_code)
 
+    @testtools.skipUnless(_has_rados(), "Rados not found")
     @testtools.skipUnless(shutil.which("gnocchi-api"),
                           "Gnocchi not found")
     @testtools.skipUnless(shutil.which("ceph-mon"),
@@ -502,6 +513,7 @@ class TestDrivers(testtools.TestCase):
         r = requests.get(os.getenv("PIFPAF_KEYSTONE_HTTP_URL"))
         self.assertEqual(300, r.status_code)
 
+    @testtools.skipUnless(_has_rados(), "Rados not found")
     @testtools.skipUnless(shutil.which("ceph-mon"),
                           "Ceph Monitor not found")
     @testtools.skipUnless(shutil.which("ceph-osd"),
