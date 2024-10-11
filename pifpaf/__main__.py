@@ -73,6 +73,16 @@ else:
     DAEMONS = importlib.metadata.entry_points()['pifpaf.daemons']
 
 
+def _daemons_names():
+    names = []
+    if hasattr(DAEMONS, 'names'):
+        names = DAEMONS.names
+    else:
+        for i in DAEMONS:
+            names.append(i.name)
+    return names
+
+
 @click.group()
 @click.option('--verbose/--quiet', help="Print mode details.")
 @click.option('--debug', help="Show tracebacks on errors.", is_flag=True)
@@ -119,14 +129,14 @@ def main(ctx, verbose=False, debug=False, log_file=None,
 
 @main.command(name="list")
 def drivers_list():
-    for n in DAEMONS.keys():
+    for n in _daemons_names():
         click.echo(n)
 
 
 class RunGroup(click.MultiCommand):
     @staticmethod
     def list_commands(ctx):
-        return DAEMONS.keys()
+        return _daemons_names()
 
     def get_command(self, ctx, name):
         params = [click.Argument(["command"], nargs=-1)]
