@@ -147,6 +147,14 @@ class TestCli(testtools.TestCase):
             b"\"memcached://localhost:11217;memcached://localhost:11218\";",
             env[b"export PIFPAF_URLS"])
 
+    def test_list_command(self):
+        c = subprocess.Popen(["pifpaf", "list"],
+                             bufsize=0,
+                             stdout=subprocess.PIPE)
+        (stdout, stderr) = c.communicate()
+        self.assertEqual(0, c.wait())
+        self.assertIn(b'memcached', stdout)
+
     def test_non_existing_command(self):
         # Keep PATH to just the one set by tox to run pifpaf
         self.useFixture(fixtures.EnvironmentVariable(
