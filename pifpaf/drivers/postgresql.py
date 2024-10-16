@@ -40,15 +40,15 @@ class PostgreSQLDriver(drivers.Driver):
     def __init__(self, port=DEFAULT_PORT, host=DEFAULT_HOST,
                  sync=DEFAULT_SYNC, **kwargs):
         """Create a new PostgreSQL instance."""
-        super(PostgreSQLDriver, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.port = port
         self.host = host
         self.sync = sync
 
     def _setUp(self):
-        super(PostgreSQLDriver, self)._setUp()
+        super()._setUp()
         self.putenv("PGPORT", str(self.port), True)
-        self.putenv("PGHOST", self.tempdir, True)
+        self.putenv("PGHOST", self.host or self.tempdir, True)
         self.putenv("PGDATA", self.tempdir, True)
         self.putenv("PGDATABASE", "postgres", True)
         _, pgbindir = self._exec(["pg_config", "--bindir"], stdout=True)
@@ -65,6 +65,9 @@ class PostgreSQLDriver(drivers.Driver):
                     % (self.tempdir, self.port, self.host),
                     "start"], allow_debug=False)
         self.addCleanup(self._exec, [pgctl, "-w", "stop"])
+
         self.url = "postgresql://localhost/postgres?host=%s&port=%d" % (
             self.tempdir, self.port)
+        if self.host:
+            self.url = "postgresql://%s:%d/postgres" % (self.host, self.port)
         self.putenv("URL", self.url)
