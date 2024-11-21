@@ -192,7 +192,7 @@ class RunGroup(click.MultiCommand):
 
             putenv("PID", str(os.getpid()))
             putenv("DAEMON", daemon)
-            url = os.getenv(driver.env_prefix + "_URL")
+            url = os.getenv(driver.env_prefix + "_URL", "")
             putenv("%s_URL" % daemon.upper(), url)
             os.putenv(global_urls_variable,
                       expand_urls_var(url))
@@ -258,7 +258,7 @@ class RunGroup(click.MultiCommand):
                 signal.signal(signal.SIGPIPE, signal.SIG_IGN)
                 signal.pause()
             else:
-                url = driver.env['%s_URL' % driver.env_prefix]
+                url = driver.env.get('%s_URL' % driver.env_prefix, "")
                 driver.env.update({
                     "PIFPAF_PID": pid,
                     env_prefix + "_PID": pid,
