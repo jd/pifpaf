@@ -75,8 +75,13 @@ class Driver(fixtures.Fixture):
         xattr_supported = False
         if xattr is not None:
             try:
-                x = xattr.xattr(testfile)
-                x[b"user.test"] = b"test"
+                # PyPI: xattr
+                if hasattr(xattr, 'xattr'):
+                    x = xattr.xattr(testfile)
+                    x[b"user.test"] = b"test"
+                # PyPI: pyxattr
+                else:
+                    xattr.setxattr(testfile, 'user.test', 'test')
             except (OSError, IOError) as e:
                 if e.errno != 95:
                     raise
