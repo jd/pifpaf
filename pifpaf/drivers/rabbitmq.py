@@ -37,6 +37,7 @@ class RabbitMQDriver(drivers.Driver):
         self.password = password
         self.cluster = cluster
         self._path = ["/usr/lib/rabbitmq/bin/",
+                      "/usr/libexec/rabbitmq/",
                       "/usr/local/sbin"]
         self._process = {}
         self._ports = {}
