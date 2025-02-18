@@ -52,8 +52,7 @@ class MongoDBDriver(drivers.Driver):
              "--noauth",
              "--port", str(self.port),
              "--dbpath", self.tempdir,
-             "--bind_ip", "localhost",
-             "--config", "/dev/null"] + storage_engine,
+             "--bind_ip", "localhost"] + storage_engine,
             wait_for_line="waiting for connections on port %d" % self.port)
 
         self.putenv("MONGODB_PORT", str(self.port))
