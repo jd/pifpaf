@@ -78,7 +78,7 @@ sentinel monitor pifpaf 127.0.0.1 %d 1
 
             c, _ = self._exec(
                 ["valkey-sentinel", cfg],
-                wait_for_line=r"# Sentinel (runid|ID) is")
+                wait_for_line=r"[#\*] Sentinel (runid|ID) is")
 
             self.addCleanup(self._kill, c)
 
