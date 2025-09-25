@@ -86,5 +86,8 @@ sentinel monitor pifpaf 127.0.0.1 %d 1
                         str(self.sentinel_port))
 
         self.putenv("VALKEY_PORT", str(self.port))
-        self.url = "valkey://localhost:%d" % self.port
+        if self.password:
+            self.url = "valkey://:%s@localhost:%d" % (self.password, self.port)
+        else:
+            self.url = "valkey://localhost:%d" % self.port
         self.putenv("URL", self.url)
