@@ -335,7 +335,7 @@ class TestDrivers(testtools.TestCase):
     def test_valkey_with_password(self):
         port = 6384
         f = self.useFixture(valkey.ValkeyDriver(port=port, password='secrete'))
-        self.assertEqual("valkey://localhost:%d" % port,
+        self.assertEqual("valkey://:secrete@localhost:%d" % port,
                          os.getenv("PIFPAF_URL"))
         self.assertEqual(str(port), os.getenv("PIFPAF_VALKEY_PORT"))
         self._run("valkey-cli -p %d -a secrete llen pifpaf" % f.port)
@@ -358,7 +358,7 @@ class TestDrivers(testtools.TestCase):
         port = 6385
         f = self.useFixture(valkey.ValkeyDriver(sentinel=True, port=port,
                                                 password='secrete'))
-        self.assertEqual("valkey://localhost:%d" % port,
+        self.assertEqual("valkey://:secrete@localhost:%d" % port,
                          os.getenv("PIFPAF_URL"))
         self.assertEqual(str(port), os.getenv("PIFPAF_VALKEY_PORT"))
         self.assertEqual("6380", os.getenv("PIFPAF_VALKEY_SENTINEL_PORT"))
