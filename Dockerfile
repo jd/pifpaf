@@ -5,7 +5,7 @@ ENV TZ=Etc/UTC
 ARG INFLUXDB_VERSION=0.13.0
 ARG SCALA_VERSION=2.12
 ARG KAFKA_VERSION=2.6.0
-ARG ETCD_VERSION=3.4.13
+ARG ETCD_VERSION=3.5.23
 
 RUN apt-get update -y && apt-get install -qy gnupg software-properties-common
 RUN add-apt-repository -y ppa:deadsnakes/ppa
