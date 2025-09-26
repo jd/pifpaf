@@ -15,6 +15,7 @@ RUN apt-get -qq update -y \
           python3 python3-dev python3-pip python3-virtualenv \
           python3.10 python3.10-dev python3.10-distutils \
           python3.11 python3.11-dev \
+          python3.13 python3.13-dev \
           gcc liberasurecode-dev liberasurecode1 postgresql libpq-dev python3-rados git wget memcached \
     && rm -rf /var/lib/apt/lists/*
 
