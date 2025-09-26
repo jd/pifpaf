@@ -19,6 +19,7 @@ jobs:
           - py310
           - py311
           - py312
+          - py313
           - pep8
           - build
     steps:
