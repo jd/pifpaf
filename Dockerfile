@@ -10,7 +10,8 @@ ARG ETCD_VERSION=3.4.13
 RUN apt-get update -y && apt-get install -qy gnupg software-properties-common
 RUN add-apt-repository -y ppa:deadsnakes/ppa
 RUN apt-get -qq update -y \
-    && apt-get install -y mysql-server redis-server zookeeper nodejs npm ceph librados-dev \
+    && apt-get install -y mysql-server redis-server redis-sentinel valkey-server valkey-sentinel \
+          zookeeper nodejs npm ceph librados-dev \
           python3 python3-dev python3-pip python3-virtualenv \
           python3.10 python3.10-dev python3.10-distutils \
           python3.11 python3.11-dev \
