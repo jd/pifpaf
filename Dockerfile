@@ -11,7 +11,9 @@ RUN apt-get update -y && apt-get install -qy gnupg software-properties-common
 RUN add-apt-repository -y ppa:deadsnakes/ppa
 RUN apt-get -qq update -y \
     && apt-get install -y mysql-server redis-server zookeeper nodejs npm ceph librados-dev \
-          python3 python3-dev python3-pip python3-virtualenv python3.9 python3.9-dev python3.9-distutils python3.11 python3.11-dev \
+          python3 python3-dev python3-pip python3-virtualenv \
+          python3.10 python3.10-dev python3.10-distutils \
+          python3.11 python3.11-dev \
           gcc liberasurecode-dev liberasurecode1 postgresql libpq-dev python3-rados git wget memcached \
     && rm -rf /var/lib/apt/lists/*
 

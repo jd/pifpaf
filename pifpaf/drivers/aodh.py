@@ -82,7 +82,7 @@ class AodhDriver(drivers.Driver):
             f.write("""[database]
 connection = %s
 [api]
-auth_mode=
+auth_mode = noauth
 [service_credentials]
 auth_type = gnocchi-basic
 user = admin
