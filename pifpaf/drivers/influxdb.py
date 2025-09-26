@@ -13,6 +13,8 @@
 
 import os
 
+import packaging.version
+
 from pifpaf import drivers
 
 
@@ -28,6 +30,7 @@ class InfluxDBDriver(drivers.Driver):
         super(InfluxDBDriver, self).__init__(**kwargs)
         self.port = port
         self.database = database
+        self._path = ["/opt/influxdb"]
 
     @classmethod
     def get_options(cls):
@@ -46,6 +49,14 @@ class InfluxDBDriver(drivers.Driver):
 
         for d in ["broker", "data", "meta", "hh", "wal"]:
             os.mkdir(os.path.join(self.tempdir, d))
+
+        _, version = self._exec(
+            ["influxd", "version"],
+            path=self._path, stdout=True)
+        version = version.decode("ascii").split()[1].lstrip("v")
+        version = packaging.version.Version(version)
+        if version >= packaging.version.Version("2.0.0"):
+            raise RuntimeError("InfluxDB v2 not supported")
 
         cfgfile = os.path.join(self.tempdir, "config")
 
@@ -68,10 +79,8 @@ class InfluxDBDriver(drivers.Driver):
 
         c, _ = self._exec(
             ["influxd", "-config", cfgfile],
-            wait_for_line=(
-                r"Listening on HTTP: \[::\]:%d" % self.port
-            ),
-            path=["/opt/influxdb"])
+            wait_for_line=r"Listening on HTTP",
+            path=self._path)
 
         self._exec(["influx",
                     "-port", str(self.port),
