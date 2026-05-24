@@ -120,6 +120,15 @@ class TestDrivers(testtools.TestCase):
         self._do_test_stuck(["bash", "-c",
                              "trap ':' TERM ; echo started; sleep 10000"])
 
+    def test_putenv_empty_and_special(self):
+        d = self.useFixture(drivers.Driver())
+        d.putenv("EMPTY", "")
+        d.putenv("SPECIAL", "foo=bar;baz")
+        self.assertEqual("", d.env["PIFPAF_EMPTY"])
+        self.assertEqual("foo=bar;baz", d.env["PIFPAF_SPECIAL"])
+        self.assertEqual("", os.environ["PIFPAF_EMPTY"])
+        self.assertEqual("foo=bar;baz", os.environ["PIFPAF_SPECIAL"])
+
     @testtools.skip("Driver need rework")
     @testtools.skipUnless(shutil.which("elasticsearch"),
                           "elasticsearch not found")

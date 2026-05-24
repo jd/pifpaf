@@ -42,8 +42,8 @@ LOG = logging.getLogger(__name__)
 
 
 class Driver(fixtures.Fixture):
-    def __init__(self, env_prefix="PIFPAF", templatedir=".", debug=False,
-                 tmp_rootdir=None):
+    def __init__(self, env_prefix: str = "PIFPAF", templatedir: str = ".",
+                 debug: bool = False, tmp_rootdir: str | None = None) -> None:
         """Create a new driver."""
         super(Driver, self).__init__()
         self.env_prefix = env_prefix
@@ -55,7 +55,7 @@ class Driver(fixtures.Fixture):
         self.template_env = jinja2.Environment(
             loader=jinja2.PackageLoader('pifpaf', templatedir))
 
-    def _setUp(self):
+    def _setUp(self) -> None:
         self.tempdir = self.useFixture(fixtures.TempDir(self.tmp_rootdir)).path
         self.putenv("DATA", self.tempdir)
 
@@ -63,7 +63,7 @@ class Driver(fixtures.Fixture):
     def get_options():
         return []
 
-    def putenv(self, key, value, raw=False):
+    def putenv(self, key: str, value: str, raw: bool = False) -> fixtures.Fixture:
         if not raw:
             key = self.env_prefix + "_" + key
         self.env[key] = value
@@ -139,11 +139,15 @@ class Driver(fixtures.Fixture):
         data = os.fsdecode(data)
         LOG.debug("%s[%d] output: %s", appname, pid, data.rstrip())
 
-    def _exec(self, command, stdout=False, ignore_failure=False,
-              stdin=None, wait_for_line=None, wait_for_port=None,
-              path=[], env=None,
-              forbidden_line_after_start=None,
-              allow_debug=True):
+    def _exec(self, command: list[str], stdout: bool = False,
+              ignore_failure: bool = False,
+              stdin: bytes | None = None,
+              wait_for_line: str | None = None,
+              wait_for_port: int | None = None,
+              path: list[str] = [],
+              env: dict[str, str] | None = None,
+              forbidden_line_after_start: tuple[float, str] | None = None,
+              allow_debug: bool = True) -> tuple[psutil.Popen, bytes | None]:
         LOG.debug("executing: %s", command)
 
         app = command[0]
@@ -264,7 +268,7 @@ class Driver(fixtures.Fixture):
         open(fname, 'a').close()
         os.utime(fname, None)
 
-    def template(self, resource, env, dest):
+    def template(self, resource: str, env: dict[str, str], dest: str) -> None:
         template = self.template_env.get_template(resource)
         with open(dest, 'w') as f:
             f.write(template.render(**env))
