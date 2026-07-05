@@ -53,6 +53,12 @@ from pifpaf.drivers import valkey
 from pifpaf.drivers import vault
 from pifpaf.drivers import zookeeper
 
+try:
+    import httpbin as _httpbin  # noqa: F401
+    HTTPBIN_AVAILABLE = True
+except ImportError:
+    HTTPBIN_AVAILABLE = False
+
 # FIXME(jd) These are path grabbed from the various modules imported above, do
 # that in a better way
 os.environ["PATH"] = ":".join((
@@ -631,8 +637,7 @@ class TestDrivers(testtools.TestCase):
             "swift://test%3Atester:testing@localhost:8080/auth/v1.0",
             os.getenv("PIFPAF_URL"))
 
-    @testtools.skipUnless(testtools.try_import('httpbin'),
-                          "httpbin not found")
+    @testtools.skipUnless(HTTPBIN_AVAILABLE, "httpbin not found")
     def test_httpbin(self):
         port = 6666
         a = self.useFixture(httpbin.HttpBinDriver(port=port))
