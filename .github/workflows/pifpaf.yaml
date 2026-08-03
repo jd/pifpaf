@@ -7,7 +7,7 @@ env:
   INFLUXDB_VERSION: "0.13.0"
   SCALA_VERSION: "2.12"
   KAFKA_VERSION: "2.6.0"
-  ETCD_VERSION: "3.4.13"
+  ETCD_VERSION: "3.6.13"
 
 jobs:
   test:
