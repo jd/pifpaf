@@ -45,6 +45,11 @@ class PostgreSQLDriver(drivers.Driver):
         self.host = host
         self.sync = sync
 
+        # The pg_ctl binary cannot be executed as the root
+        # user so instead of trying we fail early.
+        if os.getuid() == 0:
+            raise RuntimeError("cannot run postgresql as root")
+
     def _setUp(self):
         super(PostgreSQLDriver, self)._setUp()
         self.putenv("PGPORT", str(self.port), True)

@@ -17,6 +17,7 @@ import logging
 import os
 import shutil
 import socket
+from unittest.mock import patch
 
 import fixtures
 
@@ -268,6 +269,15 @@ class TestDrivers(testtools.TestCase):
             % (f.tempdir, port),
             os.getenv("PIFPAF_URL"))
         self._run("psql template1 -c 'CREATE TABLE FOOBAR();'")
+
+    @testtools.skipUnless(shutil.which("pg_config"),
+                          "pg_config not found")
+    @patch("os.getuid", return_value=0)
+    def test_postgresql_as_root(self, mock_getuid):
+        port = 9825
+        self.assertRaises(
+            RuntimeError("cannot run postgresql as root"),
+            self.useFixture(postgresql.PostgreSQLDriver(port=port)))
 
     @testtools.skipUnless(shutil.which("pg_config"),
                           "pg_config not found")
